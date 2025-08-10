@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Precios</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header>
+    <h1>Precios</h1>
+  </header>
+
+  <main class="container">
+    <div class="botones-superiores">
+      <button class="btn-volver" onclick="window.location.href='index.html'">← Atrás</button>
+      <button class="btn-borrar" onclick="confirmarBorrado()">🗑 Borrar todo</button>
+    </div>
+
+    <form id="precioForm">
+      <label for="precio">Precio:</label>
+      <input type="number" id="precio" name="precio" step="0.01" min="0" required />
+
+      <label class="checkbox-label">
+        <input type="checkbox" id="actual" checked />
+        Precio actual
+      </label>
+
+      <label for="fecha">Fecha:</label>
+      <input type="date" id="fecha" required />
+
+      <button type="submit">Agregar precio</button>
+      <button type="button" onclick="descargarJSON()">Descargar respaldo</button>
+      <button type="button" onclick="document.getElementById('fileInput').click()">
+        Cargar respaldo
+      </button>
+      <input type="file" id="fileInput" class="file-input" accept="application/json" onchange="cargarJSON(this)" />
+    </form>
+
+    <div class="lista-sabores">
+      <h3>Historial de precios:</h3>
+      <div class="tabla-sabores">
+        <div class="tabla-header">
+          <div class="col-disponible">Estado</div>
+          <div class="col-sabor">Precio</div>
+          <div class="col-fecha">Fecha</div>
+        </div>
+        <div id="listaPrecios" class="tabla-body"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const form = document.getElementById("precioForm");
+    const fechaInput = document.getElementById("fecha");
+    const listaPrecios = document.getElementById("listaPrecios");
+
+    fechaInput.valueAsDate = new Date();
+
+    function generarID(precios) {
+      let max = 0;
+      precios.forEach((p) => {
+        const num = parseInt(p.id.replace("pr", ""));
+        if (!isNaN(num) && num > max) max = num;
+      });
+      const next = (max + 1).toString().padStart(3, "0");
+      return `pr${next}`;
+    }
+
+    function renderizarLista() {
+      const precios = JSON.parse(localStorage.getItem("precios_hielitos")) || [];
+      precios.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Ordenar por fecha más reciente
+      listaPrecios.innerHTML = "";
+      
+      if (precios.length === 0) {
+        listaPrecios.innerHTML = '<div class="no-sabores">No hay precios registrados</div>';
+        return;
+      }
+      
+      precios.forEach(precio => {
+        // Convertir fecha de YYYY-MM-DD a DD/MM/YYYY
+        const fechaFormateada = precio.fecha.split('-').reverse().join('/');
+        
+        const fila = document.createElement("div");
+        fila.className = "tabla-fila";
+        fila.innerHTML = `
+          <div class="col-disponible">
+            <input type="checkbox" ${precio.actual ? 'checked' : ''} disabled />
+          </div>
+          <div class="col-sabor">$${parseFloat(precio.precio).toFixed(2)}</div>
+          <div class="col-fecha">${fechaFormateada}</div>
+        `;
+        listaPrecios.appendChild(fila);
+      });
+    }
+
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      const precio = document.getElementById("precio").value.trim();
+      const actual = document.getElementById("actual").checked;
+      const fecha = document.getElementById("fecha").value;
+
+      let precios = JSON.parse(localStorage.getItem("precios_hielitos")) || [];
+
+      // Si se marca como precio actual, desmarcar todos los demás
+      if (actual) {
+        precios.forEach(p => p.actual = false);
+      }
+
+      const id = generarID(precios);
+      precios.push({ id, precio: parseFloat(precio), actual, fecha });
+      localStorage.setItem("precios_hielitos", JSON.stringify(precios));
+      form.reset();
+      fechaInput.valueAsDate = new Date();
+      renderizarLista();
+    });
+
+    function descargarJSON() {
+      const data = localStorage.getItem("precios_hielitos");
+      if (!data) {
+        alert("No hay datos para respaldar.");
+        return;
+      }
+      const hoy = new Date();
+      const fecha = hoy.toLocaleDateString("es-MX").replace(/\//g, "-");
+      const hora = hoy.getHours().toString().padStart(2, "0");
+      const minuto = hoy.getMinutes().toString().padStart(2, "0");
+      const blob = new Blob([data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Precios_Hielitos_-_${fecha}_-_${hora}-${minuto}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function cargarJSON(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (!Array.isArray(data)) throw new Error();
+          localStorage.setItem("precios_hielitos", JSON.stringify(data));
+          alert("Respaldo cargado correctamente.");
+          renderizarLista();
+        } catch {
+          alert("Archivo no válido.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function confirmarBorrado() {
+      const confirmacion = confirm(
+        "Esto borrará TODOS los precios guardados.\n\n¿Estás seguro de continuar?"
+      );
+      if (confirmacion) {
+        localStorage.removeItem("precios_hielitos");
+        alert("Precios borrados correctamente.");
+        renderizarLista();
+      }
+    }
+
+    window.addEventListener("DOMContentLoaded", renderizarLista);
+  </script>
+</body>
+</html>
