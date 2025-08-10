@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Inventario</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Corregir tabla inventario */
+    .tabla-header.inventario {
+      display: grid !important;
+      grid-template-columns: 1fr 100px 100px !important;
+    }
+
+    .tabla-fila.inventario {
+      display: grid !important;
+      grid-template-columns: 1fr 100px 100px !important;
+    }
+
+    .tabla-header .col-stock,
+    .tabla-header .col-accion {
+      text-align: center !important;
+      font-weight: bold !important;
+    }
+
+    @media (max-width: 768px) {
+      .tabla-header.inventario,
+      .tabla-fila.inventario {
+        grid-template-columns: 1fr 80px 80px !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Inventario</h1>
+  </header>
+
+  <main class="container">
+    <div class="botones-superiores">
+      <button class="btn-volver" onclick="window.location.href='index.html'">← Atrás</button>
+      <button class="btn-borrar" onclick="mostrarHistorial()">📊 Historial</button>
+    </div>
+
+    <div class="lista-sabores">
+      <h3>Stock de sabores:</h3>
+      <div class="tabla-sabores">
+        <div class="tabla-header inventario" style="display: grid; grid-template-columns: 1fr 100px 100px; background-color: #4ecdc4; color: white; font-weight: bold; padding: 0.8rem 0;">
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; cursor: pointer;" onclick="ordenarPorSabor()">Sabor ↕️</div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center; cursor: pointer;" onclick="ordenarPorStock()">Stock <span id="indicadorOrden">↕️</span></div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center;">Modifica</div>
+        </div>
+        <div id="tablaInventario" class="tabla-body"></div>
+      </div>
+    </div>
+
+    <!-- Modal para editar stock -->
+    <div id="modalStock" class="modal oculto">
+      <div class="modal-content">
+        <h4 id="modalTitulo">Agregar stock</h4>
+        <div class="modal-body">
+          <label for="cantidadInput">Cantidad a agregar:</label>
+          <input type="number" id="cantidadInput" min="1" inputmode="numeric" />
+          <div class="modal-botones">
+            <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+            <button class="btn-confirmar" onclick="confirmarStock()">✅ Confirmar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmación -->
+    <div id="modalConfirmacion" class="modal oculto">
+      <div class="modal-content">
+        <h4>Confirmar operación</h4>
+        <div class="modal-body">
+          <p id="mensajeConfirmacion"></p>
+          <div class="modal-botones">
+            <button class="btn-cancelar" onclick="cancelarOperacion()">Cancelar</button>
+            <button class="btn-confirmar" onclick="ejecutarOperacion()">Continuar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal historial -->
+    <div id="modalHistorial" class="modal oculto">
+      <div class="modal-content modal-grande">
+        <h4>Historial de movimientos</h4>
+        <div class="modal-body">
+          <div id="listaHistorial"></div>
+          <div class="modal-botones">
+            <button class="btn-confirmar" onclick="cerrarHistorial()">Cerrar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let saborActual = null;
+    let cantidadPendiente = 0;
+    let ordenActual = 'alfabetico'; // 'alfabetico', 'stock-asc', 'stock-desc'
+    const tablaInventario = document.getElementById("tablaInventario");
+
+    function cargarSabores() {
+      const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
+      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+      
+      tablaInventario.innerHTML = "";
+      
+      if (sabores.length === 0) {
+        tablaInventario.innerHTML = '<div class="no-sabores">No hay sabores registrados</div>';
+        return;
+      }
+      
+      // Crear array con sabor y stock para ordenar
+      let saboresConStock = sabores.map(sabor => ({
+        ...sabor,
+        stock: inventario[sabor.id] ? inventario[sabor.id].stock : 0
+      }));
+      
+      // Aplicar ordenamiento según el estado actual
+      switch(ordenActual) {
+        case 'alfabetico':
+          saboresConStock.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+          document.getElementById('indicadorOrden').textContent = '↕️';
+          break;
+        case 'stock-asc':
+          saboresConStock.sort((a, b) => a.stock - b.stock);
+          document.getElementById('indicadorOrden').textContent = '↑';
+          break;
+        case 'stock-desc':
+          saboresConStock.sort((a, b) => b.stock - a.stock);
+          document.getElementById('indicadorOrden').textContent = '↓';
+          break;
+      }
+      
+      saboresConStock.forEach(sabor => {
+        const fila = document.createElement("div");
+        fila.className = "tabla-fila";
+        fila.style.display = "grid";
+        fila.style.gridTemplateColumns = "1fr 100px 100px";
+        fila.style.padding = "0.8rem 0";
+        fila.style.borderBottom = "1px solid #eee";
+        fila.innerHTML = `
+          <div style="padding: 0 0.8rem; display: flex; align-items: center;">${sabor.nombre}</div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #4ecdc4; text-align: center; width: 100%;">${sabor.stock}</div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; justify-content: center;">
+            <button class="btn-editar" onclick="editarStock('${sabor.id}', '${sabor.nombre}')">✏️</button>
+          </div>
+        `;
+        tablaInventario.appendChild(fila);
+      });
+    }
+
+    function ordenarPorSabor() {
+      ordenActual = 'alfabetico';
+      cargarSabores();
+    }
+
+    function ordenarPorStock() {
+      if (ordenActual === 'alfabetico' || ordenActual === 'stock-desc') {
+        ordenActual = 'stock-asc'; // Menor a mayor
+      } else if (ordenActual === 'stock-asc') {
+        ordenActual = 'stock-desc'; // Mayor a menor
+      }
+      cargarSabores();
+    }
+
+    function editarStock(saborId, saborNombre) {
+      saborActual = { id: saborId, nombre: saborNombre };
+      document.getElementById("modalTitulo").textContent = `Agregar stock - ${saborNombre}`;
+      document.getElementById("cantidadInput").value = "";
+      document.getElementById("modalStock").classList.remove("oculto");
+      document.getElementById("cantidadInput").focus();
+    }
+
+    function cerrarModal() {
+      document.getElementById("modalStock").classList.add("oculto");
+      document.getElementById("modalConfirmacion").classList.add("oculto");
+      saborActual = null;
+      cantidadPendiente = 0;
+    }
+
+    function confirmarStock() {
+      const cantidad = parseInt(document.getElementById("cantidadInput").value);
+      
+      if (!cantidad || cantidad <= 0) {
+        alert("Ingrese una cantidad válida");
+        return;
+      }
+
+      cantidadPendiente = cantidad;
+      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+      const stockActual = inventario[saborActual.id] ? inventario[saborActual.id].stock : 0;
+      const nuevoStock = stockActual + cantidad;
+
+      document.getElementById("mensajeConfirmacion").innerHTML = `
+        Se van a anexar <strong>${cantidad}</strong> unidades a <strong>${saborActual.nombre}</strong><br>
+        Resultado: <strong>${nuevoStock}</strong> en stock
+      `;
+      
+      document.getElementById("modalStock").classList.add("oculto");
+      document.getElementById("modalConfirmacion").classList.remove("oculto");
+    }
+
+    function cancelarOperacion() {
+      cerrarModal();
+    }
+
+    function ejecutarOperacion() {
+      if (!saborActual || !cantidadPendiente) return;
+
+      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+      const fecha = new Date().toISOString().split('T')[0];
+      
+      if (!inventario[saborActual.id]) {
+        inventario[saborActual.id] = {
+          sabor: saborActual.nombre,
+          stock: 0,
+          historial: []
+        };
+      }
+
+      inventario[saborActual.id].stock += cantidadPendiente;
+      inventario[saborActual.id].historial.push({
+        fecha: fecha,
+        cantidad: cantidadPendiente,
+        tipo: "entrada",
+        stockResultante: inventario[saborActual.id].stock
+      });
+
+      localStorage.setItem("inventario_hielitos", JSON.stringify(inventario));
+      
+      cerrarModal();
+      cargarSabores();
+      
+      // Notificación de éxito
+      alert(`Stock actualizado correctamente\n${saborActual.nombre}: ${inventario[saborActual.id].stock} unidades`);
+    }
+
+    function mostrarHistorial() {
+      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+      const listaHistorial = document.getElementById("listaHistorial");
+      
+      let historialCompleto = [];
+      
+      Object.values(inventario).forEach(item => {
+        item.historial.forEach(mov => {
+          historialCompleto.push({
+            sabor: item.sabor,
+            ...mov
+          });
+        });
+      });
+      
+      historialCompleto.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
+      
+      if (historialCompleto.length === 0) {
+        listaHistorial.innerHTML = '<p class="no-sabores">No hay movimientos registrados</p>';
+      } else {
+        listaHistorial.innerHTML = historialCompleto.map(mov => {
+          const fechaFormateada = mov.fecha.split('-').reverse().join('/');
+          return `
+            <div class="historial-item">
+              <div class="hist-fecha">${fechaFormateada}</div>
+              <div class="hist-sabor">${mov.sabor}</div>
+              <div class="hist-cantidad">+${mov.cantidad}</div>
+              <div class="hist-stock">Stock: ${mov.stockResultante}</div>
+            </div>
+          `;
+        }).join('');
+      }
+      
+      document.getElementById("modalHistorial").classList.remove("oculto");
+    }
+
+    function cerrarHistorial() {
+      document.getElementById("modalHistorial").classList.add("oculto");
+    }
+
+    // Cerrar modales al hacer clic fuera
+    document.addEventListener("click", function(e) {
+      if (e.target.classList.contains("modal")) {
+        cerrarModal();
+        cerrarHistorial();
+      }
+    });
+
+    window.addEventListener("DOMContentLoaded", cargarSabores);
+  </script>
+</body>
+</html>
