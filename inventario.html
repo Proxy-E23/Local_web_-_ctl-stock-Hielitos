@@ -42,13 +42,22 @@
       <button class="btn-borrar" onclick="mostrarHistorial()">📊 Historial</button>
     </div>
 
+    <form style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem;">
+      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+        <button type="button" onclick="descargarJSONInventario()" style="padding: 0.7rem; font-size: 1rem; border: none; border-radius: 5px; background-color: #4ecdc4; color: white; cursor: pointer; flex: 1; min-width: 200px;">Descargar respaldo</button>
+        <button type="button" onclick="document.getElementById('fileInputInventario').click()" style="padding: 0.7rem; font-size: 1rem; border: none; border-radius: 5px; background-color: #4ecdc4; color: white; cursor: pointer; flex: 1; min-width: 200px;">Cargar respaldo</button>
+        <button type="button" onclick="confirmarBorradoInventario()" style="padding: 0.7rem; font-size: 1rem; border: none; border-radius: 5px; background-color: #dc3545; color: white; cursor: pointer; flex: 1; min-width: 200px;">🗑 Borrar inventario</button>
+      </div>
+      <input type="file" id="fileInputInventario" style="display: none;" accept="application/json" onchange="cargarJSONInventario(this)" />
+    </form>
+
     <div class="lista-sabores">
       <h3>Stock de sabores:</h3>
       <div class="tabla-sabores">
         <div class="tabla-header inventario" style="display: grid; grid-template-columns: 1fr 100px 100px; background-color: #4ecdc4; color: white; font-weight: bold; padding: 0.8rem 0;">
           <div style="padding: 0 0.8rem; display: flex; align-items: center; cursor: pointer;" onclick="ordenarPorSabor()">Sabor ↕️</div>
           <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center; cursor: pointer;" onclick="ordenarPorStock()">Stock <span id="indicadorOrden">↕️</span></div>
-          <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center;">Modifica</div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center;">Modificar</div>
         </div>
         <div id="tablaInventario" class="tabla-body"></div>
       </div>
@@ -278,6 +287,56 @@
 
     function cerrarHistorial() {
       document.getElementById("modalHistorial").classList.add("oculto");
+    }
+
+    function descargarJSONInventario() {
+      const data = localStorage.getItem("inventario_hielitos");
+      if (!data) {
+        alert("No hay datos de inventario para respaldar.");
+        return;
+      }
+      const hoy = new Date();
+      const fecha = hoy.toLocaleDateString("es-MX").replace(/\//g, "-");
+      const hora = hoy.getHours().toString().padStart(2, "0");
+      const minuto = hoy.getMinutes().toString().padStart(2, "0");
+      const blob = new Blob([data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Inventario_Hielitos_-_${fecha}_-_${hora}-${minuto}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function cargarJSONInventario(input) {
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          if (typeof data !== 'object') throw new Error();
+          localStorage.setItem("inventario_hielitos", JSON.stringify(data));
+          alert("Respaldo de inventario cargado correctamente.");
+          cargarSabores();
+        } catch {
+          alert("Archivo no válido.");
+        }
+      };
+      reader.readAsText(file);
+      // Limpiar el input para permitir cargar el mismo archivo otra vez
+      input.value = '';
+    }
+
+    function confirmarBorradoInventario() {
+      const confirmacion = confirm(
+        "⚠️ ATENCIÓN ⚠️\n\nEsto borrará TODO el inventario (stock y historial).\nLos SABORES se mantendrán intactos.\n\n¿Estás seguro de continuar?"
+      );
+      if (confirmacion) {
+        localStorage.removeItem("inventario_hielitos");
+        alert("Inventario borrado correctamente.\nLos sabores se mantienen intactos.");
+        cargarSabores();
+      }
     }
 
     // Cerrar modales al hacer clic fuera
