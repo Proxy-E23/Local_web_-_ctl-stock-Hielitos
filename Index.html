@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Control Hielitos</title>
+  <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Forzar estilos para que funcionen bien */
+    .botones-menu {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 1rem !important;
+    }
+    
+    .botones-menu .boton-principal {
+      width: 100% !important;
+      max-width: none !important;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Control Hielitos</h1>
+    <div class="menu-desplegable">
+      <button id="btn-menu">☰</button>
+      <div id="menu-opciones" class="menu-oculto">
+        <a href="sabores.html">Sabores</a>
+        <a href="precios.html">Precios</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <div class="botones-menu">
+  <button class="boton-principal" onclick="window.location.href='inventario.html'">Inventario</button>
+  <button class="boton-principal">Ventas</button>
+</div>
+  </main>
+
+  <script src="script.js"></script>
+</body>
+</html>
