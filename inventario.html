@@ -42,24 +42,24 @@
       <button class="btn-borrar" onclick="mostrarHistorial()">📊 Historial</button>
     </div>
 
-    <form style="display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1rem;">
-      <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
-        <button type="button" onclick="descargarJSONInventario()" style="padding: 0.7rem; font-size: 1rem; border: none; border-radius: 5px; background-color: #4ecdc4; color: white; cursor: pointer; flex: 1; min-width: 200px;">Descargar respaldo</button>
-        <button type="button" onclick="document.getElementById('fileInputInventario').click()" style="padding: 0.7rem; font-size: 1rem; border: none; border-radius: 5px; background-color: #4ecdc4; color: white; cursor: pointer; flex: 1; min-width: 200px;">Cargar respaldo</button>
-        <button type="button" onclick="confirmarBorradoInventario()" style="padding: 0.7rem; font-size: 1rem; border: none; border-radius: 5px; background-color: #dc3545; color: white; cursor: pointer; flex: 1; min-width: 200px;">🗑 Borrar inventario</button>
-      </div>
-      <input type="file" id="fileInputInventario" style="display: none;" accept="application/json" onchange="cargarJSONInventario(this)" />
-    </form>
+
 
     <div class="lista-sabores">
-      <h3>Stock de sabores:</h3>
+      <h3>Stock de sabores disponibles:</h3>
       <div class="tabla-sabores">
         <div class="tabla-header inventario" style="display: grid; grid-template-columns: 1fr 100px 100px; background-color: #4ecdc4; color: white; font-weight: bold; padding: 0.8rem 0;">
           <div style="padding: 0 0.8rem; display: flex; align-items: center; cursor: pointer;" onclick="ordenarPorSabor()">Sabor ↕️</div>
           <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center; cursor: pointer;" onclick="ordenarPorStock()">Stock <span id="indicadorOrden">↕️</span></div>
-          <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center;">Modificar</div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center;"></div>
         </div>
         <div id="tablaInventario" class="tabla-body"></div>
+      </div>
+
+      <!-- Botón de borrar inventario después de la tabla -->
+      <div style="display: flex; justify-content: center; margin-top: 2rem;">
+        <button type="button" onclick="confirmarBorradoInventario()" style="padding: 0.8rem 2rem; font-size: 1rem; border: none; border-radius: 5px; background-color: #dc3545; color: white; cursor: pointer; transition: background-color 0.3s ease;">
+          🗑 Borrar inventario completo
+        </button>
       </div>
     </div>
 
@@ -116,15 +116,18 @@
       const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
       const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
       
+      // FILTRAR SOLO SABORES DISPONIBLES PARA VENTA
+      const saboresDisponibles = sabores.filter(sabor => sabor.disponible === true);
+      
       tablaInventario.innerHTML = "";
       
-      if (sabores.length === 0) {
-        tablaInventario.innerHTML = '<div class="no-sabores">No hay sabores registrados</div>';
+      if (saboresDisponibles.length === 0) {
+        tablaInventario.innerHTML = '<div class="no-sabores">No hay sabores disponibles para inventario.<br>Marca algunos sabores como "disponibles" en la sección Sabores.</div>';
         return;
       }
       
       // Crear array con sabor y stock para ordenar
-      let saboresConStock = sabores.map(sabor => ({
+      let saboresConStock = saboresDisponibles.map(sabor => ({
         ...sabor,
         stock: inventario[sabor.id] ? inventario[sabor.id].stock : 0
       }));
@@ -271,11 +274,14 @@
       } else {
         listaHistorial.innerHTML = historialCompleto.map(mov => {
           const fechaFormateada = mov.fecha.split('-').reverse().join('/');
+          const tipoTexto = mov.tipo === 'entrada' ? '+' : '';
+          const colorTipo = mov.tipo === 'entrada' ? '#4ecdc4' : '#dc3545';
+          
           return `
             <div class="historial-item">
               <div class="hist-fecha">${fechaFormateada}</div>
               <div class="hist-sabor">${mov.sabor}</div>
-              <div class="hist-cantidad">+${mov.cantidad}</div>
+              <div class="hist-cantidad" style="color: ${colorTipo};">${tipoTexto}${mov.cantidad}</div>
               <div class="hist-stock">Stock: ${mov.stockResultante}</div>
             </div>
           `;
@@ -287,45 +293,6 @@
 
     function cerrarHistorial() {
       document.getElementById("modalHistorial").classList.add("oculto");
-    }
-
-    function descargarJSONInventario() {
-      const data = localStorage.getItem("inventario_hielitos");
-      if (!data) {
-        alert("No hay datos de inventario para respaldar.");
-        return;
-      }
-      const hoy = new Date();
-      const fecha = hoy.toLocaleDateString("es-MX").replace(/\//g, "-");
-      const hora = hoy.getHours().toString().padStart(2, "0");
-      const minuto = hoy.getMinutes().toString().padStart(2, "0");
-      const blob = new Blob([data], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Inventario_Hielitos_-_${fecha}_-_${hora}-${minuto}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function cargarJSONInventario(input) {
-      const file = input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        try {
-          const data = JSON.parse(e.target.result);
-          if (typeof data !== 'object') throw new Error();
-          localStorage.setItem("inventario_hielitos", JSON.stringify(data));
-          alert("Respaldo de inventario cargado correctamente.");
-          cargarSabores();
-        } catch {
-          alert("Archivo no válido.");
-        }
-      };
-      reader.readAsText(file);
-      // Limpiar el input para permitir cargar el mismo archivo otra vez
-      input.value = '';
     }
 
     function confirmarBorradoInventario() {
