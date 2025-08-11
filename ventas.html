@@ -25,11 +25,13 @@
       border-radius: 3px;
       text-align: center;
       box-sizing: border-box;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
     }
 
     .input-cantidad:focus {
       border-color: #4ecdc4;
       outline: none;
+      box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
     }
 
     .precio-info {
@@ -47,6 +49,43 @@
       color: #4ecdc4;
     }
 
+    /* Estilos para los botones de respaldo */
+    .botones-respaldo {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .botones-respaldo button {
+      flex: 1;
+      min-width: 200px;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    .btn-descargar {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-descargar:hover {
+      background-color: #218838;
+    }
+
+    .btn-cargar {
+      background-color: #ffc107;
+      color: #212529;
+    }
+
+    .btn-cargar:hover {
+      background-color: #e0a800;
+    }
+
     @media (max-width: 768px) {
       .tabla-header.ventas,
       .tabla-fila.ventas {
@@ -56,6 +95,14 @@
       .input-cantidad {
         padding: 0.4rem;
         font-size: 0.9rem;
+      }
+
+      .botones-respaldo {
+        flex-direction: column;
+      }
+
+      .botones-respaldo button {
+        min-width: unset;
       }
     }
   </style>
@@ -91,6 +138,13 @@
       <div class="botones-accion">
         <button type="button" class="boton-principal" onclick="limpiarTodo()">🧹 Limpiar todo</button>
         <button type="button" class="btn-delete" onclick="confirmarVentas()">💰 Procesar ventas</button>
+      </div>
+
+      <!-- Botones de respaldo -->
+      <div class="botones-respaldo">
+        <button type="button" class="btn-descargar" onclick="descargarHistorialVentas()">📥 Descargar historial ventas</button>
+        <button type="button" class="btn-cargar" onclick="document.getElementById('fileInputVentas').click()">📤 Cargar historial ventas</button>
+        <input type="file" id="fileInputVentas" style="display: none;" accept="application/json" onchange="cargarHistorialVentas(this)" />
       </div>
     </div>
 
@@ -133,11 +187,27 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal de confirmación de carga -->
+    <div id="modalConfirmacionCarga" class="modal oculto">
+      <div class="modal-content">
+        <h4>⚠️ Confirmar carga de historial</h4>
+        <div class="modal-body">
+          <p>Esto <strong>sobrescribirá completamente</strong> el historial de ventas actual.</p>
+          <p>¿Estás seguro de continuar?</p>
+          <div class="modal-botones">
+            <button class="btn-cancelar" onclick="cancelarCargaHistorial()">Cancelar</button>
+            <button class="btn-confirmar" onclick="confirmarCargaHistorial()">✅ Sobrescribir</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
 
   <script>
     const tablaVentas = document.getElementById("tablaVentas");
     let precioActual = 0;
+    let datosHistorialPendientes = null; // Para almacenar los datos antes de confirmar
 
     function cargarPrecioActual() {
       try {
@@ -177,7 +247,7 @@
           fila.innerHTML = `
             <div style="padding: 0 0.8rem; display: flex; align-items: center;">${sabor.nombre}</div>
             <div style="padding: 0 0.8rem; display: flex; align-items: center; justify-content: center;">
-              <input type="number" class="input-cantidad" id="cantidad_${sabor.id}" min="0" value="0" inputmode="numeric" />
+              <input type="number" class="input-cantidad" id="cantidad_${sabor.id}" min="0" value="0" inputmode="numeric" onfocus="manejarFocoInput(this)" onblur="manejarBlurInput(this)" />
             </div>
           `;
           tablaVentas.appendChild(fila);
@@ -377,6 +447,111 @@
       }
     }
 
+    // NUEVAS FUNCIONES PARA MANEJO DE INPUTS
+    function manejarFocoInput(input) {
+      // Seleccionar todo el contenido al hacer focus
+      setTimeout(() => {
+        input.select();
+      }, 50);
+      
+      // Desplazar la página para que el input quede visible arriba del teclado
+      setTimeout(() => {
+        // Calcular la posición del input
+        const rect = input.getBoundingClientRect();
+        const inputTop = rect.top + window.pageYOffset;
+        
+        // Calcular cuánto desplazar (dejando un margen de 100px arriba del teclado virtual)
+        const offset = 100;
+        const scrollTo = inputTop - offset;
+        
+        // Desplazar suavemente
+        window.scrollTo({
+          top: scrollTo,
+          behavior: 'smooth'
+        });
+      }, 300); // Esperar un poco para que aparezca el teclado
+    }
+
+    function manejarBlurInput(input) {
+      // Si el campo queda vacío, volver a poner 0
+      if (input.value === '' || input.value < 0) {
+        input.value = '0';
+      }
+    }
+
+    // NUEVAS FUNCIONES PARA RESPALDO DE HISTORIAL DE VENTAS
+    function descargarHistorialVentas() {
+      const data = localStorage.getItem("ventas_hielitos");
+      if (!data) {
+        alert("No hay historial de ventas para descargar.");
+        return;
+      }
+      
+      const hoy = new Date();
+      const fecha = hoy.toLocaleDateString("es-MX").replace(/\//g, "-");
+      const hora = hoy.getHours().toString().padStart(2, "0");
+      const minuto = hoy.getMinutes().toString().padStart(2, "0");
+      
+      const blob = new Blob([data], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `Historial_Ventas_Hielitos_-_${fecha}_-_${hora}-${minuto}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function cargarHistorialVentas(input) {
+      const file = input.files[0];
+      if (!file) return;
+      
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const data = JSON.parse(e.target.result);
+          
+          // Validar que sea un array válido
+          if (!Array.isArray(data)) {
+            throw new Error("El archivo no contiene un historial válido");
+          }
+          
+          // Validar estructura básica de las ventas
+          if (data.length > 0) {
+            const ventaMuestra = data[0];
+            if (!ventaMuestra.id || !ventaMuestra.fecha || !ventaMuestra.items) {
+              throw new Error("El formato del archivo no es compatible");
+            }
+          }
+          
+          // Guardar temporalmente los datos y mostrar confirmación
+          datosHistorialPendientes = data;
+          document.getElementById("modalConfirmacionCarga").classList.remove("oculto");
+          
+        } catch (error) {
+          console.error("Error al cargar historial:", error);
+          alert("Archivo no válido o formato incorrecto.\nAsegúrate de cargar un archivo de respaldo de historial de ventas.");
+        }
+      };
+      reader.readAsText(file);
+      
+      // Limpiar el input para permitir cargar el mismo archivo otra vez
+      input.value = '';
+    }
+
+    function confirmarCargaHistorial() {
+      if (datosHistorialPendientes) {
+        localStorage.setItem("ventas_hielitos", JSON.stringify(datosHistorialPendientes));
+        alert("Historial de ventas cargado correctamente.\nSe ha sobrescrito el historial anterior.");
+        datosHistorialPendientes = null;
+      }
+      document.getElementById("modalConfirmacionCarga").classList.add("oculto");
+    }
+
+    function cancelarCargaHistorial() {
+      datosHistorialPendientes = null;
+      document.getElementById("modalConfirmacionCarga").classList.add("oculto");
+    }
+
     function cerrarModalVentas() {
       document.getElementById("modalConfirmacionVentas").classList.add("oculto");
     }
@@ -395,6 +570,7 @@
         cerrarModalVentas();
         cerrarHistorialVentas();
         cerrarModalError();
+        cancelarCargaHistorial();
       }
     });
 
