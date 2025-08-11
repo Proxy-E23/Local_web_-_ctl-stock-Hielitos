@@ -17,6 +17,76 @@
       width: 100% !important;
       max-width: none !important;
     }
+
+    /* Estilos para la sección de respaldo */
+    .seccion-respaldo {
+      margin-top: 2rem;
+      padding-top: 2rem;
+      border-top: 2px solid #4ecdc4;
+    }
+
+    .seccion-respaldo h3 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .botones-respaldo {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .botones-respaldo button {
+      flex: 1;
+      min-width: 250px;
+      padding: 1rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-exportar {
+      background: linear-gradient(135deg, #28a745, #34ce57);
+      color: white;
+      box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+    }
+
+    .btn-exportar:hover {
+      background: linear-gradient(135deg, #218838, #28a745);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+
+    .btn-importar {
+      background: linear-gradient(135deg, #ffc107, #ffcd39);
+      color: #212529;
+      box-shadow: 0 4px 15px rgba(255, 193, 7, 0.3);
+    }
+
+    .btn-importar:hover {
+      background: linear-gradient(135deg, #e0a800, #ffc107);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+    }
+
+    @media (max-width: 768px) {
+      .botones-respaldo {
+        flex-direction: column;
+      }
+      
+      .botones-respaldo button {
+        min-width: unset;
+      }
+    }
   </style>
 </head>
 <body>
@@ -35,7 +105,218 @@
       <button class="boton-principal" onclick="window.location.href='inventario.html'">Inventario</button>
       <button class="boton-principal" onclick="window.location.href='ventas.html'">Ventas</button>
     </div>
+
+    <!-- Nueva sección de respaldo completo -->
+    <div class="seccion-respaldo">
+      <h3>🗂️ Respaldo completo del sistema</h3>
+      <div class="botones-respaldo">
+        <button type="button" class="btn-exportar" onclick="exportarRespaldoCompleto()">
+          📦 Exportar todo
+        </button>
+        <button type="button" class="btn-importar" onclick="document.getElementById('fileInputCompleto').click()">
+          📥 Importar todo
+        </button>
+        <input type="file" id="fileInputCompleto" style="display: none;" accept="application/json" onchange="importarRespaldoCompleto(this)" />
+      </div>
+      <p style="text-align: center; color: #666; margin-top: 1rem; font-size: 0.9rem;">
+        El respaldo incluye: sabores, precios, inventario e historial de ventas
+      </p>
+    </div>
+
+    <!-- Modal de confirmación de importación -->
+    <div id="modalConfirmacionImport" class="modal oculto">
+      <div class="modal-content">
+        <h4>⚠️ Confirmar importación completa</h4>
+        <div class="modal-body">
+          <p><strong>Esto sobrescribirá completamente todos los datos actuales:</strong></p>
+          <ul style="text-align: left; margin: 1rem 0;">
+            <li>• Todos los sabores registrados</li>
+            <li>• Todo el historial de precios</li>
+            <li>• Todo el inventario y su historial</li>
+            <li>• Todo el historial de ventas</li>
+          </ul>
+          <p><strong>¿Estás seguro de continuar?</strong></p>
+          <div class="modal-botones">
+            <button class="btn-cancelar" onclick="cancelarImportacion()">Cancelar</button>
+            <button class="btn-confirmar" onclick="confirmarImportacion()">✅ Importar todo</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de información -->
+    <div id="modalInfo" class="modal oculto">
+      <div class="modal-content">
+        <h4 id="modalInfoTitulo">Información</h4>
+        <div class="modal-body">
+          <p id="modalInfoMensaje"></p>
+          <div class="modal-botones">
+            <button class="btn-confirmar" onclick="cerrarModalInfo()">Entendido</button>
+          </div>
+        </div>
+      </div>
+    </div>
   </main>
   <script src="script.js"></script>
+  <script>
+    let datosImportacionPendientes = null;
+
+    function exportarRespaldoCompleto() {
+      try {
+        // Recopilar todos los datos del localStorage
+        const respaldoCompleto = {
+          metadata: {
+            fecha_respaldo: new Date().toISOString().split('T')[0],
+            hora_respaldo: new Date().toTimeString().split(' ')[0].substring(0, 5),
+            version: "1.0",
+            descripcion: "Respaldo completo del sistema Control Hielitos"
+          },
+          datos: {
+            sabores: JSON.parse(localStorage.getItem("shielitos") || "[]"),
+            precios: JSON.parse(localStorage.getItem("precios_hielitos") || "[]"),
+            inventario: JSON.parse(localStorage.getItem("inventario_hielitos") || "{}"),
+            ventas: JSON.parse(localStorage.getItem("ventas_hielitos") || "[]")
+          }
+        };
+
+        // Verificar si hay datos para respaldar
+        const totalSabores = respaldoCompleto.datos.sabores.length;
+        const totalPrecios = respaldoCompleto.datos.precios.length;
+        const totalInventario = Object.keys(respaldoCompleto.datos.inventario).length;
+        const totalVentas = respaldoCompleto.datos.ventas.length;
+
+        if (totalSabores === 0 && totalPrecios === 0 && totalInventario === 0 && totalVentas === 0) {
+          mostrarInfo("⚠️ Sin datos", "No hay información para respaldar en el sistema.");
+          return;
+        }
+
+        // Crear y descargar el archivo
+        const hoy = new Date();
+        const fecha = hoy.toLocaleDateString("es-MX").replace(/\//g, "-");
+        const hora = hoy.getHours().toString().padStart(2, "0");
+        const minuto = hoy.getMinutes().toString().padStart(2, "0");
+        
+        const blob = new Blob([JSON.stringify(respaldoCompleto, null, 2)], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `Respaldo_Completo_Hielitos_-_${fecha}_-_${hora}-${minuto}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+
+        // Mostrar confirmación con resumen
+        mostrarInfo("✅ Respaldo creado", 
+          `Respaldo exportado exitosamente:\n\n` +
+          `• ${totalSabores} sabores\n` +
+          `• ${totalPrecios} precios\n` +
+          `• ${totalInventario} inventarios\n` +
+          `• ${totalVentas} ventas`
+        );
+
+      } catch (error) {
+        console.error("Error al exportar respaldo:", error);
+        mostrarInfo("❌ Error", "Error al crear el respaldo. Inténtalo de nuevo.");
+      }
+    }
+
+    function importarRespaldoCompleto(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const data = JSON.parse(e.target.result);
+
+          // Validar estructura del archivo
+          if (!data.datos || typeof data.datos !== 'object') {
+            throw new Error("Estructura de archivo inválida");
+          }
+
+          const { sabores, precios, inventario, ventas } = data.datos;
+
+          // Validar que los datos sean del tipo correcto
+          if (!Array.isArray(sabores) || !Array.isArray(precios) || 
+              typeof inventario !== 'object' || !Array.isArray(ventas)) {
+            throw new Error("Formato de datos inválido");
+          }
+
+          // Guardar temporalmente y mostrar confirmación
+          datosImportacionPendientes = data;
+          document.getElementById("modalConfirmacionImport").classList.remove("oculto");
+
+        } catch (error) {
+          console.error("Error al cargar archivo:", error);
+          mostrarInfo("❌ Archivo inválido", 
+            "El archivo seleccionado no es un respaldo válido del sistema.\n\n" +
+            "Asegúrate de cargar un archivo exportado desde 'Exportar todo'."
+          );
+        }
+      };
+
+      reader.readAsText(file);
+      // Limpiar input
+      input.value = '';
+    }
+
+    function confirmarImportacion() {
+      if (!datosImportacionPendientes) return;
+
+      try {
+        const { sabores, precios, inventario, ventas } = datosImportacionPendientes.datos;
+
+        // Sobrescribir todos los datos en localStorage
+        localStorage.setItem("shielitos", JSON.stringify(sabores));
+        localStorage.setItem("precios_hielitos", JSON.stringify(precios));
+        localStorage.setItem("inventario_hielitos", JSON.stringify(inventario));
+        localStorage.setItem("ventas_hielitos", JSON.stringify(ventas));
+
+        // Mostrar confirmación con resumen
+        const totalSabores = sabores.length;
+        const totalPrecios = precios.length;
+        const totalInventario = Object.keys(inventario).length;
+        const totalVentas = ventas.length;
+
+        mostrarInfo("✅ Importación exitosa", 
+          `Datos importados correctamente:\n\n` +
+          `• ${totalSabores} sabores\n` +
+          `• ${totalPrecios} precios\n` +
+          `• ${totalInventario} inventarios\n` +
+          `• ${totalVentas} ventas\n\n` +
+          `Todos los datos anteriores han sido reemplazados.`
+        );
+
+        datosImportacionPendientes = null;
+        document.getElementById("modalConfirmacionImport").classList.add("oculto");
+
+      } catch (error) {
+        console.error("Error al importar datos:", error);
+        mostrarInfo("❌ Error de importación", "Error al importar los datos. Inténtalo de nuevo.");
+      }
+    }
+
+    function cancelarImportacion() {
+      datosImportacionPendientes = null;
+      document.getElementById("modalConfirmacionImport").classList.add("oculto");
+    }
+
+    function mostrarInfo(titulo, mensaje) {
+      document.getElementById("modalInfoTitulo").textContent = titulo;
+      document.getElementById("modalInfoMensaje").innerHTML = mensaje.replace(/\n/g, '<br>');
+      document.getElementById("modalInfo").classList.remove("oculto");
+    }
+
+    function cerrarModalInfo() {
+      document.getElementById("modalInfo").classList.add("oculto");
+    }
+
+    // Cerrar modales al hacer clic fuera
+    document.addEventListener("click", function(e) {
+      if (e.target.classList.contains("modal")) {
+        cancelarImportacion();
+        cerrarModalInfo();
+      }
+    });
+  </script>
 </body>
 </html>
