@@ -5,6 +5,113 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Precios</title>
   <link rel="stylesheet" href="style.css" />
+  <style>
+    /* Estilos específicos para precios con edición inline */
+    .tabla-header.precios {
+      display: grid !important;
+      grid-template-columns: 80px 1fr 120px !important;
+    }
+
+    .tabla-fila.precios {
+      display: grid !important;
+      grid-template-columns: 80px 1fr 120px !important;
+      transition: background-color 0.3s ease;
+    }
+
+    .checkbox-editable-precio {
+      transform: scale(1.2);
+      cursor: pointer;
+    }
+
+    .checkbox-editable-precio:hover {
+      transform: scale(1.3);
+    }
+
+    /* Estilos para modo edición */
+    .fila-editando-precio {
+      background-color: #fff3cd !important;
+      border: 2px solid #ffc107 !important;
+      border-radius: 5px;
+      margin: 2px 0;
+    }
+
+    .botones-edicion-precio {
+      display: flex;
+      gap: 0.3rem;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .btn-confirmar-inline,
+    .btn-borrar-inline,
+    .btn-cancelar-inline {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .btn-confirmar-inline {
+      background-color: #28a745;
+      color: white;
+    }
+
+    .btn-confirmar-inline:hover {
+      background-color: #218838;
+      transform: scale(1.05);
+    }
+
+    .btn-borrar-inline {
+      background-color: #dc3545;
+      color: white;
+    }
+
+    .btn-borrar-inline:hover {
+      background-color: #c82333;
+      transform: scale(1.05);
+    }
+
+    .btn-cancelar-inline {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .btn-cancelar-inline:hover {
+      background-color: #545b62;
+      transform: scale(1.05);
+    }
+
+    .precio-activo {
+      color: #28a745;
+      font-weight: bold;
+    }
+
+    .precio-inactivo {
+      color: #6c757d;
+    }
+
+    .precio-era-activo {
+      color: #dc3545;
+      font-weight: bold;
+    }
+
+    @media (max-width: 768px) {
+      .tabla-header.precios,
+      .tabla-fila.precios {
+        grid-template-columns: 70px 1fr 100px !important;
+      }
+      
+      .btn-confirmar-inline,
+      .btn-borrar-inline,
+      .btn-cancelar-inline {
+        padding: 0.2rem 0.4rem;
+        font-size: 0.7rem;
+      }
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -14,7 +121,6 @@
   <main class="container">
     <div class="botones-superiores">
       <button class="btn-volver" onclick="window.location.href='index.html'">← Atrás</button>
-      <button class="btn-borrar" onclick="confirmarBorrado()">🗑 Borrar todo</button>
     </div>
 
     <form id="precioForm">
@@ -30,22 +136,24 @@
       <input type="date" id="fecha" required />
 
       <button type="submit">Agregar precio</button>
-      <button type="button" onclick="descargarJSON()">Descargar respaldo</button>
-      <button type="button" onclick="document.getElementById('fileInput').click()">
-        Cargar respaldo
-      </button>
-      <input type="file" id="fileInput" class="file-input" accept="application/json" onchange="cargarJSON(this)" />
     </form>
 
     <div class="lista-sabores">
       <h3>Historial de precios:</h3>
       <div class="tabla-sabores">
-        <div class="tabla-header">
-          <div class="col-disponible">Estado</div>
-          <div class="col-sabor">Precio</div>
-          <div class="col-fecha">Fecha</div>
+        <div class="tabla-header precios" style="display: grid; grid-template-columns: 80px 1fr 120px; background-color: #4ecdc4; color: white; font-weight: bold; padding: 0.8rem 0;">
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center;">Estado</div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center;">Precio</div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center;">Fecha</div>
         </div>
         <div id="listaPrecios" class="tabla-body"></div>
+      </div>
+
+      <!-- Botón de borrar todo después de la tabla -->
+      <div style="display: flex; justify-content: center; margin-top: 2rem;">
+        <button type="button" onclick="confirmarBorrado()" style="padding: 0.8rem 2rem; font-size: 1rem; border: none; border-radius: 5px; background-color: #dc3545; color: white; cursor: pointer; transition: background-color 0.3s ease;">
+          🗑 Borrar todos los precios
+        </button>
       </div>
     </div>
   </main>
@@ -54,6 +162,9 @@
     const form = document.getElementById("precioForm");
     const fechaInput = document.getElementById("fecha");
     const listaPrecios = document.getElementById("listaPrecios");
+
+    let filaEnEdicionPrecio = null;
+    let estadoOriginal = null;
 
     fechaInput.valueAsDate = new Date();
 
@@ -82,20 +193,184 @@
         const fechaFormateada = precio.fecha.split('-').reverse().join('/');
         
         const fila = document.createElement("div");
-        fila.className = "tabla-fila";
+        fila.className = "tabla-fila precios";
+        fila.id = `fila_precio_${precio.id}`;
+        fila.style.display = "grid";
+        fila.style.gridTemplateColumns = "80px 1fr 120px";
+        fila.style.padding = "0.8rem 0";
+        fila.style.borderBottom = "1px solid #eee";
+        
         fila.innerHTML = `
-          <div class="col-disponible">
-            <input type="checkbox" ${precio.actual ? 'checked' : ''} disabled />
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; justify-content: center;">
+            <input type="checkbox" class="checkbox-editable-precio" ${precio.actual ? 'checked' : ''} 
+                   onclick="iniciarEdicionPrecio('${precio.id}', ${precio.actual})" />
           </div>
-          <div class="col-sabor">$${parseFloat(precio.precio).toFixed(2)}</div>
-          <div class="col-fecha">${fechaFormateada}</div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center;" class="${precio.actual ? 'precio-activo' : 'precio-inactivo'}">
+            $${parseFloat(precio.precio).toFixed(2)}
+          </div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center; color: #666; font-size: 0.9rem;">
+            ${fechaFormateada}
+          </div>
         `;
         listaPrecios.appendChild(fila);
       });
     }
 
+    function iniciarEdicionPrecio(precioId, estadoActual) {
+      // Si ya hay una fila en edición, cancelar esa primero
+      if (filaEnEdicionPrecio) {
+        cancelarEdicionPrecio();
+      }
+
+      filaEnEdicionPrecio = precioId;
+      estadoOriginal = estadoActual;
+      
+      const fila = document.getElementById(`fila_precio_${precioId}`);
+      const checkbox = fila.querySelector('.checkbox-editable-precio');
+      const nuevoEstado = checkbox.checked;
+      
+      // Agregar clase de edición
+      fila.classList.add('fila-editando-precio');
+      
+      // Si se está activando este precio, resaltar en rojo y desmarcar el que estaba activo
+      if (nuevoEstado && !estadoOriginal) {
+        const precios = JSON.parse(localStorage.getItem("precios_hielitos")) || [];
+        const precioActivoAnterior = precios.find(p => p.actual && p.id !== precioId);
+        
+        if (precioActivoAnterior) {
+          const filaAnterior = document.getElementById(`fila_precio_${precioActivoAnterior.id}`);
+          if (filaAnterior) {
+            // Resaltar en rojo
+            const precioDiv = filaAnterior.children[1];
+            precioDiv.className = 'precio-era-activo';
+            
+            // Desmarcar temporalmente el checkbox
+            const checkboxAnterior = filaAnterior.querySelector('.checkbox-editable-precio');
+            if (checkboxAnterior) {
+              checkboxAnterior.checked = false;
+            }
+          }
+        }
+      }
+      
+      // Cambiar la columna de fecha por botones de acción
+      const fechaDiv = fila.children[2];
+      fechaDiv.innerHTML = `
+        <div class="botones-edicion-precio">
+          <button class="btn-confirmar-inline" onclick="confirmarCambioPrecio('${precioId}')" title="Confirmar">✓</button>
+          <button class="btn-borrar-inline" onclick="confirmarBorrarPrecio('${precioId}')" title="Borrar">🗑</button>
+          <button class="btn-cancelar-inline" onclick="cancelarEdicionPrecio()" title="Cancelar">✕</button>
+        </div>
+      `;
+    }
+
+    function confirmarCambioPrecio(precioId) {
+      try {
+        const precios = JSON.parse(localStorage.getItem("precios_hielitos")) || [];
+        const checkbox = document.querySelector(`#fila_precio_${precioId} .checkbox-editable-precio`);
+        const nuevoEstado = checkbox.checked;
+
+        // Si no hay cambio de estado, solo salir del modo edición
+        if (nuevoEstado === estadoOriginal) {
+          cancelarEdicionPrecio();
+          return;
+        }
+
+        // Si se marca como activo, desactivar todos los demás
+        if (nuevoEstado) {
+          precios.forEach(p => {
+            if (p.id !== precioId) {
+              p.actual = false;
+            }
+          });
+        }
+
+        // Aplicar el cambio al precio seleccionado
+        const indice = precios.findIndex(p => p.id === precioId);
+        if (indice !== -1) {
+          precios[indice].actual = nuevoEstado;
+          
+          // Guardar cambios
+          localStorage.setItem("precios_hielitos", JSON.stringify(precios));
+
+          // Mostrar mensaje de éxito
+          const mensaje = nuevoEstado ? "Precio marcado como activo" : "Precio marcado como inactivo";
+          alert(`✓ ${mensaje}`);
+          
+          // Salir del modo edición y rerenderizar
+          filaEnEdicionPrecio = null;
+          estadoOriginal = null;
+          renderizarLista();
+        }
+      } catch (error) {
+        console.error("Error al cambiar estado del precio:", error);
+        alert("Error al aplicar los cambios");
+      }
+    }
+
+    function confirmarBorrarPrecio(precioId) {
+      const confirmacion = confirm(
+        "¿Estás seguro de que quieres eliminar este precio?\n\nEsta acción no se puede deshacer."
+      );
+      
+      if (confirmacion) {
+        try {
+          let precios = JSON.parse(localStorage.getItem("precios_hielitos")) || [];
+          
+          // Encontrar el precio a eliminar
+          const precioAEliminar = precios.find(p => p.id === precioId);
+          
+          // Filtrar para eliminar el precio
+          precios = precios.filter(p => p.id !== precioId);
+          
+          // Si se eliminó el precio activo y quedan otros precios, preguntar cuál activar
+          if (precioAEliminar && precioAEliminar.actual && precios.length > 0) {
+            const hayOtroActivo = precios.some(p => p.actual);
+            if (!hayOtroActivo) {
+              alert("⚠️ Se eliminó el precio activo.\nDebes marcar otro precio como activo desde la lista.");
+            }
+          }
+          
+          // Guardar cambios
+          localStorage.setItem("precios_hielitos", JSON.stringify(precios));
+          
+          alert("✓ Precio eliminado correctamente");
+          
+          // Salir del modo edición y rerenderizar
+          filaEnEdicionPrecio = null;
+          estadoOriginal = null;
+          renderizarLista();
+          
+        } catch (error) {
+          console.error("Error al eliminar precio:", error);
+          alert("Error al eliminar el precio");
+        }
+      }
+    }
+
+    function cancelarEdicionPrecio() {
+      if (!filaEnEdicionPrecio) return;
+      
+      // Restaurar checkbox al estado original
+      const checkbox = document.querySelector(`#fila_precio_${filaEnEdicionPrecio} .checkbox-editable-precio`);
+      if (checkbox) {
+        checkbox.checked = estadoOriginal;
+      }
+      
+      // Salir del modo edición y rerenderizar
+      filaEnEdicionPrecio = null;
+      estadoOriginal = null;
+      renderizarLista();
+    }
+
     form.addEventListener("submit", function (e) {
       e.preventDefault();
+      
+      // Si hay una edición en curso, cancelarla primero
+      if (filaEnEdicionPrecio) {
+        cancelarEdicionPrecio();
+      }
+      
       const precio = document.getElementById("precio").value.trim();
       const actual = document.getElementById("actual").checked;
       const fecha = document.getElementById("fecha").value;
@@ -115,53 +390,37 @@
       renderizarLista();
     });
 
-    function descargarJSON() {
-      const data = localStorage.getItem("precios_hielitos");
-      if (!data) {
-        alert("No hay datos para respaldar.");
-        return;
-      }
-      const hoy = new Date();
-      const fecha = hoy.toLocaleDateString("es-MX").replace(/\//g, "-");
-      const hora = hoy.getHours().toString().padStart(2, "0");
-      const minuto = hoy.getMinutes().toString().padStart(2, "0");
-      const blob = new Blob([data], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Precios_Hielitos_-_${fecha}_-_${hora}-${minuto}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function cargarJSON(input) {
-      const file = input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        try {
-          const data = JSON.parse(e.target.result);
-          if (!Array.isArray(data)) throw new Error();
-          localStorage.setItem("precios_hielitos", JSON.stringify(data));
-          alert("Respaldo cargado correctamente.");
-          renderizarLista();
-        } catch {
-          alert("Archivo no válido.");
-        }
-      };
-      reader.readAsText(file);
-    }
-
     function confirmarBorrado() {
       const confirmacion = confirm(
-        "Esto borrará TODOS los precios guardados.\n\n¿Estás seguro de continuar?"
+        "⚠️ ATENCIÓN ⚠️\n\nEsto borrará TODOS los precios guardados.\n\n¿Estás seguro de continuar?"
       );
       if (confirmacion) {
+        // Cancelar edición si está activa
+        if (filaEnEdicionPrecio) {
+          filaEnEdicionPrecio = null;
+          estadoOriginal = null;
+        }
+        
         localStorage.removeItem("precios_hielitos");
         alert("Precios borrados correctamente.");
         renderizarLista();
       }
     }
+
+    // Cerrar edición al hacer clic fuera
+    document.addEventListener("click", function(e) {
+      // Si hay edición activa y el click no es en la fila en edición ni en sus elementos
+      if (filaEnEdicionPrecio && !e.target.closest(`#fila_precio_${filaEnEdicionPrecio}`)) {
+        cancelarEdicionPrecio();
+      }
+    });
+
+    // Manejar tecla Escape para cancelar edición
+    document.addEventListener("keydown", function(e) {
+      if (e.key === "Escape" && filaEnEdicionPrecio) {
+        cancelarEdicionPrecio();
+      }
+    });
 
     window.addEventListener("DOMContentLoaded", renderizarLista);
   </script>
