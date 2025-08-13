@@ -6,7 +6,7 @@
   <title>Inventario</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* Corregir tabla inventario */
+    /* Corregir tabla inventario - Centrado limpio */
     .tabla-header.inventario {
       display: grid !important;
       grid-template-columns: 1fr 100px 100px !important;
@@ -17,10 +17,19 @@
       grid-template-columns: 1fr 100px 100px !important;
     }
 
-    .tabla-header .col-stock,
-    .tabla-header .col-accion {
-      text-align: center !important;
+    /* Centrado específico para columnas de stock y acción */
+    .col-stock {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
       font-weight: bold !important;
+      color: #4ecdc4 !important;
+    }
+
+    .col-accion {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
 
     @media (max-width: 768px) {
@@ -42,15 +51,13 @@
       <button class="btn-borrar" onclick="mostrarHistorial()">📊 Historial</button>
     </div>
 
-
-
     <div class="lista-sabores">
       <h3>Stock de sabores disponibles:</h3>
       <div class="tabla-sabores">
         <div class="tabla-header inventario" style="display: grid; grid-template-columns: 1fr 100px 100px; background-color: #4ecdc4; color: white; font-weight: bold; padding: 0.8rem 0;">
           <div style="padding: 0 0.8rem; display: flex; align-items: center; cursor: pointer;" onclick="ordenarPorSabor()">Sabor ↕️</div>
-          <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center; cursor: pointer;" onclick="ordenarPorStock()">Stock <span id="indicadorOrden">↕️</span></div>
-          <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center;"></div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="ordenarPorStock()">Stock <span id="indicadorOrden">↕️</span></div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; justify-content: center;"></div>
         </div>
         <div id="tablaInventario" class="tabla-body"></div>
       </div>
@@ -150,15 +157,15 @@
       
       saboresConStock.forEach(sabor => {
         const fila = document.createElement("div");
-        fila.className = "tabla-fila";
+        fila.className = "tabla-fila inventario";
         fila.style.display = "grid";
         fila.style.gridTemplateColumns = "1fr 100px 100px";
         fila.style.padding = "0.8rem 0";
         fila.style.borderBottom = "1px solid #eee";
         fila.innerHTML = `
           <div style="padding: 0 0.8rem; display: flex; align-items: center;">${sabor.nombre}</div>
-          <div style="padding: 0 0.8rem; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #4ecdc4; text-align: center; width: 100%;">${sabor.stock}</div>
-          <div style="padding: 0 0.8rem; display: flex; align-items: center; justify-content: center;">
+          <div class="col-stock" style="padding: 0 0.8rem;">${sabor.stock}</div>
+          <div class="col-accion" style="padding: 0 0.8rem;">
             <button class="btn-editar" onclick="editarStock('${sabor.id}', '${sabor.nombre}')">✏️</button>
           </div>
         `;
