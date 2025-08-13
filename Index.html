@@ -18,10 +18,57 @@
       max-width: none !important;
     }
 
+    /* CORRECCIÓN DEL MENÚ HAMBURGUESA */
+    header {
+      width: 100%;
+      box-sizing: border-box;
+      background-color: #4dd0e1;
+      color: white;
+      padding: 1.2rem 80px 1.2rem 1.5rem; /* Padding asimétrico */
+      text-align: left; /* Alineado a la izquierda */
+      font-size: 1.5rem;
+      font-weight: bold;
+      position: relative;
+    }
+
+    .menu-desplegable {
+      position: absolute;
+      top: 1.2rem;
+      right: 1.2rem;
+    }
+
+    #btn-menu {
+      background: none;
+      border: none;
+      color: white;
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      border-radius: 5px;
+      transition: background-color 0.3s ease;
+    }
+
+    #btn-menu:hover {
+      background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Responsive para móviles */
+    @media (max-width: 768px) {
+      header {
+        padding: 1rem 60px 1rem 1rem; /* Menos padding en móvil */
+        font-size: 1.3rem;
+      }
+      
+      .menu-desplegable {
+        top: 1rem;
+        right: 1rem;
+      }
+    }
+
     /* Estilos para la sección de respaldo */
     .seccion-respaldo {
-      margin-top: 2rem;
-      padding-top: 2rem;
+      margin-top: 2.5rem;
+      padding-top: 1.5rem;
       border-top: 2px solid #4ecdc4;
     }
 
