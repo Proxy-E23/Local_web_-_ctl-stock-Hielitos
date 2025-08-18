@@ -85,32 +85,57 @@
   justify-content: center;
 }
 
+/* Estilos consistentes para TODOS los botones de modales */
+.btn-cancelar,
+.btn-confirmar,
+.btn-borrar-definitivo,
+.btn-eliminar-definitivo {
+  padding: 0.7rem 1.5rem !important;
+  font-size: 1rem !important;
+  border: none !important;
+  border-radius: 5px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  font-weight: 600 !important;
+}
+
 .btn-cancelar {
-  padding: 0.7rem 1.5rem;
-  background-color: #ccc;
-  color: #333;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  background-color: #6c757d !important;
+  color: white !important;
 }
 
 .btn-cancelar:hover {
-  background-color: #bbb;
+  background-color: #545b62 !important;
 }
 
 .btn-confirmar {
-  padding: 0.7rem 1.5rem;
-  background-color: #4ecdc4;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
+  background-color: #4ecdc4 !important;
+  color: white !important;
 }
 
 .btn-confirmar:hover {
-  background-color: #3da9a1;
+  background-color: #3da9a1 !important;
+}
+
+.btn-borrar-definitivo {
+  background-color: #fd7e14 !important;
+  color: white !important;
+}
+
+.btn-borrar-definitivo:hover {
+  background-color: #e8590c !important;
+}
+
+.btn-eliminar-definitivo {
+  background-color: #dc3545 !important;
+  color: white !important;
+  text-transform: uppercase !important;
+  font-weight: 700 !important;
+}
+
+.btn-eliminar-definitivo:hover {
+  background-color: #c82333 !important;
+  transform: scale(1.05) !important;
 }
 
 .oculto {
@@ -150,7 +175,9 @@
   text-align: center;
   font-size: 0.9rem;
   color: #666;
-}/* Botones - Estilo unificado */
+}
+
+/* Botones - Estilo unificado */
 form button[type="submit"],
 form button[type="button"],
 .btn-volver,
@@ -182,7 +209,9 @@ form button[type="button"]:hover,
 .btn-volver:hover,
 .btn-borrar:hover {
   background-color: #3da9a1;
-}/* Reset y estilos base */
+}
+
+/* Reset y estilos base */
 body {
   margin: 0;
   font-family: Arial, sans-serif;
@@ -203,8 +232,8 @@ header {
   box-sizing: border-box;
   background-color: #4dd0e1;
   color: white;
-  padding: 1rem;
-  text-align: center;
+  padding: 1.2rem 80px 1.2rem 1.5rem; /* Padding asimétrico */
+  text-align: left; /* Alineado a la izquierda */
   font-size: 1.5rem;
   font-weight: bold;
   position: relative;
@@ -213,8 +242,8 @@ header {
 /* Menú hamburguesa */
 .menu-desplegable {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 1.2rem;
+  right: 1.2rem;
 }
 
 #btn-menu {
@@ -229,7 +258,7 @@ header {
 }
 
 #btn-menu:hover {
-  background-color: rgba(255, 255, 255, 0.2);
+  background-color: rgba(255, 255, 255, 0.3);
 }
 
 #menu-opciones {
@@ -421,8 +450,55 @@ form input[type="number"]:focus {
   background-color: white;
 }
 
+/* Botón borrar todo el sistema - MISMO TAMAÑO que exportar/importar */
+.btn-borrar-todo {
+  flex: 1 !important;           /* IGUAL que los otros botones */
+  min-width: 250px !important;  /* MISMO ancho mínimo */
+  padding: 1rem !important;     /* MISMO padding */
+  font-size: 1rem !important;
+  border: none !important;
+  border-radius: 8px !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  font-weight: 600 !important;
+  background: linear-gradient(135deg, #dc3545, #c82333) !important;
+  color: white !important;
+  box-shadow: 0 4px 15px rgba(220, 53, 69, 0.3) !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.5px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.5rem !important;
+}
+
+.btn-borrar-todo:hover {
+  background: linear-gradient(135deg, #c82333, #a71e2a) !important;
+  transform: translateY(-2px) !important;
+  box-shadow: 0 6px 20px rgba(220, 53, 69, 0.5) !important;
+}
+
+/* Contenedor para botón borrar - MISMO ESTILO que .botones-respaldo */
+.contenedor-borrar-todo {
+  display: flex !important;
+  gap: 1rem !important;
+  flex-wrap: wrap !important;
+  margin-top: 1.5rem !important;
+}
+
 /* Responsivo */
 @media (max-width: 768px) {
+  /* Header responsive */
+  header {
+    padding: 1rem 60px 1rem 1rem; /* Menos padding en móvil */
+    font-size: 1.3rem;
+  }
+  
+  .menu-desplegable {
+    top: 1rem;
+    right: 1rem;
+  }
+
   main.container {
     margin: 2rem 1rem;
     padding: 1rem;
@@ -451,5 +527,14 @@ form input[type="number"]:focus {
   
   .col-fecha {
     font-size: 0.8rem;
+  }
+  
+  /* Botón borrar todo responsive */
+  .btn-borrar-todo {
+    min-width: unset !important;
+  }
+  
+  .contenedor-borrar-todo {
+    flex-direction: column !important;
   }
 }
