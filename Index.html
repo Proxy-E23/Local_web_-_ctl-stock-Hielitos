@@ -18,53 +18,6 @@
       max-width: none !important;
     }
 
-    /* CORRECCIÓN DEL MENÚ HAMBURGUESA */
-    header {
-      width: 100%;
-      box-sizing: border-box;
-      background-color: #4dd0e1;
-      color: white;
-      padding: 1.2rem 80px 1.2rem 1.5rem; /* Padding asimétrico */
-      text-align: left; /* Alineado a la izquierda */
-      font-size: 1.5rem;
-      font-weight: bold;
-      position: relative;
-    }
-
-    .menu-desplegable {
-      position: absolute;
-      top: 1.2rem;
-      right: 1.2rem;
-    }
-
-    #btn-menu {
-      background: none;
-      border: none;
-      color: white;
-      font-size: 1.5rem;
-      cursor: pointer;
-      padding: 0.5rem;
-      border-radius: 5px;
-      transition: background-color 0.3s ease;
-    }
-
-    #btn-menu:hover {
-      background-color: rgba(255, 255, 255, 0.3);
-    }
-
-    /* Responsive para móviles */
-    @media (max-width: 768px) {
-      header {
-        padding: 1rem 60px 1rem 1rem; /* Menos padding en móvil */
-        font-size: 1.3rem;
-      }
-      
-      .menu-desplegable {
-        top: 1rem;
-        right: 1rem;
-      }
-    }
-
     /* Estilos para la sección de respaldo */
     .seccion-respaldo {
       margin-top: 2.5rem;
@@ -165,6 +118,14 @@
         </button>
         <input type="file" id="fileInputCompleto" style="display: none;" accept="application/json" onchange="importarRespaldoCompleto(this)" />
       </div>
+      
+      <!-- Botón para borrar todo el sistema - CON CONTENEDOR FLEXBOX -->
+      <div class="contenedor-borrar-todo">
+        <button type="button" class="btn-borrar-todo" onclick="confirmarBorradoCompleto()">
+          🗑️ BORRAR TODO EL SISTEMA
+        </button>
+      </div>
+
       <p style="text-align: center; color: #666; margin-top: 1rem; font-size: 0.9rem;">
         El respaldo incluye: sabores, precios, inventario e historial de ventas
       </p>
@@ -199,6 +160,57 @@
           <p id="modalInfoMensaje"></p>
           <div class="modal-botones">
             <button class="btn-confirmar" onclick="cerrarModalInfo()">Entendido</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmación para borrado completo -->
+    <div id="modalBorradoCompleto" class="modal oculto">
+      <div class="modal-content">
+        <h4 style="color: #dc3545;">🚨 ELIMINAR TODO EL SISTEMA</h4>
+        <div class="modal-body">
+          <p><strong style="color: #dc3545;">⚠️ ADVERTENCIA CRÍTICA ⚠️</strong></p>
+          <p>Esta acción es <strong>IRREVERSIBLE</strong> y eliminará <strong>COMPLETAMENTE</strong>:</p>
+          <ul style="text-align: left; margin: 1rem 0; color: #333;">
+            <li>🍦 <strong>Todos los sabores</strong> y sus configuraciones</li>
+            <li>💰 <strong>Todo el historial de precios</strong></li>
+            <li>📦 <strong>Todo el inventario</strong> y movimientos</li>
+            <li>🛒 <strong>Todo el historial de ventas</strong></li>
+            <li>🗂️ <strong>Todos los datos del sistema</strong></li>
+          </ul>
+          <div style="background-color: #fff3cd; border: 1px solid #ffeaa7; border-radius: 5px; padding: 1rem; margin: 1rem 0;">
+            <p style="margin: 0; font-weight: bold; color: #856404;">
+              💡 <strong>RECOMENDACIÓN:</strong> Haz un respaldo antes de continuar usando "📦 Exportar todo"
+            </p>
+          </div>
+          <p><strong>¿Estás COMPLETAMENTE seguro de eliminar todo?</strong></p>
+          <div class="modal-botones">
+            <button class="btn-cancelar" onclick="cancelarBorradoCompleto()">❌ Cancelar</button>
+            <button class="btn-borrar-definitivo" onclick="mostrarConfirmacionFinal()">⚠️ Continuar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal de confirmación final -->
+    <div id="modalConfirmacionFinal" class="modal oculto">
+      <div class="modal-content">
+        <h4 style="color: #dc3545;">🔥 CONFIRMACIÓN FINAL</h4>
+        <div class="modal-body">
+          <p style="font-size: 1.1rem; font-weight: bold; color: #dc3545;">
+            ÚLTIMA ADVERTENCIA
+          </p>
+          <p>Al hacer clic en <strong>"ELIMINAR DEFINITIVAMENTE"</strong> se borrarán todos los datos de manera permanente.</p>
+          <p><strong>Esta acción NO se puede deshacer.</strong></p>
+          <div style="background-color: #f8d7da; border: 1px solid #f5c6cb; border-radius: 5px; padding: 1rem; margin: 1rem 0;">
+            <p style="margin: 0; font-weight: bold; color: #721c24;">
+              🚨 El sistema quedará completamente vacío y tendrás que configurar todo desde cero.
+            </p>
+          </div>
+          <div class="modal-botones">
+            <button class="btn-cancelar" onclick="cancelarBorradoCompleto()">❌ Cancelar</button>
+            <button class="btn-eliminar-definitivo" onclick="ejecutarBorradoCompleto()">🔥 ELIMINAR DEFINITIVAMENTE</button>
           </div>
         </div>
       </div>
@@ -362,8 +374,48 @@
       if (e.target.classList.contains("modal")) {
         cancelarImportacion();
         cerrarModalInfo();
+        cancelarBorradoCompleto();
       }
     });
+
+    // FUNCIONES PARA BORRADO COMPLETO DEL SISTEMA
+    function confirmarBorradoCompleto() {
+      document.getElementById("modalBorradoCompleto").classList.remove("oculto");
+    }
+
+    function cancelarBorradoCompleto() {
+      document.getElementById("modalBorradoCompleto").classList.add("oculto");
+      document.getElementById("modalConfirmacionFinal").classList.add("oculto");
+    }
+
+    function mostrarConfirmacionFinal() {
+      document.getElementById("modalBorradoCompleto").classList.add("oculto");
+      document.getElementById("modalConfirmacionFinal").classList.remove("oculto");
+    }
+
+    function ejecutarBorradoCompleto() {
+      try {
+        // Borrar todos los datos del localStorage
+        localStorage.removeItem("shielitos");
+        localStorage.removeItem("precios_hielitos");
+        localStorage.removeItem("inventario_hielitos");
+        localStorage.removeItem("ventas_hielitos");
+
+        // Cerrar modales
+        cancelarBorradoCompleto();
+
+        // Mostrar confirmación de eliminación exitosa
+        mostrarInfo("🗑️ Sistema eliminado", 
+          "Todos los datos han sido eliminados correctamente.\n\n" +
+          "El sistema está ahora completamente vacío.\n" +
+          "Puedes comenzar a configurar todo desde cero."
+        );
+
+      } catch (error) {
+        console.error("Error al eliminar datos:", error);
+        mostrarInfo("❌ Error", "Error al eliminar los datos. Inténtalo de nuevo.");
+      }
+    }
   </script>
 </body>
 </html>
