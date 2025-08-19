@@ -49,15 +49,15 @@
       color: #4ecdc4;
     }
 
-    /* Estilos para los botones de respaldo */
-    .botones-respaldo {
+    /* Estilos para los botones de acción */
+    .botones-accion {
       display: flex;
       gap: 1rem;
       margin-top: 1rem;
       flex-wrap: wrap;
     }
 
-    .botones-respaldo button {
+    .botones-accion button {
       flex: 1;
       min-width: 200px;
       padding: 0.7rem;
@@ -66,24 +66,17 @@
       border-radius: 5px;
       cursor: pointer;
       transition: background-color 0.3s ease;
+      font-weight: 600;
     }
 
-    .btn-descargar {
-      background-color: #28a745;
+    /* Botón procesar ventas con el mismo estilo que limpiar todo */
+    .btn-procesar {
+      background-color: #4ecdc4;
       color: white;
     }
 
-    .btn-descargar:hover {
-      background-color: #218838;
-    }
-
-    .btn-cargar {
-      background-color: #ffc107;
-      color: #212529;
-    }
-
-    .btn-cargar:hover {
-      background-color: #e0a800;
+    .btn-procesar:hover {
+      background-color: #3da9a1;
     }
 
     @media (max-width: 768px) {
@@ -97,11 +90,11 @@
         font-size: 0.9rem;
       }
 
-      .botones-respaldo {
+      .botones-accion {
         flex-direction: column;
       }
 
-      .botones-respaldo button {
+      .botones-accion button {
         min-width: unset;
       }
     }
@@ -137,14 +130,7 @@
       <!-- Botones de acción debajo de la tabla -->
       <div class="botones-accion">
         <button type="button" class="boton-principal" onclick="limpiarTodo()">🧹 Limpiar todo</button>
-        <button type="button" class="btn-delete" onclick="confirmarVentas()">💰 Procesar ventas</button>
-      </div>
-
-      <!-- Botones de respaldo -->
-      <div class="botones-respaldo">
-        <button type="button" class="btn-descargar" onclick="descargarHistorialVentas()">📥 Descargar historial ventas</button>
-        <button type="button" class="btn-cargar" onclick="document.getElementById('fileInputVentas').click()">📤 Cargar historial ventas</button>
-        <input type="file" id="fileInputVentas" style="display: none;" accept="application/json" onchange="cargarHistorialVentas(this)" />
+        <button type="button" class="btn-procesar" onclick="confirmarVentas()">💰 Procesar ventas</button>
       </div>
     </div>
 
@@ -187,27 +173,11 @@
         </div>
       </div>
     </div>
-
-    <!-- Modal de confirmación de carga -->
-    <div id="modalConfirmacionCarga" class="modal oculto">
-      <div class="modal-content">
-        <h4>⚠️ Confirmar carga de historial</h4>
-        <div class="modal-body">
-          <p>Esto <strong>sobrescribirá completamente</strong> el historial de ventas actual.</p>
-          <p>¿Estás seguro de continuar?</p>
-          <div class="modal-botones">
-            <button class="btn-cancelar" onclick="cancelarCargaHistorial()">Cancelar</button>
-            <button class="btn-confirmar" onclick="confirmarCargaHistorial()">✅ Sobrescribir</button>
-          </div>
-        </div>
-      </div>
-    </div>
   </main>
 
   <script>
     const tablaVentas = document.getElementById("tablaVentas");
     let precioActual = 0;
-    let datosHistorialPendientes = null; // Para almacenar los datos antes de confirmar
 
     function cargarPrecioActual() {
       try {
@@ -427,13 +397,16 @@
           
           listaHistorial.innerHTML = ventasHistorial.map(venta => {
             const fechaFormateada = venta.fecha.split('-').reverse().join('/');
-            const itemsTexto = venta.items.map(item => `-${item.cantidad} ${item.sabor}`).join(', ');
+            const itemsHTML = venta.items.map(item => `<div>${item.sabor}: ${item.cantidad}</div>`).join('');
             
             return `
-              <div class="historial-item" style="display: grid; grid-template-columns: 120px 1fr 100px; gap: 0.5rem; padding: 0.8rem; border-bottom: 1px solid #eee; align-items: center;">
-                <div style="font-size: 0.9rem; color: #666;">${fechaFormateada} ${venta.hora}</div>
-                <div style="font-weight: 500;">${itemsTexto}</div>
-                <div style="text-align: right; color: #4ecdc4; font-weight: bold;">$${venta.montoTotal.toFixed(2)}</div>
+              <div style="display: grid; grid-template-columns: 80px 1fr 70px; gap: 0.5rem; padding: 0.8rem; border-bottom: 1px solid #eee; align-items: center;">
+                <div style="font-size: 0.9rem; color: #666; text-align: center; line-height: 1.2;">
+                  <div>${fechaFormateada}</div>
+                  <div>${venta.hora}</div>
+                </div>
+                <div style="font-weight: 500; line-height: 1.4;">${itemsHTML}</div>
+                <div style="text-align: right; color: #4ecdc4; font-weight: bold;">${venta.montoTotal.toFixed(2)}</div>
               </div>
             `;
           }).join('');
@@ -447,7 +420,7 @@
       }
     }
 
-    // NUEVAS FUNCIONES PARA MANEJO DE INPUTS
+    // FUNCIONES PARA MANEJO DE INPUTS
     function manejarFocoInput(input) {
       // Seleccionar todo el contenido al hacer focus
       setTimeout(() => {
@@ -479,79 +452,6 @@
       }
     }
 
-    // NUEVAS FUNCIONES PARA RESPALDO DE HISTORIAL DE VENTAS
-    function descargarHistorialVentas() {
-      const data = localStorage.getItem("ventas_hielitos");
-      if (!data) {
-        alert("No hay historial de ventas para descargar.");
-        return;
-      }
-      
-      const hoy = new Date();
-      const fecha = hoy.toLocaleDateString("es-MX").replace(/\//g, "-");
-      const hora = hoy.getHours().toString().padStart(2, "0");
-      const minuto = hoy.getMinutes().toString().padStart(2, "0");
-      
-      const blob = new Blob([data], { type: "application/json" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = `Historial_Ventas_Hielitos_-_${fecha}_-_${hora}-${minuto}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function cargarHistorialVentas(input) {
-      const file = input.files[0];
-      if (!file) return;
-      
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        try {
-          const data = JSON.parse(e.target.result);
-          
-          // Validar que sea un array válido
-          if (!Array.isArray(data)) {
-            throw new Error("El archivo no contiene un historial válido");
-          }
-          
-          // Validar estructura básica de las ventas
-          if (data.length > 0) {
-            const ventaMuestra = data[0];
-            if (!ventaMuestra.id || !ventaMuestra.fecha || !ventaMuestra.items) {
-              throw new Error("El formato del archivo no es compatible");
-            }
-          }
-          
-          // Guardar temporalmente los datos y mostrar confirmación
-          datosHistorialPendientes = data;
-          document.getElementById("modalConfirmacionCarga").classList.remove("oculto");
-          
-        } catch (error) {
-          console.error("Error al cargar historial:", error);
-          alert("Archivo no válido o formato incorrecto.\nAsegúrate de cargar un archivo de respaldo de historial de ventas.");
-        }
-      };
-      reader.readAsText(file);
-      
-      // Limpiar el input para permitir cargar el mismo archivo otra vez
-      input.value = '';
-    }
-
-    function confirmarCargaHistorial() {
-      if (datosHistorialPendientes) {
-        localStorage.setItem("ventas_hielitos", JSON.stringify(datosHistorialPendientes));
-        alert("Historial de ventas cargado correctamente.\nSe ha sobrescrito el historial anterior.");
-        datosHistorialPendientes = null;
-      }
-      document.getElementById("modalConfirmacionCarga").classList.add("oculto");
-    }
-
-    function cancelarCargaHistorial() {
-      datosHistorialPendientes = null;
-      document.getElementById("modalConfirmacionCarga").classList.add("oculto");
-    }
-
     function cerrarModalVentas() {
       document.getElementById("modalConfirmacionVentas").classList.add("oculto");
     }
@@ -570,7 +470,6 @@
         cerrarModalVentas();
         cerrarHistorialVentas();
         cerrarModalError();
-        cancelarCargaHistorial();
       }
     });
 
