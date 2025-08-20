@@ -6,15 +6,15 @@
   <title>Inventario</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* Corregir tabla inventario - Centrado limpio */
+    /* Corregir tabla inventario - Centrado limpio con columnas optimizadas */
     .tabla-header.inventario {
       display: grid !important;
-      grid-template-columns: 1fr 100px 100px !important;
+      grid-template-columns: 1fr 60px 60px !important;
     }
 
     .tabla-fila.inventario {
       display: grid !important;
-      grid-template-columns: 1fr 100px 100px !important;
+      grid-template-columns: 1fr 60px 60px !important;
     }
 
     /* Centrado específico para columnas de stock y acción */
@@ -35,7 +35,7 @@
     @media (max-width: 768px) {
       .tabla-header.inventario,
       .tabla-fila.inventario {
-        grid-template-columns: 1fr 80px 80px !important;
+        grid-template-columns: 1fr 50px 50px !important;
       }
     }
   </style>
@@ -54,7 +54,7 @@
     <div class="lista-sabores">
       <h3>Stock de sabores disponibles:</h3>
       <div class="tabla-sabores">
-        <div class="tabla-header inventario" style="display: grid; grid-template-columns: 1fr 100px 100px; background-color: #4ecdc4; color: white; font-weight: bold; padding: 0.8rem 0;">
+        <div class="tabla-header inventario" style="display: grid; grid-template-columns: 1fr 60px 60px; background-color: #4ecdc4; color: white; font-weight: bold; padding: 0.8rem 0;">
           <div style="padding: 0 0.8rem; display: flex; align-items: center; cursor: pointer;" onclick="ordenarPorSabor()">Sabor ↕️</div>
           <div style="padding: 0 0.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="ordenarPorStock()">Stock <span id="indicadorOrden">↕️</span></div>
           <div style="padding: 0 0.8rem; display: flex; align-items: center; justify-content: center;"></div>
@@ -104,6 +104,13 @@
       <div class="modal-content modal-grande">
         <h4>Historial de movimientos</h4>
         <div class="modal-body">
+          <!-- Navegación por días -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0.5rem; background-color: #f8f9fa; border-radius: 5px;">
+            <button id="btnDiaAnterior" onclick="cambiarDia(-1)" style="padding: 0.3rem 0.8rem; background-color: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">← Anterior</button>
+            <div id="fechaActualHistorial" style="font-weight: bold; color: #333;"></div>
+            <button id="btnDiaSiguiente" onclick="cambiarDia(1)" style="padding: 0.3rem 0.8rem; background-color: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">Siguiente →</button>
+          </div>
+          
           <div id="listaHistorial"></div>
           <div class="modal-botones">
             <button class="btn-confirmar" onclick="cerrarHistorial()">Cerrar</button>
@@ -117,6 +124,8 @@
     let saborActual = null;
     let cantidadPendiente = 0;
     let ordenActual = 'alfabetico'; // 'alfabetico', 'stock-asc', 'stock-desc'
+    let fechaHistorialActual = null; // Nueva variable para controlar la fecha del historial
+    let diasConMovimientos = []; // Array con todas las fechas que tienen movimientos
     const tablaInventario = document.getElementById("tablaInventario");
 
     function cargarSabores() {
@@ -159,7 +168,7 @@
         const fila = document.createElement("div");
         fila.className = "tabla-fila inventario";
         fila.style.display = "grid";
-        fila.style.gridTemplateColumns = "1fr 100px 100px";
+        fila.style.gridTemplateColumns = "1fr 60px 60px";
         fila.style.padding = "0.8rem 0";
         fila.style.borderBottom = "1px solid #eee";
         fila.innerHTML = `
@@ -232,7 +241,9 @@
       if (!saborActual || !cantidadPendiente) return;
 
       const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
-      const fecha = new Date().toISOString().split('T')[0];
+      const fechaHora = new Date();
+      const fecha = fechaHora.toISOString().split('T')[0];
+      const hora = fechaHora.toTimeString().split(' ')[0].substring(0, 5);
       
       if (!inventario[saborActual.id]) {
         inventario[saborActual.id] = {
@@ -245,6 +256,7 @@
       inventario[saborActual.id].stock += cantidadPendiente;
       inventario[saborActual.id].historial.push({
         fecha: fecha,
+        hora: hora,
         cantidad: cantidadPendiente,
         tipo: "entrada",
         stockResultante: inventario[saborActual.id].stock
@@ -261,10 +273,9 @@
 
     function mostrarHistorial() {
       const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
-      const listaHistorial = document.getElementById("listaHistorial");
       
+      // Recopilar todos los movimientos y obtener fechas únicas
       let historialCompleto = [];
-      
       Object.values(inventario).forEach(item => {
         item.historial.forEach(mov => {
           historialCompleto.push({
@@ -274,32 +285,103 @@
         });
       });
       
-      historialCompleto.sort((a, b) => new Date(b.fecha) - new Date(a.fecha));
-      
       if (historialCompleto.length === 0) {
-        listaHistorial.innerHTML = '<p class="no-sabores">No hay movimientos registrados</p>';
+        document.getElementById("listaHistorial").innerHTML = '<p class="no-sabores">No hay movimientos registrados</p>';
+        document.getElementById("modalHistorial").classList.remove("oculto");
+        return;
+      }
+      
+      // Obtener fechas únicas y ordenarlas de más reciente a más antigua
+      diasConMovimientos = [...new Set(historialCompleto.map(mov => mov.fecha))];
+      diasConMovimientos.sort((a, b) => new Date(b) - new Date(a));
+      
+      // Si no hay fecha seleccionada, usar la más reciente
+      if (!fechaHistorialActual || !diasConMovimientos.includes(fechaHistorialActual)) {
+        fechaHistorialActual = diasConMovimientos[0];
+      }
+      
+      cargarMovimientosDia(fechaHistorialActual);
+      document.getElementById("modalHistorial").classList.remove("oculto");
+    }
+
+    function cargarMovimientosDia(fecha) {
+      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+      const listaHistorial = document.getElementById("listaHistorial");
+      
+      // Filtrar movimientos solo de la fecha seleccionada
+      let movimientosDelDia = [];
+      Object.values(inventario).forEach(item => {
+        item.historial.forEach(mov => {
+          if (mov.fecha === fecha) {
+            movimientosDelDia.push({
+              sabor: item.sabor,
+              ...mov
+            });
+          }
+        });
+      });
+      
+      // Ordenar por hora (más reciente primero)
+      movimientosDelDia.sort((a, b) => {
+        const horaA = a.hora || '00:00';
+        const horaB = b.hora || '00:00';
+        return horaB.localeCompare(horaA);
+      });
+      
+      // Actualizar título con fecha actual
+      const fechaFormateada = fecha.split('-').reverse().join('/');
+      document.getElementById("fechaActualHistorial").textContent = `Movimientos del ${fechaFormateada}`;
+      
+      // Actualizar estado de botones de navegación
+      const indiceFechaActual = diasConMovimientos.indexOf(fecha);
+      document.getElementById("btnDiaAnterior").disabled = indiceFechaActual >= diasConMovimientos.length - 1;
+      document.getElementById("btnDiaSiguiente").disabled = indiceFechaActual <= 0;
+      
+      // Aplicar estilos de botones deshabilitados
+      const btnAnterior = document.getElementById("btnDiaAnterior");
+      const btnSiguiente = document.getElementById("btnDiaSiguiente");
+      
+      btnAnterior.style.opacity = btnAnterior.disabled ? "0.5" : "1";
+      btnAnterior.style.cursor = btnAnterior.disabled ? "not-allowed" : "pointer";
+      
+      btnSiguiente.style.opacity = btnSiguiente.disabled ? "0.5" : "1";
+      btnSiguiente.style.cursor = btnSiguiente.disabled ? "not-allowed" : "pointer";
+      
+      // Mostrar movimientos del día
+      if (movimientosDelDia.length === 0) {
+        listaHistorial.innerHTML = '<p class="no-sabores">No hay movimientos en esta fecha</p>';
       } else {
-        listaHistorial.innerHTML = historialCompleto.map(mov => {
-          const fechaFormateada = mov.fecha.split('-').reverse().join('/');
+        listaHistorial.innerHTML = movimientosDelDia.map(mov => {
+          const horaTexto = mov.hora || '00:00';
           const tipoTexto = mov.tipo === 'entrada' ? '+' : '';
           const colorTipo = mov.tipo === 'entrada' ? '#4ecdc4' : '#dc3545';
           
           return `
-            <div class="historial-item">
-              <div class="hist-fecha">${fechaFormateada}</div>
-              <div class="hist-sabor">${mov.sabor}</div>
-              <div class="hist-cantidad" style="color: ${colorTipo};">${tipoTexto}${mov.cantidad}</div>
-              <div class="hist-stock">Stock: ${mov.stockResultante}</div>
+            <div style="display: grid; grid-template-columns: 60px 1fr 60px 80px; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid #eee; align-items: center;">
+              <div style="font-size: 0.9rem; color: #666; text-align: center; font-weight: 500;">${horaTexto}</div>
+              <div style="font-weight: 500;">${mov.sabor}</div>
+              <div style="color: ${colorTipo}; font-weight: bold; text-align: center;">${tipoTexto}${mov.cantidad}</div>
+              <div style="color: #666; text-align: center; font-size: 0.9rem;">Stock: ${mov.stockResultante}</div>
             </div>
           `;
         }).join('');
       }
+    }
+
+    function cambiarDia(direccion) {
+      const indiceActual = diasConMovimientos.indexOf(fechaHistorialActual);
+      const nuevoIndice = indiceActual + direccion;
       
-      document.getElementById("modalHistorial").classList.remove("oculto");
+      if (nuevoIndice >= 0 && nuevoIndice < diasConMovimientos.length) {
+        fechaHistorialActual = diasConMovimientos[nuevoIndice];
+        cargarMovimientosDia(fechaHistorialActual);
+      }
     }
 
     function cerrarHistorial() {
       document.getElementById("modalHistorial").classList.add("oculto");
+      // Resetear la fecha al cerrar para que siempre abra en la más reciente
+      fechaHistorialActual = null;
     }
 
     function confirmarBorradoInventario() {
