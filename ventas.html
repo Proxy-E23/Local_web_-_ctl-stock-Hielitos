@@ -333,9 +333,10 @@
             if (inventario[saborId]) {
               inventario[saborId].stock -= cantidad;
               
-              // Agregar al historial de inventario
+              // Agregar al historial de inventario con hora
               inventario[saborId].historial.push({
                 fecha: fechaVenta,
+                hora: horaVenta,
                 cantidad: -cantidad,
                 tipo: "venta",
                 stockResultante: inventario[saborId].stock
