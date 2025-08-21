@@ -1,604 +1,639 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Ventas</title>
+  <title>Inventario</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* Estilos específicos para ventas */
-    .tabla-header.ventas {
+    /* Corregir tabla inventario - Centrado limpio con columnas optimizadas */
+    .tabla-header.inventario {
       display: grid !important;
-      grid-template-columns: 1fr 150px !important;
+      grid-template-columns: 1fr 60px 60px !important;
     }
 
-    .tabla-fila.ventas {
+    .tabla-fila.inventario {
       display: grid !important;
-      grid-template-columns: 1fr 150px !important;
+      grid-template-columns: 1fr 60px 60px !important;
     }
 
-    .input-cantidad {
+    /* Centrado específico para columnas de stock y acción */
+    .col-stock {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      font-weight: bold !important;
+      color: #4ecdc4 !important;
+    }
+
+    .col-accion {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    /* BOTONES DE NAVEGACIÓN DEL HISTORIAL - ESTILO CORREGIDO */
+    .btn-navegacion-historial {
+      padding: 0.7rem 1rem !important;
+      background-color: #4ecdc4 !important;
+      color: white !important;
+      border: none !important;
+      border-radius: 5px !important;
+      cursor: pointer !important;
+      font-weight: 600 !important;
+      transition: all 0.3s ease !important;
+      font-size: 1.3rem !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    .btn-navegacion-historial:hover:not(:disabled) {
+      background-color: #3da9a1 !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .btn-navegacion-historial:disabled {
+      background-color: #6c757d !important;
+      opacity: 0.6 !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+    }
+
+    /* Contenedor de navegación del historial */
+    .navegacion-historial {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      margin-bottom: 1rem !important;
+      padding: 0.8rem !important;
+      background-color: #f8f9fa !important;
+      border-radius: 5px !important;
+    }
+
+    .fecha-historial-info {
+      text-align: center !important;
+      flex-grow: 1 !important;
+    }
+
+    .fecha-historial-titulo {
+      font-size: 1.1rem !important;
+      font-weight: bold !important;
+      color: #333 !important;
+      margin-bottom: 0.2rem !important;
+    }
+
+    .fecha-historial-valor {
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      color: #4ecdc4 !important;
+    }
+
+    /* ===== ESTILOS PARA MODAL HISTORIAL FIJO SUPERIOR ===== */
+    #modalHistorial {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      padding: 0.5rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 3px;
-      text-align: center;
-      box-sizing: border-box;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-    }
-
-    .input-cantidad:focus {
-      border-color: #4ecdc4;
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
-    }
-
-    .precio-info {
-      background-color: #f8f9fa;
-      border: 1px solid #dee2e6;
-      border-radius: 5px;
-      padding: 0.8rem;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-
-    .precio-actual {
-      font-size: 1.2rem;
-      font-weight: bold;
-      color: #4ecdc4;
-    }
-
-    /* Estilos para el selector de fecha */
-    .fecha-venta-info {
-      background-color: #f8f9fa;
-      border: 1px solid #dee2e6;
-      border-radius: 5px;
-      padding: 0.8rem;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-
-    .fecha-venta-label {
-      font-size: 0.95rem;
-      font-weight: 600;
-      color: #333;
-      margin-bottom: 0.5rem;
-    }
-
-    .fecha-venta-input {
-      width: 100%;
-      max-width: 200px;
-      padding: 0.7rem;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 5px;
-      text-align: center;
-      background-color: white;
-      transition: border-color 0.3s ease, box-shadow 0.3s ease;
-      box-sizing: border-box;
-      line-height: 1;
-    }
-
-    .fecha-venta-input:focus {
-      border-color: #4ecdc4;
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
-    }
-
-    .fecha-venta-nota {
-      font-size: 0.85rem;
-      color: #666;
-      margin-top: 0.4rem;
-      font-style: italic;
-    }
-
-    /* Estilos para los botones de acción */
-    .botones-accion {
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
       display: flex;
-      gap: 1rem;
+      justify-content: center;
+      align-items: flex-start !important; /* Cambio clave: flex-start */
+      padding-top: 2rem !important; /* Espacio desde arriba */
+      box-sizing: border-box;
+    }
+
+    #modalHistorial .modal-content {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 600px;
+      min-height: 300px !important; /* Altura mínima */
+      max-height: calc(100vh - 4rem) !important; /* Máxima altura */
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #modalHistorial .modal-content h4 {
+      margin: 0;
+      padding: 1.5rem 1.5rem 1rem 1.5rem;
+      color: #333;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+      flex-shrink: 0;
+    }
+
+    #modalHistorial .modal-body {
+      padding: 1rem 1.5rem;
+      flex-grow: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #modalHistorial .navegacion-historial {
+      flex-shrink: 0;
+      margin-bottom: 1rem;
+    }
+
+    #modalHistorial #listaHistorial {
+      flex-grow: 1;
+      min-height: 100px;
+      max-height: 400px; /* Altura máxima equivalente a ~10 registros */
+      overflow-y: auto; /* Scroll interno cuando supere la altura máxima */
+    }
+
+    #modalHistorial .modal-botones {
+      flex-shrink: 0;
       margin-top: 1rem;
-      flex-wrap: wrap;
-    }
-
-    .botones-accion button {
-      flex: 1;
-      min-width: 200px;
-      padding: 0.7rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-      transition: background-color 0.3s ease;
-      font-weight: 600;
-    }
-
-    /* Botón procesar ventas con el mismo estilo que limpiar todo */
-    .btn-procesar {
-      background-color: #4ecdc4;
-      color: white;
-    }
-
-    .btn-procesar:hover {
-      background-color: #3da9a1;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
     }
 
     @media (max-width: 768px) {
-      .tabla-header.ventas,
-      .tabla-fila.ventas {
-        grid-template-columns: 1fr 120px !important;
+      .tabla-header.inventario,
+      .tabla-fila.inventario {
+        grid-template-columns: 1fr 50px 50px !important;
       }
       
-      .input-cantidad {
-        padding: 0.4rem;
-        font-size: 0.9rem;
+      .btn-navegacion-historial {
+        padding: 0.6rem 0.8rem !important;
+        font-size: 1.2rem !important;
+      }
+      
+      .navegacion-historial {
+        padding: 0.6rem !important;
+      }
+      
+      .fecha-historial-titulo {
+        font-size: 1rem !important;
+      }
+      
+      .fecha-historial-valor {
+        font-size: 0.9rem !important;
       }
 
-      .botones-accion {
-        flex-direction: column;
+      /* Responsive para modal historial */
+      #modalHistorial {
+        padding: 1rem;
+        padding-top: 1rem !important;
       }
-
-      .botones-accion button {
-        min-width: unset;
+      
+      #modalHistorial .modal-content {
+        width: 100%;
+        max-height: calc(100vh - 2rem) !important;
+        min-height: 250px !important;
       }
-
-      .fecha-venta-input {
-        max-width: 100%;
+      
+      #modalHistorial .modal-content h4 {
+        padding: 1rem;
+        font-size: 1.1rem;
+      }
+      
+      #modalHistorial .modal-body {
+        padding: 0.8rem;
       }
     }
   </style>
 </head>
 <body>
   <header>
-    <h1>Ventas</h1>
+    <h1>Inventario</h1>
   </header>
 
   <main class="container">
     <div class="botones-superiores">
       <button class="btn-volver" onclick="window.location.href='index.html'">← Atrás</button>
-      <button class="btn-borrar" onclick="mostrarHistorialVentas()">📊 Historial</button>
-    </div>
-
-    <!-- Información del precio actual -->
-    <div class="precio-info">
-      <div>Precio actual por hielito:</div>
-      <div class="precio-actual" id="precioActual">$0.00</div>
-    </div>
-
-    <!-- Selector de fecha de venta -->
-    <div class="fecha-venta-info">
-      <div class="fecha-venta-label">📅 Fecha de la venta:</div>
-      <input type="date" id="fechaVenta" class="fecha-venta-input" />
-      <div class="fecha-venta-nota" id="notaFecha">Venta del día actual - Se registrará con la hora real</div>
+      <button class="btn-borrar" onclick="mostrarHistorial()">📊 Historial</button>
     </div>
 
     <div class="lista-sabores">
-      <h3>Registro de ventas:</h3>
+      <h3>Stock de sabores disponibles:</h3>
       <div class="tabla-sabores">
-        <div class="tabla-header ventas" style="display: grid; grid-template-columns: 1fr 150px; background-color: #4ecdc4; color: white; font-weight: bold; padding: 0.8rem 0;">
-          <div style="padding: 0 0.8rem; display: flex; align-items: center;">Sabor</div>
-          <div style="padding: 0 0.8rem; display: flex; align-items: center; text-align: center; justify-content: center;">Cantidad</div>
+        <div class="tabla-header inventario" style="display: grid; grid-template-columns: 1fr 60px 60px; background-color: #4ecdc4; color: white; font-weight: bold; padding: 0.8rem 0;">
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; cursor: pointer;" onclick="ordenarPorSabor()">Sabor ↕️</div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="ordenarPorStock()">Stock <span id="indicadorOrden">↕️</span></div>
+          <div style="padding: 0 0.8rem; display: flex; align-items: center; justify-content: center;"></div>
         </div>
-        <div id="tablaVentas" class="tabla-body"></div>
+        <div id="tablaInventario" class="tabla-body"></div>
       </div>
 
-      <!-- Botones de acción debajo de la tabla -->
-      <div class="botones-accion">
-        <button type="button" class="boton-principal" onclick="limpiarTodo()">🧹 Limpiar todo</button>
-        <button type="button" class="btn-procesar" onclick="confirmarVentas()">💰 Procesar ventas</button>
+      <!-- Botón de borrar inventario después de la tabla -->
+      <div style="display: flex; justify-content: center; margin-top: 2rem;">
+        <button type="button" onclick="confirmarBorradoInventario()" style="padding: 0.8rem 2rem; font-size: 1rem; border: none; border-radius: 5px; background-color: #dc3545; color: white; cursor: pointer; transition: background-color 0.3s ease;">
+          🗑 Borrar inventario completo
+        </button>
       </div>
     </div>
 
-    <!-- Modal de confirmación de ventas -->
-    <div id="modalConfirmacionVentas" class="modal oculto">
+    <!-- Modal para editar stock -->
+    <div id="modalStock" class="modal oculto">
       <div class="modal-content">
-        <h4>Confirmar ventas</h4>
+        <h4 id="modalTitulo">Agregar stock</h4>
         <div class="modal-body">
-          <div id="resumenVentas"></div>
+          <label for="cantidadInput">Cantidad a agregar:</label>
+          <input type="number" id="cantidadInput" min="1" inputmode="numeric" />
           <div class="modal-botones">
-            <button class="btn-cancelar" onclick="cerrarModalVentas()">Cancelar</button>
-            <button class="btn-confirmar" onclick="procesarVentas()">✅ Confirmar</button>
+            <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+            <button class="btn-confirmar" onclick="confirmarStock()">✅ Confirmar</button>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Modal historial de ventas -->
-    <div id="modalHistorialVentas" class="modal oculto">
+    <!-- Modal de confirmación -->
+    <div id="modalConfirmacion" class="modal oculto">
+      <div class="modal-content">
+        <h4>Confirmar operación</h4>
+        <div class="modal-body">
+          <p id="mensajeConfirmacion"></p>
+          <div class="modal-botones">
+            <button class="btn-cancelar" onclick="cancelarOperacion()">Cancelar</button>
+            <button class="btn-confirmar" onclick="ejecutarOperacion()">Continuar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal historial -->
+    <div id="modalHistorial" class="modal oculto">
       <div class="modal-content modal-grande">
-        <h4>Historial de ventas</h4>
+        <h4>Historial de movimientos</h4>
         <div class="modal-body">
-          <div id="listaHistorialVentas"></div>
-          <div class="modal-botones">
-            <button class="btn-confirmar" onclick="cerrarHistorialVentas()">Cerrar</button>
+          <!-- Navegación por días con estructura mejorada -->
+          <div class="navegacion-historial">
+            <button id="btnDiaAnterior" class="btn-navegacion-historial">←</button>
+            <div class="fecha-historial-info">
+              <div class="fecha-historial-titulo">Movimientos del</div>
+              <div id="fechaActualHistorial" class="fecha-historial-valor"></div>
+            </div>
+            <button id="btnDiaSiguiente" class="btn-navegacion-historial">→</button>
           </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal de error -->
-    <div id="modalError" class="modal oculto">
-      <div class="modal-content">
-        <h4>⚠️ Error en ventas</h4>
-        <div class="modal-body">
-          <p id="mensajeError"></p>
+          
+          <div id="listaHistorial"></div>
           <div class="modal-botones">
-            <button class="btn-confirmar" onclick="cerrarModalError()">Entendido</button>
+            <button class="btn-confirmar" onclick="cerrarHistorial()">Cerrar</button>
           </div>
         </div>
       </div>
     </div>
   </main>
 
-  <script src="script.js"></script>
   <script>
-    const tablaVentas = document.getElementById("tablaVentas");
-    let precioActual = 0;
+    let saborActual = null;
+    let cantidadPendiente = 0;
+    let ordenActual = 'alfabetico';
+    let fechaHistorialActual = null;
+    let diasConMovimientos = [];
+    const tablaInventario = document.getElementById("tablaInventario");
 
-    function cargarPrecioActual() {
-      try {
-        const precios = JSON.parse(localStorage.getItem("precios_hielitos")) || [];
-        const precio = precios.find(p => p.actual === true);
-        precioActual = precio ? precio.precio : 0;
-        document.getElementById("precioActual").textContent = `$${precioActual.toFixed(2)}`;
-      } catch (error) {
-        console.error("Error al cargar precio actual:", error);
-        precioActual = 0;
-        document.getElementById("precioActual").textContent = "$0.00";
+    function cargarSabores() {
+      const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
+      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+      
+      const saboresDisponibles = sabores.filter(sabor => sabor.disponible === true);
+      
+      tablaInventario.innerHTML = "";
+      
+      if (saboresDisponibles.length === 0) {
+        tablaInventario.innerHTML = '<div class="no-sabores">No hay sabores disponibles para inventario.<br>Marca algunos sabores como "disponibles" en la sección Sabores.</div>';
+        return;
       }
-    }
-
-    function inicializarFecha() {
-      const fechaInput = document.getElementById("fechaVenta");
-      const notaFecha = document.getElementById("notaFecha");
       
-      // Usar función global de utilidades
-      const fechaHoy = obtenerFechaLocal();
-      fechaInput.value = fechaHoy;
-      fechaInput.max = fechaHoy; // No permitir fechas futuras
+      let saboresConStock = saboresDisponibles.map(sabor => ({
+        ...sabor,
+        stock: inventario[sabor.id] ? inventario[sabor.id].stock : 0
+      }));
       
-      // Actualizar nota según la fecha seleccionada
-      fechaInput.addEventListener('change', function() {
-        const fechaSeleccionada = fechaInput.value;
-        if (fechaSeleccionada === fechaHoy) {
-          notaFecha.textContent = "Venta del día actual - Se registrará con la hora real";
-          notaFecha.style.color = "#28a745";
-        } else {
-          notaFecha.textContent = "Venta retroactiva - Se registrará a las 23:00";
-          notaFecha.style.color = "#ffc107";
-        }
+      switch(ordenActual) {
+        case 'alfabetico':
+          saboresConStock.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+          document.getElementById('indicadorOrden').textContent = '↕️';
+          break;
+        case 'stock-asc':
+          saboresConStock.sort((a, b) => a.stock - b.stock);
+          document.getElementById('indicadorOrden').textContent = '↑';
+          break;
+        case 'stock-desc':
+          saboresConStock.sort((a, b) => b.stock - a.stock);
+          document.getElementById('indicadorOrden').textContent = '↓';
+          break;
+      }
+      
+      saboresConStock.forEach(sabor => {
+        const fila = document.createElement("div");
+        fila.className = "tabla-fila inventario";
+        fila.style.display = "grid";
+        fila.style.gridTemplateColumns = "1fr 60px 60px";
+        fila.style.padding = "0.8rem 0";
+        fila.style.borderBottom = "1px solid #eee";
+        fila.innerHTML = `
+          <div style="padding: 0 0.8rem; display: flex; align-items: center;">${sabor.nombre}</div>
+          <div class="col-stock" style="padding: 0 0.8rem;">${sabor.stock}</div>
+          <div class="col-accion" style="padding: 0 0.8rem;">
+            <button class="btn-editar" onclick="editarStock('${sabor.id}', '${sabor.nombre}')">✏️</button>
+          </div>
+        `;
+        tablaInventario.appendChild(fila);
       });
     }
 
-    function obtenerFechaLocal() {
-      // Crear fecha en zona horaria de México (GMT-6)
-      const ahora = new Date();
-      const offsetMexico = -6; // GMT-6 para México
-      const utc = ahora.getTime() + (ahora.getTimezoneOffset() * 60000);
-      const fechaMexico = new Date(utc + (offsetMexico * 3600000));
-      
-      const año = fechaMexico.getFullYear();
-      const mes = (fechaMexico.getMonth() + 1).toString().padStart(2, '0');
-      const dia = fechaMexico.getDate().toString().padStart(2, '0');
-      
-      return `${año}-${mes}-${dia}`;
+    function ordenarPorSabor() {
+      ordenActual = 'alfabetico';
+      cargarSabores();
     }
 
-    function obtenerHoraLocal() {
-      // Crear hora en zona horaria de México (GMT-6)
-      const ahora = new Date();
-      const offsetMexico = -6; // GMT-6 para México
-      const utc = ahora.getTime() + (ahora.getTimezoneOffset() * 60000);
-      const fechaMexico = new Date(utc + (offsetMexico * 3600000));
-      
-      const horas = fechaMexico.getHours().toString().padStart(2, '0');
-      const minutos = fechaMexico.getMinutes().toString().padStart(2, '0');
-      
-      return `${horas}:${minutos}`;
-    }
-
-    function cargarSaboresVentas() {
-      try {
-        const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
-        const saboresDisponibles = sabores.filter(sabor => sabor.disponible);
-        
-        tablaVentas.innerHTML = "";
-        
-        if (saboresDisponibles.length === 0) {
-          tablaVentas.innerHTML = '<div class="no-sabores">No hay sabores disponibles para venta</div>';
-          return;
-        }
-        
-        // Ordenar sabores alfabéticamente
-        saboresDisponibles.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
-        
-        saboresDisponibles.forEach(sabor => {
-          const fila = document.createElement("div");
-          fila.className = "tabla-fila ventas";
-          fila.style.display = "grid";
-          fila.style.gridTemplateColumns = "1fr 150px";
-          fila.style.padding = "0.8rem 0";
-          fila.style.borderBottom = "1px solid #eee";
-          fila.innerHTML = `
-            <div style="padding: 0 0.8rem; display: flex; align-items: center;">${sabor.nombre}</div>
-            <div style="padding: 0 0.8rem; display: flex; align-items: center; justify-content: center;">
-              <input type="number" class="input-cantidad" id="cantidad_${sabor.id}" min="0" value="0" inputmode="numeric" onfocus="manejarFocoInput(this)" onblur="manejarBlurInput(this)" />
-            </div>
-          `;
-          tablaVentas.appendChild(fila);
-        });
-      } catch (error) {
-        console.error("Error al cargar sabores para ventas:", error);
-        tablaVentas.innerHTML = '<div class="no-sabores">Error al cargar sabores. Recarga la página.</div>';
+    function ordenarPorStock() {
+      if (ordenActual === 'alfabetico' || ordenActual === 'stock-desc') {
+        ordenActual = 'stock-asc';
+      } else if (ordenActual === 'stock-asc') {
+        ordenActual = 'stock-desc';
       }
+      cargarSabores();
     }
 
-    function limpiarTodo() {
-      const inputs = document.querySelectorAll('.input-cantidad');
-      inputs.forEach(input => {
-        input.value = '0';
-      });
+    function editarStock(saborId, saborNombre) {
+      saborActual = { id: saborId, nombre: saborNombre };
+      document.getElementById("modalTitulo").textContent = `Agregar stock - ${saborNombre}`;
+      document.getElementById("cantidadInput").value = "";
+      document.getElementById("modalStock").classList.remove("oculto");
+      document.getElementById("cantidadInput").focus();
     }
 
-    function confirmarVentas() {
-      try {
-        const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
-        const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
-        const inputs = document.querySelectorAll('.input-cantidad');
-        const fechaVenta = document.getElementById("fechaVenta").value;
-        
-        if (!fechaVenta) {
-          document.getElementById("mensajeError").innerHTML = 
-            'Selecciona una fecha para la venta.';
-          document.getElementById("modalError").classList.remove("oculto");
-          return;
-        }
-        
-        let ventasValidas = [];
-        let errores = [];
-        let totalVentas = 0;
-        let montoTotal = 0;
+    function cerrarModal() {
+      document.getElementById("modalStock").classList.add("oculto");
+      document.getElementById("modalConfirmacion").classList.add("oculto");
+      saborActual = null;
+      cantidadPendiente = 0;
+    }
 
-        inputs.forEach(input => {
-          const cantidad = parseInt(input.value) || 0;
-          if (cantidad > 0) {
-            const saborId = input.id.replace('cantidad_', '');
-            const sabor = sabores.find(s => s.id === saborId);
-            const stockDisponible = inventario[saborId] ? inventario[saborId].stock : 0;
-
-            if (cantidad > stockDisponible) {
-              errores.push(`${sabor.nombre}: Stock insuficiente (disponible: ${stockDisponible}, solicitado: ${cantidad})`);
-            } else {
-              ventasValidas.push({
-                sabor: sabor.nombre,
-                saborId: saborId,
-                cantidad: cantidad,
-                stockDisponible: stockDisponible
-              });
-              totalVentas += cantidad;
-              montoTotal += cantidad * precioActual;
-            }
-          }
-        });
-
-        if (errores.length > 0) {
-          document.getElementById("mensajeError").innerHTML = 
-            '<strong>No se puede procesar la venta:</strong><br><br>' + 
-            errores.join('<br>');
-          document.getElementById("modalError").classList.remove("oculto");
-          return;
-        }
-
-        if (ventasValidas.length === 0) {
-          document.getElementById("mensajeError").innerHTML = 
-            'No hay cantidades válidas para procesar.<br><br>Ingresa las cantidades a vender.';
-          document.getElementById("modalError").classList.remove("oculto");
-          return;
-        }
-
-        if (precioActual <= 0) {
-          document.getElementById("mensajeError").innerHTML = 
-            'No hay precio configurado.<br><br>Configura un precio actual en la sección de Precios.';
-          document.getElementById("modalError").classList.remove("oculto");
-          return;
-        }
-
-        // Mostrar resumen incluyendo fecha y hora
-        const fechaFormateada = fechaVenta.split('-').reverse().join('/');
-        const horaVenta = obtenerHoraVenta();
-        
-        let resumen = `<strong>Resumen de la venta:</strong><br><br>`;
-        resumen += `<strong>📅 Fecha:</strong> ${fechaFormateada}<br>`;
-        resumen += `<strong>🕐 Hora:</strong> ${horaVenta}<br><br>`;
-        
-        ventasValidas.forEach(venta => {
-          resumen += `${venta.sabor}: ${venta.cantidad} unidades<br>`;
-        });
-        resumen += `<br><strong>Total de hielitos:</strong> ${totalVentas}`;
-        resumen += `<br><strong>Precio unitario:</strong> $${precioActual.toFixed(2)}`;
-        resumen += `<br><strong>Total a cobrar:</strong> $${montoTotal.toFixed(2)}`;
-
-        document.getElementById("resumenVentas").innerHTML = resumen;
-        document.getElementById("modalConfirmacionVentas").classList.remove("oculto");
-        
-      } catch (error) {
-        console.error("Error al confirmar ventas:", error);
-        document.getElementById("mensajeError").innerHTML = 
-          'Error al procesar la venta.<br><br>Inténtalo de nuevo.';
-        document.getElementById("modalError").classList.remove("oculto");
+    function confirmarStock() {
+      const cantidad = parseInt(document.getElementById("cantidadInput").value);
+      
+      if (!cantidad || cantidad <= 0) {
+        alert("Ingrese una cantidad válida");
+        return;
       }
+
+      cantidadPendiente = cantidad;
+      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+      const stockActual = inventario[saborActual.id] ? inventario[saborActual.id].stock : 0;
+      const nuevoStock = stockActual + cantidad;
+
+      document.getElementById("mensajeConfirmacion").innerHTML = `
+        Se van a anexar <strong>${cantidad}</strong> unidades a <strong>${saborActual.nombre}</strong><br>
+        Resultado: <strong>${nuevoStock}</strong> en stock
+      `;
+      
+      document.getElementById("modalStock").classList.add("oculto");
+      document.getElementById("modalConfirmacion").classList.remove("oculto");
     }
 
-    function procesarVentas() {
-      try {
-        const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
-        const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
-        const ventasHistorial = JSON.parse(localStorage.getItem("ventas_hielitos")) || [];
-        const inputs = document.querySelectorAll('.input-cantidad');
-        
-        const fechaVenta = document.getElementById("fechaVenta").value;
-        const horaVenta = obtenerHoraVenta();
-        
-        let ventasProcesadas = [];
-        let montoTotal = 0;
+    function cancelarOperacion() {
+      cerrarModal();
+    }
 
-        inputs.forEach(input => {
-          const cantidad = parseInt(input.value) || 0;
-          if (cantidad > 0) {
-            const saborId = input.id.replace('cantidad_', '');
-            const sabor = sabores.find(s => s.id === saborId);
+    function ejecutarOperacion() {
+      if (!saborActual || !cantidadPendiente) return;
 
-            // Descontar del inventario
-            if (inventario[saborId]) {
-              inventario[saborId].stock -= cantidad;
-              
-              // Agregar al historial de inventario con fecha y hora específicas
-              inventario[saborId].historial.push({
-                fecha: fechaVenta,
-                hora: horaVenta,
-                cantidad: -cantidad,
-                tipo: "venta",
-                stockResultante: inventario[saborId].stock
-              });
-            }
-
-            ventasProcesadas.push({
-              sabor: sabor.nombre,
-              cantidad: cantidad
-            });
-            montoTotal += cantidad * precioActual;
-          }
-        });
-
-        // Guardar venta en historial
-        const ventaCompleta = {
-          id: `venta_${Date.now()}`,
-          fecha: fechaVenta,
-          hora: horaVenta,
-          items: ventasProcesadas,
-          precioUnitario: precioActual,
-          totalHielitos: ventasProcesadas.reduce((sum, item) => sum + item.cantidad, 0),
-          montoTotal: montoTotal
+      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+      const fechaHora = new Date();
+      const fecha = fechaHora.toISOString().split('T')[0];
+      const hora = fechaHora.toTimeString().split(' ')[0].substring(0, 5);
+      
+      if (!inventario[saborActual.id]) {
+        inventario[saborActual.id] = {
+          sabor: saborActual.nombre,
+          stock: 0,
+          historial: []
         };
-
-        ventasHistorial.push(ventaCompleta);
-
-        // Guardar en localStorage
-        localStorage.setItem("inventario_hielitos", JSON.stringify(inventario));
-        localStorage.setItem("ventas_hielitos", JSON.stringify(ventasHistorial));
-
-        // Limpiar formulario y cerrar modal
-        limpiarTodo();
-        cerrarModalVentas();
-
-        // Mostrar confirmación
-        const fechaFormateada = fechaVenta.split('-').reverse().join('/');
-        alert(`Venta procesada correctamente\n\nFecha: ${fechaFormateada} a las ${horaVenta}\nTotal: ${ventaCompleta.totalHielitos} hielitos\nMonto: $${montoTotal.toFixed(2)}`);
-        
-      } catch (error) {
-        console.error("Error al procesar ventas:", error);
-        alert("Error al procesar la venta. Inténtalo de nuevo.");
       }
+
+      inventario[saborActual.id].stock += cantidadPendiente;
+      inventario[saborActual.id].historial.push({
+        fecha: fecha,
+        hora: hora,
+        cantidad: cantidadPendiente,
+        tipo: "entrada",
+        stockResultante: inventario[saborActual.id].stock
+      });
+
+      localStorage.setItem("inventario_hielitos", JSON.stringify(inventario));
+      
+      cerrarModal();
+      cargarSabores();
+      
+      alert(`Stock actualizado correctamente\n${saborActual.nombre}: ${inventario[saborActual.id].stock} unidades`);
     }
 
-    function mostrarHistorialVentas() {
-      try {
-        const ventasHistorial = JSON.parse(localStorage.getItem("ventas_hielitos")) || [];
-        const listaHistorial = document.getElementById("listaHistorialVentas");
-        
-        if (ventasHistorial.length === 0) {
-          listaHistorial.innerHTML = '<p class="no-sabores">No hay ventas registradas</p>';
-        } else {
-          // Ordenar por fecha y hora más reciente
-          ventasHistorial.sort((a, b) => {
-            const fechaA = new Date(`${a.fecha} ${a.hora}`);
-            const fechaB = new Date(`${b.fecha} ${b.hora}`);
-            return fechaB - fechaA;
+    function mostrarHistorial() {
+      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+      
+      let historialCompleto = [];
+      Object.values(inventario).forEach(item => {
+        item.historial.forEach(mov => {
+          historialCompleto.push({
+            sabor: item.sabor,
+            ...mov
           });
-          
-          listaHistorial.innerHTML = ventasHistorial.map(venta => {
-            const fechaFormateada = venta.fecha.split('-').reverse().join('/');
-            const itemsHTML = venta.items.map(item => `<div>${item.sabor}: ${item.cantidad}</div>`).join('');
+        });
+      });
+      
+      if (historialCompleto.length === 0) {
+        document.getElementById("listaHistorial").innerHTML = '<p class="no-sabores">No hay movimientos registrados</p>';
+        document.getElementById("modalHistorial").classList.remove("oculto");
+        
+        setTimeout(() => {
+          const modal = document.getElementById("modalHistorial");
+          const modalContent = modal.querySelector(".modal-content");
+          modalContent.scrollTop = 0;
+        }, 100);
+        
+        return;
+      }
+      
+      diasConMovimientos = [...new Set(historialCompleto.map(mov => mov.fecha))];
+      diasConMovimientos.sort((a, b) => new Date(b) - new Date(a));
+      
+      if (!fechaHistorialActual || !diasConMovimientos.includes(fechaHistorialActual)) {
+        fechaHistorialActual = diasConMovimientos[0];
+      }
+      
+      cargarMovimientosDia(fechaHistorialActual);
+      document.getElementById("modalHistorial").classList.remove("oculto");
+      
+      setTimeout(() => {
+        const modal = document.getElementById("modalHistorial");
+        const modalContent = modal.querySelector(".modal-content");
+        modalContent.scrollTop = 0;
+      }, 100);
+    }
+
+    function cargarMovimientosDia(fecha) {
+      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+      const listaHistorial = document.getElementById("listaHistorial");
+      
+      let movimientosDelDia = [];
+      Object.values(inventario).forEach(item => {
+        if (item.historial) {
+          item.historial.forEach(mov => {
+            if (mov && mov.fecha === fecha) {
+              movimientosDelDia.push({
+                sabor: item.sabor,
+                fecha: mov.fecha,
+                hora: mov.hora || '00:00',
+                cantidad: mov.cantidad,
+                tipo: mov.tipo || 'entrada',
+                stockResultante: mov.stockResultante
+              });
+            }
+          });
+        }
+      });
+      
+      movimientosDelDia.sort((a, b) => {
+        const horaA = a.hora || '00:00';
+        const horaB = b.hora || '00:00';
+        return horaB.localeCompare(horaA);
+      });
+      
+      const fechaFormateada = fecha.split('-').reverse().join('/');
+      document.getElementById("fechaActualHistorial").textContent = fechaFormateada;
+      
+      // CONFIGURAR EVENTOS DE BOTONES Y ACTUALIZAR ESTADO
+      const indiceFechaActual = diasConMovimientos.indexOf(fecha);
+      const btnAnterior = document.getElementById("btnDiaAnterior");
+      const btnSiguiente = document.getElementById("btnDiaSiguiente");
+      
+      console.log(`Configurando botones - Índice: ${indiceFechaActual}, Total: ${diasConMovimientos.length}`);
+      console.log(`Fecha mostrada: ${fecha}`);
+      console.log(`Array de días:`, diasConMovimientos);
+      
+      // Limpiar eventos anteriores y agregar nuevos
+      btnAnterior.onclick = null;
+      btnSiguiente.onclick = null;
+      
+      // Calcular estado de botones
+      const puedeIrAnterior = indiceFechaActual < diasConMovimientos.length - 1; // Puede ir a días más antiguos
+      const puedeIrSiguiente = indiceFechaActual > 0; // Puede ir a días más recientes
+      
+      console.log(`Puede ir anterior (más antiguo): ${puedeIrAnterior}`);
+      console.log(`Puede ir siguiente (más reciente): ${puedeIrSiguiente}`);
+      
+      // Configurar botón anterior (ir a día más antiguo)
+      if (puedeIrAnterior) {
+        btnAnterior.disabled = false;
+        btnAnterior.onclick = () => cambiarDia(1); // +1 porque el array está ordenado de reciente a antiguo
+        btnAnterior.style.backgroundColor = "#4ecdc4";
+        btnAnterior.style.opacity = "1";
+        btnAnterior.style.cursor = "pointer";
+      } else {
+        btnAnterior.disabled = true;
+        btnAnterior.onclick = null;
+        btnAnterior.style.backgroundColor = "#6c757d";
+        btnAnterior.style.opacity = "0.6";
+        btnAnterior.style.cursor = "not-allowed";
+      }
+      
+      // Configurar botón siguiente (ir a día más reciente)
+      if (puedeIrSiguiente) {
+        btnSiguiente.disabled = false;
+        btnSiguiente.onclick = () => cambiarDia(-1); // -1 porque el array está ordenado de reciente a antiguo
+        btnSiguiente.style.backgroundColor = "#4ecdc4";
+        btnSiguiente.style.opacity = "1";
+        btnSiguiente.style.cursor = "pointer";
+      } else {
+        btnSiguiente.disabled = true;
+        btnSiguiente.onclick = null;
+        btnSiguiente.style.backgroundColor = "#6c757d";
+        btnSiguiente.style.opacity = "0.6";
+        btnSiguiente.style.cursor = "not-allowed";
+      }
+      
+      if (movimientosDelDia.length === 0) {
+        listaHistorial.innerHTML = '<p class="no-sabores">No hay movimientos en esta fecha</p>';
+      } else {
+        listaHistorial.innerHTML = movimientosDelDia
+          .filter(mov => {
+            // Filtrar movimientos que realmente tengan datos válidos
+            return mov && 
+                   mov.sabor && 
+                   mov.sabor.trim() !== '' &&
+                   mov.cantidad !== null && 
+                   mov.cantidad !== undefined &&
+                   mov.cantidad !== '';
+          })
+          .map(mov => {
+            const horaTexto = mov.hora || '00:00';
+            const tipoTexto = mov.tipo === 'entrada' ? '+' : '';
+            const colorTipo = mov.tipo === 'entrada' ? '#4ecdc4' : '#dc3545';
             
             return `
-              <div style="display: grid; grid-template-columns: 80px 1fr 70px; gap: 0.5rem; padding: 0.8rem; border-bottom: 1px solid #eee; align-items: center;">
-                <div style="font-size: 0.9rem; color: #666; text-align: center; line-height: 1.2;">
-                  <div>${fechaFormateada}</div>
-                  <div>${venta.hora}</div>
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; border-bottom: 1px solid #eee; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.8rem; flex-grow: 1;">
+                  <div style="font-size: 0.9rem; color: #666; font-weight: 500; min-width: 45px;">${horaTexto}</div>
+                  <div style="font-weight: 500; flex-grow: 1;">${mov.sabor}</div>
                 </div>
-                <div style="font-weight: 500; line-height: 1.4;">${itemsHTML}</div>
-                <div style="text-align: right; color: #4ecdc4; font-weight: bold;">${venta.montoTotal.toFixed(2)}</div>
+                <div style="display: flex; align-items: center; gap: 0.8rem;">
+                  <div style="color: ${colorTipo}; font-weight: bold; text-align: center; min-width: 40px;">${tipoTexto}${mov.cantidad}</div>
+                  <div style="color: #666; text-align: center; font-size: 0.9rem; min-width: 70px;">Stock: ${mov.stockResultante}</div>
+                </div>
               </div>
             `;
-          }).join('');
-        }
-        
-        document.getElementById("modalHistorialVentas").classList.remove("oculto");
-      } catch (error) {
-        console.error("Error al mostrar historial:", error);
-        document.getElementById("listaHistorialVentas").innerHTML = '<p class="no-sabores">Error al cargar el historial</p>';
-        document.getElementById("modalHistorialVentas").classList.remove("oculto");
+          })
+          .join('');
       }
     }
 
-    // FUNCIONES PARA MANEJO DE INPUTS
-    function manejarFocoInput(input) {
-      // Seleccionar todo el contenido al hacer focus
-      setTimeout(() => {
-        input.select();
-      }, 50);
+    function cambiarDia(direccion) {
+      const indiceActual = diasConMovimientos.indexOf(fechaHistorialActual);
+      const nuevoIndice = indiceActual + direccion;
       
-      // Desplazar la página para que el input quede visible arriba del teclado
-      setTimeout(() => {
-        // Calcular la posición del input
-        const rect = input.getBoundingClientRect();
-        const inputTop = rect.top + window.pageYOffset;
-        
-        // Calcular cuánto desplazar (dejando un margen de 100px arriba del teclado virtual)
-        const offset = 100;
-        const scrollTo = inputTop - offset;
-        
-        // Desplazar suavemente
-        window.scrollTo({
-          top: scrollTo,
-          behavior: 'smooth'
-        });
-      }, 300); // Esperar un poco para que aparezca el teclado
-    }
-
-    function manejarBlurInput(input) {
-      // Si el campo queda vacío, volver a poner 0
-      if (input.value === '' || input.value < 0) {
-        input.value = '0';
+      console.log(`=== CAMBIAR DÍA ===`);
+      console.log(`Dirección: ${direccion}`);
+      console.log(`Índice actual: ${indiceActual}`);
+      console.log(`Nuevo índice: ${nuevoIndice}`);
+      console.log(`Total días: ${diasConMovimientos.length}`);
+      console.log(`Días disponibles:`, diasConMovimientos);
+      console.log(`Fecha actual: ${fechaHistorialActual}`);
+      
+      if (nuevoIndice >= 0 && nuevoIndice < diasConMovimientos.length) {
+        fechaHistorialActual = diasConMovimientos[nuevoIndice];
+        console.log(`✅ Cambiando a: ${fechaHistorialActual}`);
+        cargarMovimientosDia(fechaHistorialActual);
+      } else {
+        console.log(`❌ Fuera de rango - no se puede cambiar`);
       }
     }
 
-    function cerrarModalVentas() {
-      document.getElementById("modalConfirmacionVentas").classList.add("oculto");
+    function cerrarHistorial() {
+      document.getElementById("modalHistorial").classList.add("oculto");
+      fechaHistorialActual = null;
     }
 
-    function cerrarHistorialVentas() {
-      document.getElementById("modalHistorialVentas").classList.add("oculto");
+    function confirmarBorradoInventario() {
+      const confirmacion = confirm(
+        "⚠️ ATENCIÓN ⚠️\n\nEsto borrará TODO el inventario (stock y historial).\nLos SABORES se mantendrán intactos.\n\n¿Estás seguro de continuar?"
+      );
+      if (confirmacion) {
+        localStorage.removeItem("inventario_hielitos");
+        alert("Inventario borrado correctamente.\nLos sabores se mantienen intactos.");
+        cargarSabores();
+      }
     }
 
-    function cerrarModalError() {
-      document.getElementById("modalError").classList.add("oculto");
-    }
-
-    // Cerrar modales al hacer clic fuera
     document.addEventListener("click", function(e) {
       if (e.target.classList.contains("modal")) {
-        cerrarModalVentas();
-        cerrarHistorialVentas();
-        cerrarModalError();
+        cerrarModal();
+        cerrarHistorial();
       }
     });
 
-    // Inicializar página
-    window.addEventListener("DOMContentLoaded", function() {
-      cargarPrecioActual();
-      inicializarFecha();
-      cargarSaboresVentas();
-    });
+    window.addEventListener("DOMContentLoaded", cargarSabores);
   </script>
 </body>
 </html>
