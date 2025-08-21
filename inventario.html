@@ -32,10 +32,81 @@
       justify-content: center !important;
     }
 
+    /* BOTONES DE NAVEGACIÓN DEL HISTORIAL - ESTILO CORREGIDO */
+    .btn-navegacion-historial {
+      padding: 0.7rem 1rem !important;
+      background-color: #4ecdc4 !important;
+      color: white !important;
+      border: none !important;
+      border-radius: 5px !important;
+      cursor: pointer !important;
+      font-weight: 600 !important;
+      transition: all 0.3s ease !important;
+      font-size: 1rem !important;
+    }
+
+    .btn-navegacion-historial:hover:not(:disabled) {
+      background-color: #3da9a1 !important;
+      transform: translateY(-1px) !important;
+    }
+
+    .btn-navegacion-historial:disabled {
+      background-color: #6c757d !important;
+      opacity: 0.6 !important;
+      cursor: not-allowed !important;
+      transform: none !important;
+    }
+
+    /* Contenedor de navegación del historial */
+    .navegacion-historial {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      margin-bottom: 1rem !important;
+      padding: 0.8rem !important;
+      background-color: #f8f9fa !important;
+      border-radius: 5px !important;
+    }
+
+    .fecha-historial-info {
+      text-align: center !important;
+      flex-grow: 1 !important;
+    }
+
+    .fecha-historial-titulo {
+      font-size: 1.1rem !important;
+      font-weight: bold !important;
+      color: #333 !important;
+      margin-bottom: 0.2rem !important;
+    }
+
+    .fecha-historial-valor {
+      font-size: 1rem !important;
+      font-weight: 600 !important;
+      color: #4ecdc4 !important;
+    }
+
     @media (max-width: 768px) {
       .tabla-header.inventario,
       .tabla-fila.inventario {
         grid-template-columns: 1fr 50px 50px !important;
+      }
+      
+      .btn-navegacion-historial {
+        padding: 0.5rem 0.7rem !important;
+        font-size: 0.9rem !important;
+      }
+      
+      .navegacion-historial {
+        padding: 0.6rem !important;
+      }
+      
+      .fecha-historial-titulo {
+        font-size: 1rem !important;
+      }
+      
+      .fecha-historial-valor {
+        font-size: 0.9rem !important;
       }
     }
   </style>
@@ -104,11 +175,14 @@
       <div class="modal-content modal-grande">
         <h4>Historial de movimientos</h4>
         <div class="modal-body">
-          <!-- Navegación por días -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding: 0.5rem; background-color: #f8f9fa; border-radius: 5px;">
-            <button id="btnDiaAnterior" onclick="cambiarDia(-1)" style="padding: 0.3rem 0.8rem; background-color: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">← Anterior</button>
-            <div id="fechaActualHistorial" style="font-weight: bold; color: #333;"></div>
-            <button id="btnDiaSiguiente" onclick="cambiarDia(1)" style="padding: 0.3rem 0.8rem; background-color: #6c757d; color: white; border: none; border-radius: 3px; cursor: pointer;">Siguiente →</button>
+          <!-- Navegación por días con estructura mejorada -->
+          <div class="navegacion-historial">
+            <button id="btnDiaAnterior" onclick="cambiarDia(-1)" class="btn-navegacion-historial">←</button>
+            <div class="fecha-historial-info">
+              <div class="fecha-historial-titulo">Movimientos del</div>
+              <div id="fechaActualHistorial" class="fecha-historial-valor"></div>
+            </div>
+            <button id="btnDiaSiguiente" onclick="cambiarDia(1)" class="btn-navegacion-historial">→</button>
           </div>
           
           <div id="listaHistorial"></div>
@@ -123,16 +197,15 @@
   <script>
     let saborActual = null;
     let cantidadPendiente = 0;
-    let ordenActual = 'alfabetico'; // 'alfabetico', 'stock-asc', 'stock-desc'
-    let fechaHistorialActual = null; // Nueva variable para controlar la fecha del historial
-    let diasConMovimientos = []; // Array con todas las fechas que tienen movimientos
+    let ordenActual = 'alfabetico';
+    let fechaHistorialActual = null;
+    let diasConMovimientos = [];
     const tablaInventario = document.getElementById("tablaInventario");
 
     function cargarSabores() {
       const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
       const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
       
-      // FILTRAR SOLO SABORES DISPONIBLES PARA VENTA
       const saboresDisponibles = sabores.filter(sabor => sabor.disponible === true);
       
       tablaInventario.innerHTML = "";
@@ -142,13 +215,11 @@
         return;
       }
       
-      // Crear array con sabor y stock para ordenar
       let saboresConStock = saboresDisponibles.map(sabor => ({
         ...sabor,
         stock: inventario[sabor.id] ? inventario[sabor.id].stock : 0
       }));
       
-      // Aplicar ordenamiento según el estado actual
       switch(ordenActual) {
         case 'alfabetico':
           saboresConStock.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
@@ -189,9 +260,9 @@
 
     function ordenarPorStock() {
       if (ordenActual === 'alfabetico' || ordenActual === 'stock-desc') {
-        ordenActual = 'stock-asc'; // Menor a mayor
+        ordenActual = 'stock-asc';
       } else if (ordenActual === 'stock-asc') {
-        ordenActual = 'stock-desc'; // Mayor a menor
+        ordenActual = 'stock-desc';
       }
       cargarSabores();
     }
@@ -267,14 +338,12 @@
       cerrarModal();
       cargarSabores();
       
-      // Notificación de éxito
       alert(`Stock actualizado correctamente\n${saborActual.nombre}: ${inventario[saborActual.id].stock} unidades`);
     }
 
     function mostrarHistorial() {
       const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
       
-      // Recopilar todos los movimientos y obtener fechas únicas
       let historialCompleto = [];
       Object.values(inventario).forEach(item => {
         item.historial.forEach(mov => {
@@ -288,27 +357,37 @@
       if (historialCompleto.length === 0) {
         document.getElementById("listaHistorial").innerHTML = '<p class="no-sabores">No hay movimientos registrados</p>';
         document.getElementById("modalHistorial").classList.remove("oculto");
+        
+        setTimeout(() => {
+          const modal = document.getElementById("modalHistorial");
+          const modalContent = modal.querySelector(".modal-content");
+          modalContent.scrollTop = 0;
+        }, 100);
+        
         return;
       }
       
-      // Obtener fechas únicas y ordenarlas de más reciente a más antigua
       diasConMovimientos = [...new Set(historialCompleto.map(mov => mov.fecha))];
       diasConMovimientos.sort((a, b) => new Date(b) - new Date(a));
       
-      // Si no hay fecha seleccionada, usar la más reciente
       if (!fechaHistorialActual || !diasConMovimientos.includes(fechaHistorialActual)) {
         fechaHistorialActual = diasConMovimientos[0];
       }
       
       cargarMovimientosDia(fechaHistorialActual);
       document.getElementById("modalHistorial").classList.remove("oculto");
+      
+      setTimeout(() => {
+        const modal = document.getElementById("modalHistorial");
+        const modalContent = modal.querySelector(".modal-content");
+        modalContent.scrollTop = 0;
+      }, 100);
     }
 
     function cargarMovimientosDia(fecha) {
       const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
       const listaHistorial = document.getElementById("listaHistorial");
       
-      // Filtrar movimientos solo de la fecha seleccionada
       let movimientosDelDia = [];
       Object.values(inventario).forEach(item => {
         item.historial.forEach(mov => {
@@ -321,33 +400,47 @@
         });
       });
       
-      // Ordenar por hora (más reciente primero)
       movimientosDelDia.sort((a, b) => {
         const horaA = a.hora || '00:00';
         const horaB = b.hora || '00:00';
         return horaB.localeCompare(horaA);
       });
       
-      // Actualizar título con fecha actual
       const fechaFormateada = fecha.split('-').reverse().join('/');
-      document.getElementById("fechaActualHistorial").textContent = `Movimientos del ${fechaFormateada}`;
+      document.getElementById("fechaActualHistorial").textContent = fechaFormateada;
       
-      // Actualizar estado de botones de navegación
+      // ACTUALIZAR ESTADO DE BOTONES CON FORZADO DE ESTILOS
       const indiceFechaActual = diasConMovimientos.indexOf(fecha);
-      document.getElementById("btnDiaAnterior").disabled = indiceFechaActual >= diasConMovimientos.length - 1;
-      document.getElementById("btnDiaSiguiente").disabled = indiceFechaActual <= 0;
-      
-      // Aplicar estilos de botones deshabilitados
       const btnAnterior = document.getElementById("btnDiaAnterior");
       const btnSiguiente = document.getElementById("btnDiaSiguiente");
       
-      btnAnterior.style.opacity = btnAnterior.disabled ? "0.5" : "1";
-      btnAnterior.style.cursor = btnAnterior.disabled ? "not-allowed" : "pointer";
+      // Limpiar estilos previos y aplicar nuevos
+      btnAnterior.disabled = indiceFechaActual >= diasConMovimientos.length - 1;
+      btnSiguiente.disabled = indiceFechaActual <= 0;
       
-      btnSiguiente.style.opacity = btnSiguiente.disabled ? "0.5" : "1";
-      btnSiguiente.style.cursor = btnSiguiente.disabled ? "not-allowed" : "pointer";
+      // Forzar aplicación de estilos después de un pequeño delay
+      setTimeout(() => {
+        if (btnAnterior.disabled) {
+          btnAnterior.style.backgroundColor = "#6c757d";
+          btnAnterior.style.opacity = "0.6";
+          btnAnterior.style.cursor = "not-allowed";
+        } else {
+          btnAnterior.style.backgroundColor = "#4ecdc4";
+          btnAnterior.style.opacity = "1";
+          btnAnterior.style.cursor = "pointer";
+        }
+
+        if (btnSiguiente.disabled) {
+          btnSiguiente.style.backgroundColor = "#6c757d";
+          btnSiguiente.style.opacity = "0.6";
+          btnSiguiente.style.cursor = "not-allowed";
+        } else {
+          btnSiguiente.style.backgroundColor = "#4ecdc4";
+          btnSiguiente.style.opacity = "1";
+          btnSiguiente.style.cursor = "pointer";
+        }
+      }, 10);
       
-      // Mostrar movimientos del día
       if (movimientosDelDia.length === 0) {
         listaHistorial.innerHTML = '<p class="no-sabores">No hay movimientos en esta fecha</p>';
       } else {
@@ -380,7 +473,6 @@
 
     function cerrarHistorial() {
       document.getElementById("modalHistorial").classList.add("oculto");
-      // Resetear la fecha al cerrar para que siempre abra en la más reciente
       fechaHistorialActual = null;
     }
 
@@ -395,7 +487,6 @@
       }
     }
 
-    // Cerrar modales al hacer clic fuera
     document.addEventListener("click", function(e) {
       if (e.target.classList.contains("modal")) {
         cerrarModal();
