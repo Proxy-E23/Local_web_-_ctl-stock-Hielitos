@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -230,6 +229,7 @@
     </div>
   </main>
 
+  <script src="script.js"></script>
   <script>
     const tablaVentas = document.getElementById("tablaVentas");
     let precioActual = 0;
@@ -251,9 +251,8 @@
       const fechaInput = document.getElementById("fechaVenta");
       const notaFecha = document.getElementById("notaFecha");
       
-      // Establecer fecha de hoy por defecto
-      const hoy = new Date();
-      const fechaHoy = hoy.toISOString().split('T')[0];
+      // Usar función global de utilidades
+      const fechaHoy = obtenerFechaLocal();
       fechaInput.value = fechaHoy;
       fechaInput.max = fechaHoy; // No permitir fechas futuras
       
@@ -270,18 +269,31 @@
       });
     }
 
-    function obtenerHoraVenta() {
-      const fechaInput = document.getElementById("fechaVenta");
-      const fechaSeleccionada = fechaInput.value;
-      const hoy = new Date().toISOString().split('T')[0];
+    function obtenerFechaLocal() {
+      // Crear fecha en zona horaria de México (GMT-6)
+      const ahora = new Date();
+      const offsetMexico = -6; // GMT-6 para México
+      const utc = ahora.getTime() + (ahora.getTimezoneOffset() * 60000);
+      const fechaMexico = new Date(utc + (offsetMexico * 3600000));
       
-      if (fechaSeleccionada === hoy) {
-        // Venta del día actual - usar hora real
-        return new Date().toTimeString().split(' ')[0].substring(0, 5);
-      } else {
-        // Venta retroactiva - usar 23:00
-        return "23:00";
-      }
+      const año = fechaMexico.getFullYear();
+      const mes = (fechaMexico.getMonth() + 1).toString().padStart(2, '0');
+      const dia = fechaMexico.getDate().toString().padStart(2, '0');
+      
+      return `${año}-${mes}-${dia}`;
+    }
+
+    function obtenerHoraLocal() {
+      // Crear hora en zona horaria de México (GMT-6)
+      const ahora = new Date();
+      const offsetMexico = -6; // GMT-6 para México
+      const utc = ahora.getTime() + (ahora.getTimezoneOffset() * 60000);
+      const fechaMexico = new Date(utc + (offsetMexico * 3600000));
+      
+      const horas = fechaMexico.getHours().toString().padStart(2, '0');
+      const minutos = fechaMexico.getMinutes().toString().padStart(2, '0');
+      
+      return `${horas}:${minutos}`;
     }
 
     function cargarSaboresVentas() {
