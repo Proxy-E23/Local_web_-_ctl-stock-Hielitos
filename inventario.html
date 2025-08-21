@@ -89,6 +89,69 @@
       color: #4ecdc4 !important;
     }
 
+    /* ===== ESTILOS PARA MODAL HISTORIAL FIJO SUPERIOR ===== */
+    #modalHistorial {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start !important; /* Cambio clave: flex-start */
+      padding-top: 2rem !important; /* Espacio desde arriba */
+      box-sizing: border-box;
+    }
+
+    #modalHistorial .modal-content {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 600px;
+      min-height: 300px !important; /* Altura mínima */
+      max-height: calc(100vh - 4rem) !important; /* Máxima altura */
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #modalHistorial .modal-content h4 {
+      margin: 0;
+      padding: 1.5rem 1.5rem 1rem 1.5rem;
+      color: #333;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+      flex-shrink: 0;
+    }
+
+    #modalHistorial .modal-body {
+      padding: 1rem 1.5rem;
+      flex-grow: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #modalHistorial .navegacion-historial {
+      flex-shrink: 0;
+      margin-bottom: 1rem;
+    }
+
+    #modalHistorial #listaHistorial {
+      flex-grow: 1;
+      min-height: 100px;
+    }
+
+    #modalHistorial .modal-botones {
+      flex-shrink: 0;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+
     @media (max-width: 768px) {
       .tabla-header.inventario,
       .tabla-fila.inventario {
@@ -110,6 +173,27 @@
       
       .fecha-historial-valor {
         font-size: 0.9rem !important;
+      }
+
+      /* Responsive para modal historial */
+      #modalHistorial {
+        padding: 1rem;
+        padding-top: 1rem !important;
+      }
+      
+      #modalHistorial .modal-content {
+        width: 100%;
+        max-height: calc(100vh - 2rem) !important;
+        min-height: 250px !important;
+      }
+      
+      #modalHistorial .modal-content h4 {
+        padding: 1rem;
+        font-size: 1.1rem;
+      }
+      
+      #modalHistorial .modal-body {
+        padding: 0.8rem;
       }
     }
   </style>
@@ -393,14 +477,20 @@
       
       let movimientosDelDia = [];
       Object.values(inventario).forEach(item => {
-        item.historial.forEach(mov => {
-          if (mov.fecha === fecha) {
-            movimientosDelDia.push({
-              sabor: item.sabor,
-              ...mov
-            });
-          }
-        });
+        if (item.historial) {
+          item.historial.forEach(mov => {
+            if (mov && mov.fecha === fecha) {
+              movimientosDelDia.push({
+                sabor: item.sabor,
+                fecha: mov.fecha,
+                hora: mov.hora || '00:00',
+                cantidad: mov.cantidad,
+                tipo: mov.tipo || 'entrada',
+                stockResultante: mov.stockResultante
+              });
+            }
+          });
+        }
       });
       
       movimientosDelDia.sort((a, b) => {
@@ -465,20 +555,35 @@
       if (movimientosDelDia.length === 0) {
         listaHistorial.innerHTML = '<p class="no-sabores">No hay movimientos en esta fecha</p>';
       } else {
-        listaHistorial.innerHTML = movimientosDelDia.map(mov => {
-          const horaTexto = mov.hora || '00:00';
-          const tipoTexto = mov.tipo === 'entrada' ? '+' : '';
-          const colorTipo = mov.tipo === 'entrada' ? '#4ecdc4' : '#dc3545';
-          
-          return `
-            <div style="display: grid; grid-template-columns: 60px 1fr 60px 80px; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid #eee; align-items: center;">
-              <div style="font-size: 0.9rem; color: #666; text-align: center; font-weight: 500;">${horaTexto}</div>
-              <div style="font-weight: 500;">${mov.sabor}</div>
-              <div style="color: ${colorTipo}; font-weight: bold; text-align: center;">${tipoTexto}${mov.cantidad}</div>
-              <div style="color: #666; text-align: center; font-size: 0.9rem;">Stock: ${mov.stockResultante}</div>
-            </div>
-          `;
-        }).join('');
+        listaHistorial.innerHTML = movimientosDelDia
+          .filter(mov => {
+            // Filtrar movimientos que realmente tengan datos válidos
+            return mov && 
+                   mov.sabor && 
+                   mov.sabor.trim() !== '' &&
+                   mov.cantidad !== null && 
+                   mov.cantidad !== undefined &&
+                   mov.cantidad !== '';
+          })
+          .map(mov => {
+            const horaTexto = mov.hora || '00:00';
+            const tipoTexto = mov.tipo === 'entrada' ? '+' : '';
+            const colorTipo = mov.tipo === 'entrada' ? '#4ecdc4' : '#dc3545';
+            
+            return `
+              <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; border-bottom: 1px solid #eee; gap: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.8rem; flex-grow: 1;">
+                  <div style="font-size: 0.9rem; color: #666; font-weight: 500; min-width: 45px;">${horaTexto}</div>
+                  <div style="font-weight: 500; flex-grow: 1;">${mov.sabor}</div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.8rem;">
+                  <div style="color: ${colorTipo}; font-weight: bold; text-align: center; min-width: 40px;">${tipoTexto}${mov.cantidad}</div>
+                  <div style="color: #666; text-align: center; font-size: 0.9rem; min-width: 70px;">Stock: ${mov.stockResultante}</div>
+                </div>
+              </div>
+            `;
+          })
+          .join('');
       }
     }
 
