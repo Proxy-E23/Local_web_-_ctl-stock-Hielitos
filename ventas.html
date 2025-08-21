@@ -49,6 +49,50 @@
       color: #4ecdc4;
     }
 
+    /* Estilos para el selector de fecha */
+    .fecha-venta-info {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      padding: 0.8rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .fecha-venta-label {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .fecha-venta-input {
+      width: 100%;
+      max-width: 200px;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      text-align: center;
+      background-color: white;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      box-sizing: border-box;
+      line-height: 1;
+    }
+
+    .fecha-venta-input:focus {
+      border-color: #4ecdc4;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+    }
+
+    .fecha-venta-nota {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.4rem;
+      font-style: italic;
+    }
+
     /* Estilos para los botones de acción */
     .botones-accion {
       display: flex;
@@ -97,6 +141,10 @@
       .botones-accion button {
         min-width: unset;
       }
+
+      .fecha-venta-input {
+        max-width: 100%;
+      }
     }
   </style>
 </head>
@@ -115,6 +163,13 @@
     <div class="precio-info">
       <div>Precio actual por hielito:</div>
       <div class="precio-actual" id="precioActual">$0.00</div>
+    </div>
+
+    <!-- Selector de fecha de venta -->
+    <div class="fecha-venta-info">
+      <div class="fecha-venta-label">📅 Fecha de la venta:</div>
+      <input type="date" id="fechaVenta" class="fecha-venta-input" />
+      <div class="fecha-venta-nota" id="notaFecha">Venta del día actual - Se registrará con la hora real</div>
     </div>
 
     <div class="lista-sabores">
@@ -192,6 +247,43 @@
       }
     }
 
+    function inicializarFecha() {
+      const fechaInput = document.getElementById("fechaVenta");
+      const notaFecha = document.getElementById("notaFecha");
+      
+      // Establecer fecha de hoy por defecto
+      const hoy = new Date();
+      const fechaHoy = hoy.toISOString().split('T')[0];
+      fechaInput.value = fechaHoy;
+      fechaInput.max = fechaHoy; // No permitir fechas futuras
+      
+      // Actualizar nota según la fecha seleccionada
+      fechaInput.addEventListener('change', function() {
+        const fechaSeleccionada = fechaInput.value;
+        if (fechaSeleccionada === fechaHoy) {
+          notaFecha.textContent = "Venta del día actual - Se registrará con la hora real";
+          notaFecha.style.color = "#28a745";
+        } else {
+          notaFecha.textContent = "Venta retroactiva - Se registrará a las 23:00";
+          notaFecha.style.color = "#ffc107";
+        }
+      });
+    }
+
+    function obtenerHoraVenta() {
+      const fechaInput = document.getElementById("fechaVenta");
+      const fechaSeleccionada = fechaInput.value;
+      const hoy = new Date().toISOString().split('T')[0];
+      
+      if (fechaSeleccionada === hoy) {
+        // Venta del día actual - usar hora real
+        return new Date().toTimeString().split(' ')[0].substring(0, 5);
+      } else {
+        // Venta retroactiva - usar 23:00
+        return "23:00";
+      }
+    }
+
     function cargarSaboresVentas() {
       try {
         const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
@@ -240,6 +332,14 @@
         const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
         const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
         const inputs = document.querySelectorAll('.input-cantidad');
+        const fechaVenta = document.getElementById("fechaVenta").value;
+        
+        if (!fechaVenta) {
+          document.getElementById("mensajeError").innerHTML = 
+            'Selecciona una fecha para la venta.';
+          document.getElementById("modalError").classList.remove("oculto");
+          return;
+        }
         
         let ventasValidas = [];
         let errores = [];
@@ -290,8 +390,14 @@
           return;
         }
 
-        // Mostrar resumen
-        let resumen = '<strong>Resumen de la venta:</strong><br><br>';
+        // Mostrar resumen incluyendo fecha y hora
+        const fechaFormateada = fechaVenta.split('-').reverse().join('/');
+        const horaVenta = obtenerHoraVenta();
+        
+        let resumen = `<strong>Resumen de la venta:</strong><br><br>`;
+        resumen += `<strong>📅 Fecha:</strong> ${fechaFormateada}<br>`;
+        resumen += `<strong>🕐 Hora:</strong> ${horaVenta}<br><br>`;
+        
         ventasValidas.forEach(venta => {
           resumen += `${venta.sabor}: ${venta.cantidad} unidades<br>`;
         });
@@ -317,11 +423,11 @@
         const ventasHistorial = JSON.parse(localStorage.getItem("ventas_hielitos")) || [];
         const inputs = document.querySelectorAll('.input-cantidad');
         
+        const fechaVenta = document.getElementById("fechaVenta").value;
+        const horaVenta = obtenerHoraVenta();
+        
         let ventasProcesadas = [];
         let montoTotal = 0;
-        const fechaHora = new Date();
-        const fechaVenta = fechaHora.toISOString().split('T')[0];
-        const horaVenta = fechaHora.toTimeString().split(' ')[0].substring(0, 5);
 
         inputs.forEach(input => {
           const cantidad = parseInt(input.value) || 0;
@@ -333,7 +439,7 @@
             if (inventario[saborId]) {
               inventario[saborId].stock -= cantidad;
               
-              // Agregar al historial de inventario con hora
+              // Agregar al historial de inventario con fecha y hora específicas
               inventario[saborId].historial.push({
                 fecha: fechaVenta,
                 hora: horaVenta,
@@ -373,7 +479,8 @@
         cerrarModalVentas();
 
         // Mostrar confirmación
-        alert(`Venta procesada correctamente\n\nTotal: ${ventaCompleta.totalHielitos} hielitos\nMonto: $${montoTotal.toFixed(2)}`);
+        const fechaFormateada = fechaVenta.split('-').reverse().join('/');
+        alert(`Venta procesada correctamente\n\nFecha: ${fechaFormateada} a las ${horaVenta}\nTotal: ${ventaCompleta.totalHielitos} hielitos\nMonto: $${montoTotal.toFixed(2)}`);
         
       } catch (error) {
         console.error("Error al procesar ventas:", error);
@@ -477,6 +584,7 @@
     // Inicializar página
     window.addEventListener("DOMContentLoaded", function() {
       cargarPrecioActual();
+      inicializarFecha();
       cargarSaboresVentas();
     });
   </script>
