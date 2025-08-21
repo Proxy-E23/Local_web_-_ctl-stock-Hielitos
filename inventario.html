@@ -42,7 +42,10 @@
       cursor: pointer !important;
       font-weight: 600 !important;
       transition: all 0.3s ease !important;
-      font-size: 1rem !important;
+      font-size: 1.3rem !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
     }
 
     .btn-navegacion-historial:hover:not(:disabled) {
@@ -93,8 +96,8 @@
       }
       
       .btn-navegacion-historial {
-        padding: 0.5rem 0.7rem !important;
-        font-size: 0.9rem !important;
+        padding: 0.6rem 0.8rem !important;
+        font-size: 1.2rem !important;
       }
       
       .navegacion-historial {
@@ -177,12 +180,12 @@
         <div class="modal-body">
           <!-- Navegación por días con estructura mejorada -->
           <div class="navegacion-historial">
-            <button id="btnDiaAnterior" onclick="cambiarDia(-1)" class="btn-navegacion-historial">←</button>
+            <button id="btnDiaAnterior" class="btn-navegacion-historial">←</button>
             <div class="fecha-historial-info">
               <div class="fecha-historial-titulo">Movimientos del</div>
               <div id="fechaActualHistorial" class="fecha-historial-valor"></div>
             </div>
-            <button id="btnDiaSiguiente" onclick="cambiarDia(1)" class="btn-navegacion-historial">→</button>
+            <button id="btnDiaSiguiente" class="btn-navegacion-historial">→</button>
           </div>
           
           <div id="listaHistorial"></div>
@@ -409,37 +412,55 @@
       const fechaFormateada = fecha.split('-').reverse().join('/');
       document.getElementById("fechaActualHistorial").textContent = fechaFormateada;
       
-      // ACTUALIZAR ESTADO DE BOTONES CON FORZADO DE ESTILOS
+      // CONFIGURAR EVENTOS DE BOTONES Y ACTUALIZAR ESTADO
       const indiceFechaActual = diasConMovimientos.indexOf(fecha);
       const btnAnterior = document.getElementById("btnDiaAnterior");
       const btnSiguiente = document.getElementById("btnDiaSiguiente");
       
-      // Limpiar estilos previos y aplicar nuevos
-      btnAnterior.disabled = indiceFechaActual >= diasConMovimientos.length - 1;
-      btnSiguiente.disabled = indiceFechaActual <= 0;
+      console.log(`Configurando botones - Índice: ${indiceFechaActual}, Total: ${diasConMovimientos.length}`);
+      console.log(`Fecha mostrada: ${fecha}`);
+      console.log(`Array de días:`, diasConMovimientos);
       
-      // Forzar aplicación de estilos después de un pequeño delay
-      setTimeout(() => {
-        if (btnAnterior.disabled) {
-          btnAnterior.style.backgroundColor = "#6c757d";
-          btnAnterior.style.opacity = "0.6";
-          btnAnterior.style.cursor = "not-allowed";
-        } else {
-          btnAnterior.style.backgroundColor = "#4ecdc4";
-          btnAnterior.style.opacity = "1";
-          btnAnterior.style.cursor = "pointer";
-        }
-
-        if (btnSiguiente.disabled) {
-          btnSiguiente.style.backgroundColor = "#6c757d";
-          btnSiguiente.style.opacity = "0.6";
-          btnSiguiente.style.cursor = "not-allowed";
-        } else {
-          btnSiguiente.style.backgroundColor = "#4ecdc4";
-          btnSiguiente.style.opacity = "1";
-          btnSiguiente.style.cursor = "pointer";
-        }
-      }, 10);
+      // Limpiar eventos anteriores y agregar nuevos
+      btnAnterior.onclick = null;
+      btnSiguiente.onclick = null;
+      
+      // Calcular estado de botones
+      const puedeIrAnterior = indiceFechaActual < diasConMovimientos.length - 1; // Puede ir a días más antiguos
+      const puedeIrSiguiente = indiceFechaActual > 0; // Puede ir a días más recientes
+      
+      console.log(`Puede ir anterior (más antiguo): ${puedeIrAnterior}`);
+      console.log(`Puede ir siguiente (más reciente): ${puedeIrSiguiente}`);
+      
+      // Configurar botón anterior (ir a día más antiguo)
+      if (puedeIrAnterior) {
+        btnAnterior.disabled = false;
+        btnAnterior.onclick = () => cambiarDia(1); // +1 porque el array está ordenado de reciente a antiguo
+        btnAnterior.style.backgroundColor = "#4ecdc4";
+        btnAnterior.style.opacity = "1";
+        btnAnterior.style.cursor = "pointer";
+      } else {
+        btnAnterior.disabled = true;
+        btnAnterior.onclick = null;
+        btnAnterior.style.backgroundColor = "#6c757d";
+        btnAnterior.style.opacity = "0.6";
+        btnAnterior.style.cursor = "not-allowed";
+      }
+      
+      // Configurar botón siguiente (ir a día más reciente)
+      if (puedeIrSiguiente) {
+        btnSiguiente.disabled = false;
+        btnSiguiente.onclick = () => cambiarDia(-1); // -1 porque el array está ordenado de reciente a antiguo
+        btnSiguiente.style.backgroundColor = "#4ecdc4";
+        btnSiguiente.style.opacity = "1";
+        btnSiguiente.style.cursor = "pointer";
+      } else {
+        btnSiguiente.disabled = true;
+        btnSiguiente.onclick = null;
+        btnSiguiente.style.backgroundColor = "#6c757d";
+        btnSiguiente.style.opacity = "0.6";
+        btnSiguiente.style.cursor = "not-allowed";
+      }
       
       if (movimientosDelDia.length === 0) {
         listaHistorial.innerHTML = '<p class="no-sabores">No hay movimientos en esta fecha</p>';
@@ -465,9 +486,20 @@
       const indiceActual = diasConMovimientos.indexOf(fechaHistorialActual);
       const nuevoIndice = indiceActual + direccion;
       
+      console.log(`=== CAMBIAR DÍA ===`);
+      console.log(`Dirección: ${direccion}`);
+      console.log(`Índice actual: ${indiceActual}`);
+      console.log(`Nuevo índice: ${nuevoIndice}`);
+      console.log(`Total días: ${diasConMovimientos.length}`);
+      console.log(`Días disponibles:`, diasConMovimientos);
+      console.log(`Fecha actual: ${fechaHistorialActual}`);
+      
       if (nuevoIndice >= 0 && nuevoIndice < diasConMovimientos.length) {
         fechaHistorialActual = diasConMovimientos[nuevoIndice];
+        console.log(`✅ Cambiando a: ${fechaHistorialActual}`);
         cargarMovimientosDia(fechaHistorialActual);
+      } else {
+        console.log(`❌ Fuera de rango - no se puede cambiar`);
       }
     }
 
