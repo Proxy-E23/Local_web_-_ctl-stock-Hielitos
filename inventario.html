@@ -112,7 +112,7 @@
       width: 90%;
       max-width: 600px;
       min-height: 300px !important; /* Altura mínima */
-      max-height: calc(100vh - 4rem) !important; /* Máxima altura */
+      max-height: calc(100vh - 2rem) !important; /* Aumentado: casi toda la pantalla */
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -130,9 +130,10 @@
     #modalHistorial .modal-body {
       padding: 1rem 1.5rem;
       flex-grow: 1;
-      overflow-y: auto;
+      overflow: hidden;
       display: flex;
       flex-direction: column;
+      max-height: calc(100vh - 240px); /* Más conservador para móviles */
     }
 
     #modalHistorial .navegacion-historial {
@@ -143,6 +144,12 @@
     #modalHistorial #listaHistorial {
       flex-grow: 1;
       min-height: 100px;
+      /* Altura dinámica basada en viewport con margen extra para móviles */
+      max-height: calc(100vh - 320px); /* Más margen para barras de navegadores móviles */
+      overflow-y: auto;
+      border: 1px solid #eee;
+      border-radius: 5px;
+      background-color: white;
     }
 
     #modalHistorial .modal-botones {
@@ -179,11 +186,12 @@
       #modalHistorial {
         padding: 1rem;
         padding-top: 1rem !important;
+        padding-bottom: 2rem !important; /* Más espacio abajo en móvil */
       }
       
       #modalHistorial .modal-content {
         width: 100%;
-        max-height: calc(100vh - 2rem) !important;
+        max-height: calc(100vh - 6rem) !important; /* Más conservador en móvil */
         min-height: 250px !important;
       }
       
@@ -194,6 +202,11 @@
       
       #modalHistorial .modal-body {
         padding: 0.8rem;
+        max-height: calc(100vh - 280px); /* Extra espacio para barras móviles */
+      }
+
+      #modalHistorial #listaHistorial {
+        max-height: calc(100vh - 380px); /* Aún más conservador en móvil */
       }
     }
   </style>
