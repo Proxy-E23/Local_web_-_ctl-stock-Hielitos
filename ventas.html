@@ -250,6 +250,108 @@
       border-top: 1px solid #eee;
     }
 
+    /* ===== ESTILOS PARA EL NUEVO FORMATO DE HISTORIAL DE VENTAS ===== */
+    .venta-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .venta-hora {
+      background-color: #f8f9fa;
+      padding: 0.6rem 1rem;
+      border-bottom: 2px solid #ddd;
+      text-align: left;
+      font-weight: bold;
+      color: #495057;
+      font-size: 1rem;
+    }
+
+    .venta-items {
+      background-color: white;
+    }
+
+    .venta-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      padding: 0.4rem 1rem;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background-color 0.2s ease;
+    }
+
+    .venta-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .venta-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-sabor {
+      text-align: left;
+      line-height: 1.3;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .item-cantidad {
+      text-align: center;
+      font-weight: bold;
+      color: #4ecdc4;
+      min-width: 80px;
+      font-size: 0.95rem;
+    }
+
+    .venta-totales {
+      background-color: #f8f9fa;
+      padding: 0.6rem 1rem;
+      border-top: 1px solid #ddd;
+    }
+
+    .total-fila {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .total-fila:last-child {
+      margin-bottom: 0;
+    }
+
+    .total-etiqueta {
+      text-align: right;
+      color: #666;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .total-valor {
+      text-align: center;
+      font-weight: bold;
+      min-width: 80px;
+      font-size: 0.95rem;
+    }
+
+    .total-hielitos {
+      color: #4ecdc4;
+    }
+
+    .total-monto {
+      color: #28a745;
+    }
+
+    /* Separadores visuales */
+    .separador-ventas {
+      height: 1px;
+      background-color: #ddd;
+      margin: 0;
+    }
+
     @media (max-width: 768px) {
       .tabla-header.ventas,
       .tabla-fila.ventas {
@@ -315,6 +417,39 @@
 
       #modalHistorialVentas #listaHistorialVentas {
         max-height: calc(100vh - 380px); /* Aún más conservador en móvil */
+      }
+
+      /* Responsive para nuevo formato de historial */
+      .venta-hora {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.9rem;
+      }
+      
+      .venta-item {
+        padding: 0.3rem 0.8rem;
+        gap: 0.8rem;
+      }
+      
+      .item-cantidad {
+        min-width: 70px;
+        font-size: 0.9rem;
+      }
+      
+      .venta-totales {
+        padding: 0.5rem 0.8rem;
+      }
+      
+      .total-fila {
+        gap: 0.8rem;
+      }
+      
+      .total-valor {
+        min-width: 70px;
+        font-size: 0.9rem;
+      }
+      
+      .total-etiqueta {
+        font-size: 0.9rem;
       }
     }
   </style>
@@ -415,6 +550,10 @@
   <script>
     const tablaVentas = document.getElementById("tablaVentas");
     let precioActual = 0;
+
+    // Variables globales para navegación del historial de ventas
+    let fechaHistorialVentasActual = null;
+    let diasConVentas = [];
 
     function cargarPrecioActual() {
       try {
@@ -662,17 +801,13 @@
 
         // Mostrar confirmación
         const fechaFormateada = fechaVenta.split('-').reverse().join('/');
-        alert(`Venta procesada correctamente\n\nFecha: ${fechaFormateada} a las ${horaVenta}\nTotal: ${ventaCompleta.totalHielitos} hielitos\nMonto: $${montoTotal.toFixed(2)}`);
+        alert(`Venta procesada correctamente\n\nFecha: ${fechaFormateada} a las ${horaVenta}\nTotal: ${ventaCompleta.totalHielitos} hielitos\nMonto: ${montoTotal.toFixed(2)}`);
         
       } catch (error) {
         console.error("Error al procesar ventas:", error);
         alert("Error al procesar la venta. Inténtalo de nuevo.");
       }
     }
-
-    // Variables globales para navegación del historial de ventas
-    let fechaHistorialVentasActual = null;
-    let diasConVentas = [];
 
     function mostrarHistorialVentas() {
       try {
@@ -784,7 +919,7 @@
         btnSiguiente.style.cursor = "not-allowed";
       }
       
-      // Mostrar contenido
+      // Mostrar contenido CON EL NUEVO FORMATO Y CLASES CSS
       if (ventasDelDia.length === 0) {
         listaHistorial.innerHTML = '<p class="no-sabores">No hay ventas en esta fecha</p>';
       } else {
@@ -799,17 +934,43 @@
           })
           .map(venta => {
             const horaTexto = venta.hora || '00:00';
-            const itemsHTML = venta.items.map(item => `${item.sabor}: ${item.cantidad}`).join('<br>');
+            
+            // Crear HTML para cada item con clases CSS
+            const itemsHTML = venta.items.map(item => `
+              <div class="venta-item">
+                <div class="item-sabor">${item.sabor}</div>
+                <div class="item-cantidad">${item.cantidad}</div>
+              </div>
+            `).join('');
             
             return `
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; border-bottom: 1px solid #eee; gap: 1rem;">
-                <div style="display: flex; align-items: center; gap: 0.8rem; flex-grow: 1;">
-                  <div style="font-size: 0.9rem; color: #666; font-weight: 500; min-width: 45px;">${horaTexto}</div>
-                  <div style="font-weight: 500; flex-grow: 1; line-height: 1.4;">${itemsHTML}</div>
+              <div class="venta-card">
+                <!-- Fila de la hora -->
+                <div class="venta-hora">
+                  ${horaTexto}
                 </div>
-                <div style="display: flex; align-items: center; gap: 0.8rem;">
-                  <div style="color: #4ecdc4; font-weight: bold; text-align: center; min-width: 40px;">${venta.totalHielitos || 0}</div>
-                  <div style="color: #28a745; text-align: center; font-size: 0.9rem; min-width: 70px; font-weight: bold;">${venta.montoTotal.toFixed(2)}</div>
+                
+                <!-- Separador -->
+                <div class="separador-ventas"></div>
+                
+                <!-- Items de la venta -->
+                <div class="venta-items">
+                  ${itemsHTML}
+                </div>
+                
+                <!-- Separador -->
+                <div class="separador-ventas"></div>
+                
+                <!-- Fila de totales -->
+                <div class="venta-totales">
+                  <div class="total-fila">
+                    <div class="total-etiqueta">Total de hielitos:</div>
+                    <div class="total-valor total-hielitos">${venta.totalHielitos || 0}</div>
+                  </div>
+                  <div class="total-fila">
+                    <div class="total-etiqueta">Monto:</div>
+                    <div class="total-valor total-monto">${venta.montoTotal.toFixed(2)}</div>
+                  </div>
                 </div>
               </div>
             `;
@@ -837,11 +998,6 @@
       } else {
         console.log(`❌ Fuera de rango - no se puede cambiar`);
       }
-    }
-
-    function cerrarHistorialVentas() {
-      document.getElementById("modalHistorialVentas").classList.add("oculto");
-      fechaHistorialVentasActual = null;
     }
 
     // FUNCIONES PARA MANEJO DE INPUTS
