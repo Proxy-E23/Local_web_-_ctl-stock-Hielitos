@@ -159,6 +159,110 @@
       border-top: 1px solid #eee;
     }
 
+    /* ===== ESTILOS PARA EL NUEVO FORMATO DE HISTORIAL DE INVENTARIO ===== */
+    .movimiento-card {
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      overflow: hidden;
+      background-color: white;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .movimiento-hora {
+      background-color: #f8f9fa;
+      padding: 0.6rem 1rem;
+      border-bottom: 2px solid #ddd;
+      text-align: left;
+      font-weight: bold;
+      color: #495057;
+      font-size: 1rem;
+    }
+
+    .movimientos-items {
+      background-color: white;
+    }
+
+    .movimiento-item {
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      gap: 1rem;
+      padding: 0.4rem 1rem;
+      border-bottom: 1px solid #f0f0f0;
+      transition: background-color 0.2s ease;
+    }
+
+    .movimiento-item:hover {
+      background-color: #f8f9fa;
+    }
+
+    .movimiento-item:last-child {
+      border-bottom: none;
+    }
+
+    .item-sabor-inventario {
+      text-align: left;
+      line-height: 1.3;
+      color: #333;
+      font-weight: 500;
+    }
+
+    .item-cantidad-inventario {
+      text-align: center;
+      font-weight: bold;
+      min-width: 80px;
+      font-size: 0.95rem;
+    }
+
+    .item-cantidad-entrada {
+      color: #4ecdc4;
+    }
+
+    .item-cantidad-venta {
+      color: #dc3545;
+    }
+
+    .item-stock-inventario {
+      text-align: center;
+      color: #666;
+      min-width: 80px;
+      font-size: 0.9rem;
+    }
+
+    .movimientos-totales {
+      background-color: #f8f9fa;
+      padding: 0.6rem 1rem;
+      border-top: 1px solid #ddd;
+    }
+
+    .total-fila-inventario {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 1rem;
+    }
+
+    .total-etiqueta-inventario {
+      text-align: right;
+      color: #666;
+      font-weight: 500;
+      font-size: 0.95rem;
+    }
+
+    .total-valor-inventario {
+      text-align: center;
+      font-weight: bold;
+      min-width: 80px;
+      font-size: 0.95rem;
+      color: #4ecdc4;
+    }
+
+    /* Separadores visuales */
+    .separador-inventario {
+      height: 1px;
+      background-color: #ddd;
+      margin: 0;
+    }
+
     @media (max-width: 768px) {
       .tabla-header.inventario,
       .tabla-fila.inventario {
@@ -207,6 +311,41 @@
 
       #modalHistorial #listaHistorial {
         max-height: calc(100vh - 380px); /* Aún más conservador en móvil */
+      }
+
+      /* Responsive para nuevo formato de historial inventario */
+      .movimiento-hora {
+        padding: 0.5rem 0.8rem;
+        font-size: 0.9rem;
+      }
+      
+      .movimiento-item {
+        padding: 0.3rem 0.8rem;
+        gap: 0.8rem;
+        grid-template-columns: 1fr auto auto;
+      }
+      
+      .item-cantidad-inventario,
+      .item-stock-inventario {
+        min-width: 70px;
+        font-size: 0.9rem;
+      }
+      
+      .movimientos-totales {
+        padding: 0.5rem 0.8rem;
+      }
+      
+      .total-fila-inventario {
+        gap: 0.8rem;
+      }
+      
+      .total-valor-inventario {
+        min-width: 70px;
+        font-size: 0.9rem;
+      }
+      
+      .total-etiqueta-inventario {
+        font-size: 0.9rem;
       }
     }
   </style>
@@ -565,38 +704,80 @@
         btnSiguiente.style.cursor = "not-allowed";
       }
       
+      // Mostrar contenido CON EL NUEVO FORMATO Y CLASES CSS
       if (movimientosDelDia.length === 0) {
         listaHistorial.innerHTML = '<p class="no-sabores">No hay movimientos en esta fecha</p>';
       } else {
-        listaHistorial.innerHTML = movimientosDelDia
-          .filter(mov => {
-            // Filtrar movimientos que realmente tengan datos válidos
-            return mov && 
-                   mov.sabor && 
-                   mov.sabor.trim() !== '' &&
-                   mov.cantidad !== null && 
-                   mov.cantidad !== undefined &&
-                   mov.cantidad !== '';
-          })
-          .map(mov => {
-            const horaTexto = mov.hora || '00:00';
-            const tipoTexto = mov.tipo === 'entrada' ? '+' : '';
-            const colorTipo = mov.tipo === 'entrada' ? '#4ecdc4' : '#dc3545';
-            
-            return `
-              <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; border-bottom: 1px solid #eee; gap: 1rem;">
-                <div style="display: flex; align-items: center; gap: 0.8rem; flex-grow: 1;">
-                  <div style="font-size: 0.9rem; color: #666; font-weight: 500; min-width: 45px;">${horaTexto}</div>
-                  <div style="font-weight: 500; flex-grow: 1;">${mov.sabor}</div>
+        // Agrupar movimientos por hora
+        const movimientosPorHora = {};
+        movimientosDelDia.forEach(mov => {
+          const hora = mov.hora || '00:00';
+          if (!movimientosPorHora[hora]) {
+            movimientosPorHora[hora] = [];
+          }
+          movimientosPorHora[hora].push(mov);
+        });
+        
+        // Crear HTML para cada hora
+        const horasOrdenadas = Object.keys(movimientosPorHora).sort((a, b) => b.localeCompare(a));
+        
+        listaHistorial.innerHTML = horasOrdenadas.map(hora => {
+          const movimientosHora = movimientosPorHora[hora];
+          
+          // Crear HTML para movimientos de esta hora
+          const itemsHTML = movimientosHora
+            .filter(mov => {
+              return mov && 
+                     mov.sabor && 
+                     mov.sabor.trim() !== '' &&
+                     mov.cantidad !== null && 
+                     mov.cantidad !== undefined &&
+                     mov.cantidad !== '';
+            })
+            .map(mov => {
+              const tipoClase = mov.tipo === 'entrada' ? 'item-cantidad-entrada' : 'item-cantidad-venta';
+              const signo = mov.tipo === 'entrada' ? '+' : '';
+              
+              return `
+                <div class="movimiento-item">
+                  <div class="item-sabor-inventario">${mov.sabor}</div>
+                  <div class="item-cantidad-inventario ${tipoClase}">${signo}${Math.abs(mov.cantidad)}</div>
+                  <div class="item-stock-inventario">${mov.stockResultante}</div>
                 </div>
-                <div style="display: flex; align-items: center; gap: 0.8rem;">
-                  <div style="color: ${colorTipo}; font-weight: bold; text-align: center; min-width: 40px;">${tipoTexto}${mov.cantidad}</div>
-                  <div style="color: #666; text-align: center; font-size: 0.9rem; min-width: 70px;">Stock: ${mov.stockResultante}</div>
+              `;
+            }).join('');
+          
+          // Calcular total de movimientos para esta hora
+          const totalMovimientos = movimientosHora.reduce((sum, mov) => sum + Math.abs(mov.cantidad), 0);
+          
+          return `
+            <div class="movimiento-card">
+              <!-- Fila de la hora -->
+              <div class="movimiento-hora">
+                ${hora}
+              </div>
+              
+              <!-- Separador -->
+              <div class="separador-inventario"></div>
+              
+              <!-- Movimientos de la hora -->
+              <div class="movimientos-items">
+                ${itemsHTML}
+              </div>
+              
+              <!-- Separador -->
+              <div class="separador-inventario"></div>
+              
+              <!-- Total de movimientos -->
+              <div class="movimientos-totales">
+                <div class="total-fila-inventario">
+                  <div class="total-etiqueta-inventario">Total de hielitos:</div>
+                  <div class="total-valor-inventario">${totalMovimientos}</div>
                 </div>
               </div>
-            `;
-          })
-          .join('');
+            </div>
+          `;
+        }).join('');
       }
     }
 
