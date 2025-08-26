@@ -159,6 +159,263 @@
       border-top: 1px solid #eee;
     }
 
+    /* ===== ESTILOS PARA MODAL AÑADIR STOCK ===== */
+    #modalAñadirStock {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start !important;
+      padding-top: 2rem !important;
+      box-sizing: border-box;
+    }
+
+    #modalAñadirStock .modal-content {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 600px;
+      min-height: 300px !important;
+      max-height: calc(100vh - 2rem) !important;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #modalAñadirStock .modal-content h4 {
+      margin: 0;
+      padding: 1.5rem 1.5rem 1rem 1.5rem;
+      color: #333;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+      flex-shrink: 0;
+    }
+
+    #modalAñadirStock .modal-body {
+      padding: 1rem 1.5rem;
+      flex-grow: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      max-height: calc(100vh - 240px);
+    }
+
+    .fecha-stock-selector {
+      margin-bottom: 1.5rem;
+    }
+
+    .fecha-stock-selector label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .fecha-stock-input {
+      width: 100%;
+      max-width: 200px;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: white;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      box-sizing: border-box;
+      margin: 0 auto;
+      display: block;
+    }
+
+    .fecha-stock-input:focus {
+      border-color: #4ecdc4;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+    }
+
+    .btn-seleccionar-sabores {
+      width: 100%;
+      padding: 0.8rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 5px;
+      background-color: #4ecdc4;
+      color: white;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+      font-weight: 600;
+      margin-bottom: 1.5rem;
+    }
+
+    .btn-seleccionar-sabores:hover {
+      background-color: #3da9a1;
+    }
+
+    /* ===== ESTILOS PARA FORMULARIO DINÁMICO DE STOCK (FASE 2) ===== */
+    .formulario-sabores-stock {
+      background-color: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .formulario-sabores-stock h5 {
+      margin: 0 0 1rem 0;
+      color: #333;
+      text-align: center;
+    }
+
+    /* TABLA INVISIBLE para alineamiento perfecto */
+    .tabla-stock {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .tabla-stock td {
+      padding: 0.5rem 0.3rem;
+      border-bottom: 1px solid #eee;
+      vertical-align: middle;
+    }
+
+    .tabla-stock tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Columna del botón X - centrada */
+    .col-eliminar-stock {
+      width: 50px;
+      text-align: center;
+    }
+
+    /* Columna del sabor - alineada a la izquierda */
+    .col-sabor-stock {
+      text-align: left;
+      padding-left: 0.5rem !important;
+    }
+
+    /* Columna del input - centrada */
+    .col-cantidad-stock {
+      width: 80px;
+      text-align: center;
+    }
+
+    .btn-eliminar-sabor-stock {
+      background: #f8f9fa;
+      color: #dc3545;
+      border: 1px solid #dc3545;
+      border-radius: 3px;
+      padding: 0.3rem 0.5rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+      transition: all 0.2s ease;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-eliminar-sabor-stock:hover {
+      background: #dc3545 !important;
+      color: white !important;
+    }
+
+    .sabor-stock-nombre {
+      font-weight: 500;
+      color: #333;
+    }
+
+    .input-cantidad-stock {
+      width: 60px; /* MÁS PEQUEÑO para máximo 3 dígitos */
+      padding: 0.4rem 0.3rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      text-align: center;
+      background-color: white;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    .input-cantidad-stock:focus {
+      border-color: #4ecdc4;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+    }
+
+    .mensaje-sin-sabores {
+      text-align: center;
+      color: #666;
+      font-style: italic;
+      padding: 1rem;
+    }
+
+    /* ===== ESTILOS PARA MODAL SELECTOR DE SABORES ===== */
+    #modalSelectorSabores {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.6);
+      z-index: 1100;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    #modalSelectorSabores .modal-content {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 500px;
+      max-height: 70vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .lista-sabores-selector {
+      padding: 1rem;
+      max-height: 400px;
+      overflow-y: auto;
+      flex-grow: 1;
+    }
+
+    .sabor-item-selector {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.8rem;
+      border-bottom: 1px solid #eee;
+      transition: background-color 0.2s ease;
+    }
+
+    .sabor-item-selector:hover {
+      background-color: #f8f9fa;
+    }
+
+    .sabor-item-selector:last-child {
+      border-bottom: none;
+    }
+
+    .sabor-checkbox {
+      transform: scale(1.2);
+      cursor: pointer;
+    }
+
+    .sabor-nombre {
+      flex-grow: 1;
+      font-weight: 500;
+      color: #333;
+    }
+
     /* ===== ESTILOS PARA EL NUEVO FORMATO DE HISTORIAL DE INVENTARIO MODIFICADO ===== */
     .movimiento-card {
       border: 1px solid #ddd;
@@ -351,6 +608,33 @@
         max-height: calc(100vh - 380px); /* Aún más conservador en móvil */
       }
 
+      /* Responsive para modal añadir stock */
+      #modalAñadirStock {
+        padding: 1rem;
+        padding-top: 1rem !important;
+        padding-bottom: 2rem !important;
+      }
+      
+      #modalAñadirStock .modal-content {
+        width: 100%;
+        max-height: calc(100vh - 6rem) !important;
+        min-height: 250px !important;
+      }
+      
+      #modalAñadirStock .modal-content h4 {
+        padding: 1rem;
+        font-size: 1.1rem;
+      }
+      
+      #modalAñadirStock .modal-body {
+        padding: 0.8rem;
+        max-height: calc(100vh - 280px);
+      }
+
+      .fecha-stock-input {
+        max-width: 100%;
+      }
+
       /* Responsive para nuevo formato de historial inventario */
       .movimiento-hora {
         padding: 0.5rem 0.8rem;
@@ -390,8 +674,25 @@
         font-size: 0.9rem !important;
       }
       
-      .total-columna-vacia {
-        width: 50px !important;
+      .input-cantidad-stock {
+        width: 55px; /* Aún más pequeño en móvil */
+        padding: 0.3rem 0.2rem;
+        font-size: 0.9rem;
+      }
+
+      .btn-eliminar-sabor-stock {
+        width: 28px;
+        height: 28px;
+        padding: 0.2rem;
+        font-size: 0.7rem;
+      }
+
+      .col-eliminar-stock {
+        width: 40px;
+      }
+
+      .col-cantidad-stock {
+        width: 70px;
       }
     }
   </style>
@@ -405,6 +706,7 @@
     <div class="botones-superiores">
       <button class="btn-volver" onclick="window.location.href='index.html'">← Atrás</button>
       <button class="btn-borrar" onclick="mostrarHistorial()">📊 Historial</button>
+      <button class="btn-borrar" onclick="abrirModalAñadirStock()" style="background-color: #28a745;">📦 Añadir Stock</button>
     </div>
 
     <div class="lista-sabores">
@@ -477,6 +779,52 @@
         </div>
       </div>
     </div>
+
+    <!-- Modal para añadir stock -->
+    <div id="modalAñadirStock" class="modal oculto">
+      <div class="modal-content">
+        <h4>📦 Añadir Stock</h4>
+        <div class="modal-body">
+          <!-- Selector de fecha -->
+          <div class="fecha-stock-selector">
+            <label for="fechaStock">📅 Fecha del movimiento:</label>
+            <input type="date" id="fechaStock" class="fecha-stock-input" />
+          </div>
+
+          <!-- Botón para seleccionar sabores -->
+          <button type="button" class="btn-seleccionar-sabores" onclick="abrirSelectorSabores()">
+            🍦 Seleccionar sabores
+          </button>
+
+          <!-- Aquí se cargarán los sabores seleccionados (AHORA EN FASE 2) -->
+          <div id="saboresSeleccionados">
+            <p class="mensaje-sin-sabores">
+              No hay sabores seleccionados
+            </p>
+          </div>
+
+          <!-- Botones del modal -->
+          <div class="modal-botones" style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;">
+            <button class="btn-cancelar" onclick="cerrarModalAñadirStock()">Cancelar</button>
+            <button class="btn-confirmar" onclick="procesarStock()">✅ Guardar Stock</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal selector de sabores -->
+    <div id="modalSelectorSabores" class="modal oculto">
+      <div class="modal-content">
+        <h4>🍦 Seleccionar Sabores</h4>
+        <div class="lista-sabores-selector" id="listaSaboresSelector">
+          <!-- Aquí se cargarán los sabores disponibles -->
+        </div>
+        <div class="modal-botones" style="padding: 1rem; border-top: 1px solid #eee;">
+          <button class="btn-cancelar" onclick="cerrarSelectorSabores()">Cancelar</button>
+          <button class="btn-confirmar" onclick="confirmarSaboresSeleccionados()">✅ Continuar</button>
+        </div>
+      </div>
+    </div>
   </main>
 
   <script>
@@ -485,6 +833,7 @@
     let ordenActual = 'alfabetico';
     let fechaHistorialActual = null;
     let diasConMovimientos = [];
+    let saboresSeleccionadosStock = []; // Array para guardar sabores seleccionados
     const tablaInventario = document.getElementById("tablaInventario");
 
     function cargarSabores() {
@@ -865,6 +1214,321 @@
       fechaHistorialActual = null;
     }
 
+    // ===== FUNCIONES PARA AÑADIR STOCK MASIVO =====
+    function abrirModalAñadirStock() {
+      // Inicializar fecha con día actual
+      const fechaInput = document.getElementById("fechaStock");
+      const hoy = new Date().toISOString().split('T')[0];
+      fechaInput.value = hoy;
+      fechaInput.max = hoy; // No permitir fechas futuras
+      
+      // Limpiar sabores seleccionados
+      saboresSeleccionadosStock = [];
+      actualizarVistaSaboresSeleccionados();
+      
+      // Mostrar modal
+      document.getElementById("modalAñadirStock").classList.remove("oculto");
+    }
+
+    function cerrarModalAñadirStock() {
+      document.getElementById("modalAñadirStock").classList.add("oculto");
+      saboresSeleccionadosStock = [];
+    }
+
+    function abrirSelectorSabores() {
+      // Cargar sabores disponibles (excluyendo los ya seleccionados)
+      const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
+      const saboresDisponibles = sabores.filter(sabor => 
+        sabor.disponible && 
+        !saboresSeleccionadosStock.some(seleccionado => seleccionado.id === sabor.id)
+      );
+      
+      const listaSaboresSelector = document.getElementById("listaSaboresSelector");
+      
+      if (saboresDisponibles.length === 0) {
+        listaSaboresSelector.innerHTML = `
+          <p style="text-align: center; color: #666; padding: 2rem; font-style: italic;">
+            ${saboresSeleccionadosStock.length > 0 ? 
+              'Todos los sabores disponibles ya han sido seleccionados' : 
+              'No hay sabores disponibles para agregar stock'
+            }
+          </p>
+        `;
+      } else {
+        // Ordenar alfabéticamente
+        saboresDisponibles.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+        
+        listaSaboresSelector.innerHTML = saboresDisponibles.map(sabor => `
+          <div class="sabor-item-selector">
+            <input type="checkbox" class="sabor-checkbox" id="sabor_${sabor.id}" data-sabor-id="${sabor.id}" />
+            <label for="sabor_${sabor.id}" class="sabor-nombre">${sabor.nombre}</label>
+          </div>
+        `).join('');
+      }
+      
+      document.getElementById("modalSelectorSabores").classList.remove("oculto");
+    }
+
+    function cerrarSelectorSabores() {
+      document.getElementById("modalSelectorSabores").classList.add("oculto");
+    }
+
+    function confirmarSaboresSeleccionados() {
+      // Obtener checkboxes marcados
+      const checkboxes = document.querySelectorAll('.sabor-checkbox:checked');
+      const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
+      
+      checkboxes.forEach(checkbox => {
+        const saborId = checkbox.dataset.saborId;
+        const sabor = sabores.find(s => s.id === saborId);
+        
+        if (sabor && !saboresSeleccionadosStock.some(s => s.id === saborId)) {
+          saboresSeleccionadosStock.push({
+            id: sabor.id,
+            nombre: sabor.nombre,
+            cantidad: 0
+          });
+        }
+      });
+      
+      // Cerrar modal selector y actualizar vista
+      cerrarSelectorSabores();
+      actualizarVistaSaboresSeleccionados();
+    }
+
+    function actualizarVistaSaboresSeleccionados() {
+      const contenedor = document.getElementById("saboresSeleccionados");
+      
+      if (saboresSeleccionadosStock.length === 0) {
+        contenedor.innerHTML = `
+          <p class="mensaje-sin-sabores">
+            No hay sabores seleccionados
+          </p>
+        `;
+        return;
+      }
+      
+      // ORDENAR ALFABÉTICAMENTE toda la lista cada vez que se actualiza
+      saboresSeleccionadosStock.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
+      
+      // FASE 2: Crear formulario dinámico con TABLA INVISIBLE para alineamiento perfecto
+      contenedor.innerHTML = `
+        <div class="formulario-sabores-stock">
+          <h5>📝 Cantidades a agregar:</h5>
+          <table class="tabla-stock">
+            ${saboresSeleccionadosStock.map(sabor => `
+              <tr>
+                <td class="col-eliminar-stock">
+                  <button onclick="eliminarSaborSeleccionado('${sabor.id}')" 
+                          class="btn-eliminar-sabor-stock"
+                          onmouseover="this.style.background='#dc3545'; this.style.color='white';" 
+                          onmouseout="this.style.background='#f8f9fa'; this.style.color='#dc3545';">❌</button>
+                </td>
+                <td class="col-sabor-stock">
+                  <div class="sabor-stock-nombre">${sabor.nombre}</div>
+                </td>
+                <td class="col-cantidad-stock">
+                  <input type="number" 
+                         class="input-cantidad-stock" 
+                         id="cantidad_${sabor.id}" 
+                         min="1" 
+                         max="999"
+                         value="${sabor.cantidad || ''}" 
+                         placeholder="0"
+                         inputmode="numeric"
+                         onfocus="manejarFocoInputStock(this)"
+                         onblur="manejarBlurInputStock(this, '${sabor.id}')"
+                         onchange="actualizarCantidadSabor('${sabor.id}', this.value)" />
+                </td>
+              </tr>
+            `).join('')}
+          </table>
+        </div>
+      `;
+    }
+
+    function eliminarSaborSeleccionado(saborId) {
+      saboresSeleccionadosStock = saboresSeleccionadosStock.filter(sabor => sabor.id !== saborId);
+      actualizarVistaSaboresSeleccionados();
+    }
+
+    // ===== FUNCIONES PARA MANEJO DE INPUTS DE STOCK (FASE 2) =====
+    function manejarFocoInputStock(input) {
+      // Seleccionar todo el contenido al hacer focus
+      setTimeout(() => {
+        input.select();
+      }, 50);
+      
+      // Desplazar la página para que el input quede visible arriba del teclado
+      setTimeout(() => {
+        // Calcular la posición del input
+        const rect = input.getBoundingClientRect();
+        const inputTop = rect.top + window.pageYOffset;
+        
+        // Calcular cuánto desplazar (dejando un margen de 120px arriba del teclado virtual)
+        const offset = 120;
+        const scrollTo = inputTop - offset;
+        
+        // Desplazar suavemente
+        window.scrollTo({
+          top: Math.max(0, scrollTo),
+          behavior: 'smooth'
+        });
+      }, 300); // Esperar un poco para que aparezca el teclado
+    }
+
+    function manejarBlurInputStock(input, saborId) {
+      // Si el campo queda vacío, volver a poner valor vacío
+      let valor = parseInt(input.value) || 0;
+      if (valor < 0) {
+        valor = 0;
+        input.value = '';
+      }
+      
+      // Actualizar el array de sabores
+      actualizarCantidadSabor(saborId, valor);
+    }
+
+    function actualizarCantidadSabor(saborId, cantidad) {
+      const sabor = saboresSeleccionadosStock.find(s => s.id === saborId);
+      if (sabor) {
+        sabor.cantidad = parseInt(cantidad) || 0;
+      }
+    }
+
+    // Función para determinar la hora según el tipo de entrada (igual que en ventas)
+    function obtenerHoraStock() {
+      const fechaInput = document.getElementById("fechaStock");
+      const fechaHoy = new Date().toISOString().split('T')[0];
+      const fechaSeleccionada = fechaInput.value;
+      
+      // Si es entrada del día actual, usar hora real
+      if (fechaSeleccionada === fechaHoy) {
+        const ahora = new Date();
+        return ahora.toTimeString().split(' ')[0].substring(0, 5);
+      } else {
+        // Si es entrada retroactiva, usar las 23:00
+        return "23:00";
+      }
+    }
+
+    function procesarStock() {
+      if (saboresSeleccionadosStock.length === 0) {
+        alert("Selecciona al menos un sabor para continuar");
+        return;
+      }
+      
+      const fecha = document.getElementById("fechaStock").value;
+      if (!fecha) {
+        alert("Selecciona una fecha válida");
+        return;
+      }
+
+      // Validar que haya al menos una cantidad válida
+      const stockValido = saboresSeleccionadosStock.filter(sabor => {
+        const cantidad = parseInt(sabor.cantidad) || 0;
+        return cantidad > 0;
+      });
+
+      if (stockValido.length === 0) {
+        alert("Ingresa al menos una cantidad válida (mayor a 0)");
+        return;
+      }
+
+      // Mostrar confirmación detallada
+      const fechaFormateada = fecha.split('-').reverse().join('/');
+      const horaStock = obtenerHoraStock();
+      const fechaHoy = new Date().toISOString().split('T')[0];
+      const esRetroactiva = fecha !== fechaHoy;
+      
+      let mensaje = `Confirmar entrada de stock:\n\n`;
+      mensaje += `📅 Fecha: ${fechaFormateada}\n`;
+      mensaje += `🕐 Hora: ${horaStock}`;
+      if (esRetroactiva) {
+        mensaje += ` (retroactiva)`;
+      }
+      mensaje += `\n\n📦 Stock a agregar:\n`;
+      
+      stockValido.forEach(sabor => {
+        mensaje += `• ${sabor.nombre}: +${sabor.cantidad}\n`;
+      });
+
+      const totalUnidades = stockValido.reduce((sum, sabor) => sum + sabor.cantidad, 0);
+      mensaje += `\n🔢 Total: ${totalUnidades} unidades\n\n¿Confirmar operación?`;
+
+      if (confirm(mensaje)) {
+        ejecutarStockMasivo(fecha, horaStock, stockValido);
+      }
+    }
+
+    function ejecutarStockMasivo(fecha, hora, stockValido) {
+      try {
+        const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+        const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
+        
+        let resultados = [];
+
+        stockValido.forEach(saborStock => {
+          const sabor = sabores.find(s => s.id === saborStock.id);
+          if (!sabor) return;
+
+          // Inicializar inventario si no existe
+          if (!inventario[saborStock.id]) {
+            inventario[saborStock.id] = {
+              sabor: sabor.nombre,
+              stock: 0,
+              historial: []
+            };
+          }
+
+          // Actualizar stock
+          const stockAnterior = inventario[saborStock.id].stock;
+          inventario[saborStock.id].stock += saborStock.cantidad;
+
+          // Agregar al historial
+          inventario[saborStock.id].historial.push({
+            fecha: fecha,
+            hora: hora,
+            cantidad: saborStock.cantidad,
+            tipo: "entrada",
+            stockResultante: inventario[saborStock.id].stock
+          });
+
+          resultados.push({
+            nombre: sabor.nombre,
+            cantidad: saborStock.cantidad,
+            stockAnterior: stockAnterior,
+            stockNuevo: inventario[saborStock.id].stock
+          });
+        });
+
+        // Guardar cambios
+        localStorage.setItem("inventario_hielitos", JSON.stringify(inventario));
+
+        // Limpiar formulario y cerrar modal
+        saboresSeleccionadosStock = [];
+        cerrarModalAñadirStock();
+        cargarSabores(); // Actualizar tabla principal
+
+        // Mostrar confirmación de éxito
+        let mensajeExito = `✅ Stock actualizado correctamente!\n\n`;
+        mensajeExito += `📅 ${fecha.split('-').reverse().join('/')} a las ${hora}\n\n`;
+        mensajeExito += `📋 Resumen:\n`;
+        resultados.forEach(resultado => {
+          mensajeExito += `• ${resultado.nombre}: ${resultado.stockAnterior} → ${resultado.stockNuevo} (+${resultado.cantidad})\n`;
+        });
+
+        const totalProcesado = resultados.reduce((sum, r) => sum + r.cantidad, 0);
+        mensajeExito += `\n🔢 Total procesado: ${totalProcesado} unidades`;
+
+        alert(mensajeExito);
+
+      } catch (error) {
+        console.error("Error al procesar stock masivo:", error);
+        alert("❌ Error al procesar el stock. Inténtalo de nuevo.");
+      }
+    }
+
     function confirmarBorradoInventario() {
       const confirmacion = confirm(
         "⚠️ ATENCIÓN ⚠️\n\nEsto borrará TODO el inventario (stock y historial).\nLos SABORES se mantendrán intactos.\n\n¿Estás seguro de continuar?"
@@ -880,6 +1544,8 @@
       if (e.target.classList.contains("modal")) {
         cerrarModal();
         cerrarHistorial();
+        cerrarModalAñadirStock();
+        cerrarSelectorSabores();
       }
     });
 
