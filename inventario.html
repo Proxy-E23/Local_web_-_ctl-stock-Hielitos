@@ -965,13 +965,16 @@
       cerrarModal();
     }
 
+    // ✅ FUNCIÓN CORREGIDA 1: ejecutarOperacion()
     function ejecutarOperacion() {
       if (!saborActual || !cantidadPendiente) return;
 
       const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
-      const fechaHora = new Date();
-      const fecha = fechaHora.toISOString().split('T')[0];
-      const hora = fechaHora.toTimeString().split(' ')[0].substring(0, 5);
+      
+      // ✅ USAR FUNCIONES DE script.js para fecha/hora correcta México GMT-6
+      const fechaHora = obtenerFechaHoraLocal();
+      const fecha = fechaHora.fecha;
+      const hora = fechaHora.hora;
       
       if (!inventario[saborActual.id]) {
         inventario[saborActual.id] = {
@@ -1238,12 +1241,15 @@
     }
 
     // ===== FUNCIONES PARA AÑADIR STOCK MASIVO =====
+    // ✅ FUNCIÓN CORREGIDA 2: abrirModalAñadirStock()
     function abrirModalAñadirStock() {
       // Inicializar fecha con día actual
       const fechaInput = document.getElementById("fechaStock");
-      const hoy = new Date().toISOString().split('T')[0];
-      fechaInput.value = hoy;
-      fechaInput.max = hoy; // No permitir fechas futuras
+      
+      // ✅ USAR FUNCIÓN DE script.js para fecha correcta México GMT-6
+      const fechaHoy = obtenerFechaLocal();
+      fechaInput.value = fechaHoy;
+      fechaInput.max = fechaHoy; // No permitir fechas futuras
       
       // Limpiar sabores seleccionados
       saboresSeleccionadosStock = [];
@@ -1419,22 +1425,24 @@
       }
     }
 
-    // Función para determinar la hora según el tipo de entrada (igual que en ventas)
+    // ✅ FUNCIÓN CORREGIDA 3: obtenerHoraStock()
     function obtenerHoraStock() {
       const fechaInput = document.getElementById("fechaStock");
-      const fechaHoy = new Date().toISOString().split('T')[0];
+      
+      // ✅ USAR FUNCIONES DE script.js para fecha/hora correcta México GMT-6
+      const fechaHoy = obtenerFechaLocal();
       const fechaSeleccionada = fechaInput.value;
       
       // Si es entrada del día actual, usar hora real
       if (fechaSeleccionada === fechaHoy) {
-        const ahora = new Date();
-        return ahora.toTimeString().split(' ')[0].substring(0, 5);
+        return obtenerHoraLocal();
       } else {
         // Si es entrada retroactiva, usar las 23:00
         return "23:00";
       }
     }
 
+    // ✅ FUNCIÓN CORREGIDA 4: procesarStock()
     function procesarStock() {
       if (saboresSeleccionadosStock.length === 0) {
         alert("Selecciona al menos un sabor para continuar");
@@ -1444,6 +1452,13 @@
       const fecha = document.getElementById("fechaStock").value;
       if (!fecha) {
         alert("Selecciona una fecha válida");
+        return;
+      }
+
+      // ✅ VALIDAR que la fecha no sea futura usando función de script.js
+      const fechaHoy = obtenerFechaLocal();
+      if (fecha > fechaHoy) {
+        alert("No se pueden agregar movimientos a fechas futuras");
         return;
       }
 
@@ -1460,8 +1475,7 @@
 
       // Mostrar confirmación detallada
       const fechaFormateada = fecha.split('-').reverse().join('/');
-      const horaStock = obtenerHoraStock();
-      const fechaHoy = new Date().toISOString().split('T')[0];
+      const horaStock = obtenerHoraStock(); // ✅ Ya corregida
       const esRetroactiva = fecha !== fechaHoy;
       
       let mensaje = `Confirmar entrada de stock:\n\n`;
@@ -1574,5 +1588,6 @@
 
     window.addEventListener("DOMContentLoaded", cargarSabores);
   </script>
+  <script src="script.js"></script>
 </body>
 </html>
