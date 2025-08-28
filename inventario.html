@@ -6,18 +6,19 @@
   <title>Inventario</title>
   <link rel="stylesheet" href="style.css" />
   <style>
-    /* Corregir tabla inventario - Centrado limpio con columnas optimizadas */
+  
+    /* Corregir tabla inventario - Centrado limpio con columnas optimizadas (ACTUALIZADO: 2 COLUMNAS) */
     .tabla-header.inventario {
       display: grid !important;
-      grid-template-columns: 1fr 60px 60px !important;
+      grid-template-columns: 1fr 80px !important;
     }
-
-    .tabla-fila.inventario {
+    
+      .tabla-fila.inventario {
       display: grid !important;
-      grid-template-columns: 1fr 60px 60px !important;
+      grid-template-columns: 1fr 80px !important;
     }
 
-    /* Centrado específico para columnas de stock y acción */
+/* Centrado específico para columna de stock */
     .col-stock {
       display: flex !important;
       align-items: center !important;
@@ -31,7 +32,7 @@
       align-items: center !important;
       justify-content: center !important;
     }
-
+    
     /* BOTONES DE NAVEGACIÓN DEL HISTORIAL - ESTILO CORREGIDO */
     .btn-navegacion-historial {
       padding: 0.7rem 1rem !important;
@@ -1044,6 +1045,9 @@
       }, 100);
     }
 
+    
+
+
     function cargarMovimientosDia(fecha) {
       const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
       const listaHistorial = document.getElementById("listaHistorial");
@@ -1129,87 +1133,143 @@
       if (movimientosDelDia.length === 0) {
         listaHistorial.innerHTML = '<p class="no-sabores">No hay movimientos en esta fecha</p>';
       } else {
-        // Agrupar movimientos por hora
-        const movimientosPorHora = {};
+        // Agrupar movimientos por TIPO primero, luego por hora
+        const movimientosPorTipo = {
+          entrada: {},
+          venta: {}
+        };
+        
         movimientosDelDia.forEach(mov => {
+          const tipo = mov.tipo || 'entrada';
           const hora = mov.hora || '00:00';
-          if (!movimientosPorHora[hora]) {
-            movimientosPorHora[hora] = [];
+          
+          if (!movimientosPorTipo[tipo][hora]) {
+            movimientosPorTipo[tipo][hora] = [];
           }
-          movimientosPorHora[hora].push(mov);
+          movimientosPorTipo[tipo][hora].push(mov);
         });
         
-        // Crear HTML para cada hora
-        const horasOrdenadas = Object.keys(movimientosPorHora).sort((a, b) => b.localeCompare(a));
+        // Obtener todas las horas de ambos tipos y ordenarlas
+        const todasLasHoras = new Set([
+          ...Object.keys(movimientosPorTipo.entrada),
+          ...Object.keys(movimientosPorTipo.venta)
+        ]);
+        const horasOrdenadas = Array.from(todasLasHoras).sort((a, b) => b.localeCompare(a));
         
         listaHistorial.innerHTML = horasOrdenadas.map(hora => {
-          const movimientosHora = movimientosPorHora[hora];
+          let htmlCompleto = '';
           
-          // Crear HTML para movimientos de esta hora CON MODIFICACIONES
-          const itemsHTML = movimientosHora
-            .filter(mov => {
-              return mov && 
-                     mov.sabor && 
-                     mov.sabor.trim() !== '' &&
-                     mov.cantidad !== null && 
-                     mov.cantidad !== undefined &&
-                     mov.cantidad !== '';
-            })
-            .map(mov => {
-              const tipoClase = mov.tipo === 'entrada' ? 'item-cantidad-entrada' : 'item-cantidad-venta';
-              const signo = mov.tipo === 'entrada' ? '+' : '';
-              
-              return `
-                <div class="movimiento-item">
-                  <div class="item-sabor-inventario">${mov.sabor}</div>
-                  <div class="item-cantidad-inventario ${tipoClase}">${signo}${Math.abs(mov.cantidad)}</div>
-                  <div class="item-stock-inventario">${mov.stockResultante}</div>
+          // SECCIÓN DE ENTRADAS DE STOCK (si las hay en esta hora)
+          if (movimientosPorTipo.entrada[hora] && movimientosPorTipo.entrada[hora].length > 0) {
+            const entradasHora = movimientosPorTipo.entrada[hora];
+            
+            const itemsEntradasHTML = entradasHora
+              .filter(mov => {
+                return mov && 
+                       mov.sabor && 
+                       mov.sabor.trim() !== '' &&
+                       mov.cantidad !== null && 
+                       mov.cantidad !== undefined &&
+                       mov.cantidad !== '';
+              })
+              .map(mov => {
+                return `
+                  <div class="movimiento-item">
+                    <div class="item-sabor-inventario">${mov.sabor}</div>
+                    <div class="item-cantidad-inventario item-cantidad-entrada">+${Math.abs(mov.cantidad)}</div>
+                    <div class="item-stock-inventario">${mov.stockResultante}</div>
+                  </div>
+                `;
+              }).join('');
+            
+            const totalEntradas = entradasHora.reduce((sum, mov) => sum + Math.abs(mov.cantidad), 0);
+            
+            htmlCompleto += `
+              <div class="movimiento-card">
+                <!-- Fila de la hora para ENTRADAS -->
+                <div class="movimiento-hora" style="background-color: #e8f5f4; border-bottom: 2px solid #4ecdc4;">
+                  📦 ${hora} - Entradas de Stock
                 </div>
-              `;
-            }).join('');
-          
-          // Calcular total de movimientos para esta hora Y determinar tipo predominante
-          const totalMovimientos = movimientosHora.reduce((sum, mov) => sum + Math.abs(mov.cantidad), 0);
-          const tiposMovimientos = movimientosHora.map(mov => mov.tipo || 'entrada');
-          const soloEntradas = tiposMovimientos.every(tipo => tipo === 'entrada');
-          const soloVentas = tiposMovimientos.every(tipo => tipo === 'venta');
-          
-          // Determinar clase CSS para el color del total
-          let claseColorTotal = 'total-valor-mixto'; // Por defecto mixto (morado)
-          if (soloEntradas) {
-            claseColorTotal = 'total-valor-entradas'; // Verde/turquesa
-          } else if (soloVentas) {
-            claseColorTotal = 'total-valor-ventas'; // Rojo
+                
+                <!-- Separador -->
+                <div class="separador-inventario"></div>
+                
+                <!-- Movimientos de entradas -->
+                <div class="movimientos-items">
+                  ${itemsEntradasHTML}
+                </div>
+                
+                <!-- Separador -->
+                <div class="separador-inventario"></div>
+                
+                <!-- Total de entradas -->
+                <div class="movimientos-totales" style="background-color: #e8f5f4;">
+                  <div class="total-fila-inventario">
+                    <div class="total-etiqueta-inventario">Total agregado:</div>
+                    <div class="total-valor-inventario total-valor-entradas">${totalEntradas}</div>
+                    <div class="total-columna-vacia"></div>
+                  </div>
+                </div>
+              </div>
+            `;
           }
           
-          return `
-            <div class="movimiento-card">
-              <!-- Fila de la hora -->
-              <div class="movimiento-hora">
-                ${hora}
-              </div>
-              
-              <!-- Separador -->
-              <div class="separador-inventario"></div>
-              
-              <!-- Movimientos de la hora -->
-              <div class="movimientos-items">
-                ${itemsHTML}
-              </div>
-              
-              <!-- Separador -->
-              <div class="separador-inventario"></div>
-              
-              <!-- Total de movimientos CON MODIFICACIONES: etiqueta a la derecha de sabores, valor en columna hielitos con color dinámico -->
-              <div class="movimientos-totales">
-                <div class="total-fila-inventario">
-                  <div class="total-etiqueta-inventario">Total de hielitos:</div>
-                  <div class="total-valor-inventario ${claseColorTotal}">${totalMovimientos}</div>
-                  <div class="total-columna-vacia"></div>
+          // SECCIÓN DE VENTAS (si las hay en esta hora)
+          if (movimientosPorTipo.venta[hora] && movimientosPorTipo.venta[hora].length > 0) {
+            const ventasHora = movimientosPorTipo.venta[hora];
+            
+            const itemsVentasHTML = ventasHora
+              .filter(mov => {
+                return mov && 
+                       mov.sabor && 
+                       mov.sabor.trim() !== '' &&
+                       mov.cantidad !== null && 
+                       mov.cantidad !== undefined &&
+                       mov.cantidad !== '';
+              })
+              .map(mov => {
+                return `
+                  <div class="movimiento-item">
+                    <div class="item-sabor-inventario">${mov.sabor}</div>
+                    <div class="item-cantidad-inventario item-cantidad-venta">${Math.abs(mov.cantidad)}</div>
+                    <div class="item-stock-inventario">${mov.stockResultante}</div>
+                  </div>
+                `;
+              }).join('');
+            
+            const totalVentas = ventasHora.reduce((sum, mov) => sum + Math.abs(mov.cantidad), 0);
+            
+            htmlCompleto += `
+              <div class="movimiento-card">
+                <!-- Fila de la hora para VENTAS -->
+                <div class="movimiento-hora" style="background-color: #fdeaea; border-bottom: 2px solid #dc3545;">
+                  🛒 ${hora} - Ventas
+                </div>
+                
+                <!-- Separador -->
+                <div class="separador-inventario"></div>
+                
+                <!-- Movimientos de ventas -->
+                <div class="movimientos-items">
+                  ${itemsVentasHTML}
+                </div>
+                
+                <!-- Separador -->
+                <div class="separador-inventario"></div>
+                
+                <!-- Total de ventas -->
+                <div class="movimientos-totales" style="background-color: #fdeaea;">
+                  <div class="total-fila-inventario">
+                    <div class="total-etiqueta-inventario">Total vendido:</div>
+                    <div class="total-valor-inventario total-valor-ventas">${totalVentas}</div>
+                    <div class="total-columna-vacia"></div>
+                  </div>
                 </div>
               </div>
-            </div>
-          `;
+            `;
+          }
+          
+          return htmlCompleto;
         }).join('');
       }
     }
