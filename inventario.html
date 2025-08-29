@@ -101,8 +101,8 @@
       z-index: 1000;
       display: flex;
       justify-content: center;
-      align-items: flex-start !important; /* Cambio clave: flex-start */
-      padding-top: 2rem !important; /* Espacio desde arriba */
+      align-items: flex-start !important;
+      padding-top: 2rem !important;
       box-sizing: border-box;
     }
 
@@ -112,8 +112,8 @@
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
       width: 90%;
       max-width: 600px;
-      min-height: 300px !important; /* Altura mínima */
-      max-height: calc(100vh - 2rem) !important; /* Aumentado: casi toda la pantalla */
+      min-height: 300px !important;
+      max-height: calc(100vh - 2rem) !important;
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -134,7 +134,7 @@
       overflow: hidden;
       display: flex;
       flex-direction: column;
-      max-height: calc(100vh - 240px); /* Más conservador para móviles */
+      max-height: calc(100vh - 240px);
     }
 
     #modalHistorial .navegacion-historial {
@@ -145,8 +145,7 @@
     #modalHistorial #listaHistorial {
       flex-grow: 1;
       min-height: 100px;
-      /* Altura dinámica basada en viewport con margen extra para móviles */
-      max-height: calc(100vh - 320px); /* Más margen para barras de navegadores móviles */
+      max-height: calc(100vh - 320px);
       overflow-y: auto;
       border: 1px solid #eee;
       border-radius: 5px;
@@ -278,10 +277,10 @@
     }
 
     .tabla-stock td {
-      padding: 0.3rem 0.3rem; /* Reducir aún más el padding vertical */
+      padding: 0.3rem 0.3rem;
       border-bottom: 1px solid #eee;
-      vertical-align: middle; /* Centrado vertical perfecto */
-      height: 2.2rem; /* Altura fija para consistencia */
+      vertical-align: middle;
+      height: 2.2rem;
     }
 
     .tabla-stock tr:last-child td {
@@ -290,7 +289,7 @@
 
     /* Columna del botón X - centrada */
     .col-eliminar-stock {
-      width: 40px; /* Reducir ancho de la columna */
+      width: 40px;
       text-align: center;
       vertical-align: middle !important;
     }
@@ -313,39 +312,39 @@
     .btn-eliminar-sabor-stock {
       background: #f8f9fa !important;
       color: #dc3545 !important;
-      border: none !important; /* Quitar borde completamente */
+      border: none !important;
       border-radius: 3px;
-      padding: 0.1rem !important; /* Padding muy pequeño */
+      padding: 0.1rem !important;
       cursor: pointer;
-      font-size: 0.9rem !important; /* Tamaño de emoji más natural */
+      font-size: 0.9rem !important;
       transition: all 0.2s ease;
-      width: 24px !important; /* Más pequeño, casi del tamaño del emoji */
-      height: 24px !important; /* Más pequeño, casi del tamaño del emoji */
+      width: 24px !important;
+      height: 24px !important;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: none !important; /* Sin sombras */
+      box-shadow: none !important;
     }
 
     .btn-eliminar-sabor-stock:hover {
       background: #dc3545 !important;
       color: white !important;
-      transform: scale(1.05) !important; /* Pequeño efecto de hover */
+      transform: scale(1.05) !important;
     }
 
     .sabor-stock-nombre {
       font-weight: 500;
       color: #333;
-      line-height: 1.3 !important; /* Mismo line-height que el input */
-      margin: 0 !important; /* Sin márgenes */
-      padding: 0 !important; /* Sin padding */
-      display: inline-block !important; /* Para mejor control de alineación */
+      line-height: 1.3 !important;
+      margin: 0 !important;
+      padding: 0 !important;
+      display: inline-block !important;
     }
 
     /* MODIFICACIONES: Input de cantidad - Altura reducida para coincidir con el texto */
     .input-cantidad-stock {
-      width: 60px; /* Mantener ancho para 3 dígitos */
-      padding: 0.25rem 0.3rem !important; /* Ajustar padding para mejor alineación */
+      width: 60px;
+      padding: 0.25rem 0.3rem !important;
       font-size: 1rem;
       border: 1px solid #ccc;
       border-radius: 5px;
@@ -353,10 +352,10 @@
       background-color: white;
       transition: border-color 0.3s ease, box-shadow 0.3s ease;
       box-sizing: border-box;
-      height: 1.8rem !important; /* Altura fija específica */
-      line-height: 1.3 !important; /* Coincidir con line-height del texto de sabores */
-      margin: 0 !important; /* Sin márgenes */
-      vertical-align: middle !important; /* Alineación vertical */
+      height: 1.8rem !important;
+      line-height: 1.3 !important;
+      margin: 0 !important;
+      vertical-align: middle !important;
     }
 
     .input-cantidad-stock:focus {
@@ -433,6 +432,247 @@
       color: #333;
     }
 
+    /* ===== ESTILOS PARA MODAL CORRECCIÓN DE STOCK ===== */
+    #modalCorreccionStock {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 2rem;
+      box-sizing: border-box;
+    }
+
+    #modalCorreccionStock .modal-content {
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 500px;
+      min-height: 300px;
+      max-height: calc(100vh - 2rem);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #modalCorreccionStock .modal-content h4 {
+      margin: 0;
+      padding: 1.5rem 1.5rem 1rem 1.5rem;
+      color: #333;
+      text-align: center;
+      border-bottom: 1px solid #eee;
+      flex-shrink: 0;
+    }
+
+    #modalCorreccionStock .modal-body {
+      padding: 1rem 1.5rem;
+      flex-grow: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Stock actual - FORMATO EN UNA LÍNEA */
+    .stock-actual-info {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      border: 2px solid #dee2e6;
+    }
+
+    .stock-actual-contenido {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #495057;
+      margin: 0;
+    }
+
+    .stock-actual-numero {
+      color: #4ecdc4;
+      font-weight: bold;
+    }
+
+    /* Selector de tipo de corrección */
+    .tipo-correccion {
+      margin-bottom: 1.5rem;
+    }
+
+    .tipo-correccion label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .radio-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    /* Radio buttons - DISEÑO EN UNA LÍNEA */
+    .radio-option {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+      padding: 0.6rem 1rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      justify-content: flex-start; /* Alineado a la izquierda */
+    }
+
+    .radio-option:hover {
+      background-color: #f8f9fa;
+      border-color: #4ecdc4;
+    }
+
+    .radio-option input[type="radio"] {
+      margin: 0;
+      order: 2; /* Radio button al final */
+    }
+
+    .radio-option label {
+      order: 1; /* Texto al inicio */
+      margin: 0;
+      flex-grow: 1;
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .radio-option.selected {
+      background-color: #e8f5f4;
+      border-color: #4ecdc4;
+      color: #2c7a73;
+    }
+
+    /* Input de cantidad - EN UNA LÍNEA */
+    .cantidad-correccion {
+      margin-bottom: 1.5rem;
+    }
+
+    .cantidad-fila {
+      display: flex;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .cantidad-correccion label {
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .input-cantidad-correccion {
+      flex: 1;
+      max-width: 120px;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: white;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      box-sizing: border-box;
+      text-align: center;
+    }
+
+    .input-cantidad-correccion:focus {
+      border-color: #4ecdc4;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+    }
+
+    /* Preview del resultado - EN UNA LÍNEA */
+    .resultado-preview {
+      background-color: #e8f5f4;
+      border: 2px solid #4ecdc4;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1.5rem;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .resultado-preview.visible {
+      opacity: 1;
+    }
+
+    .resultado-contenido {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #2c7a73;
+      margin: 0;
+    }
+
+    .resultado-numero {
+      font-weight: bold;
+      font-size: 1.2rem;
+    }
+
+    /* Selector de motivo */
+    .motivo-correccion {
+      margin-bottom: 1.5rem;
+    }
+
+    .motivo-correccion label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      color: #333;
+    }
+
+    .select-motivo {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: white;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    .select-motivo:focus {
+      border-color: #4ecdc4;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+    }
+
+    .input-motivo-otro {
+      width: 100%;
+      padding: 0.7rem;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      background-color: white;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+      box-sizing: border-box;
+      margin-top: 0.5rem;
+      display: none;
+    }
+
+    .input-motivo-otro:focus {
+      border-color: #4ecdc4;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(78, 205, 196, 0.2);
+    }
+
+    .input-motivo-otro.visible {
+      display: block;
+    }
+
     /* ===== ESTILOS PARA EL NUEVO FORMATO DE HISTORIAL DE INVENTARIO MODIFICADO ===== */
     .movimiento-card {
       border: 1px solid #ddd;
@@ -460,7 +700,7 @@
     /* MODIFICACIÓN: Nuevo grid con columnas optimizadas: Sabor (resto), Hielitos (60px), Stock (60px) */
     .movimiento-item {
       display: grid !important;
-      grid-template-columns: 1fr 60px 60px !important; /* Sabor ocupa resto, Hielitos y Stock 60px cada uno */
+      grid-template-columns: 1fr 60px 60px !important;
       gap: 1rem !important;
       padding: 0.4rem 1rem !important;
       border-bottom: 1px solid #f0f0f0 !important;
@@ -482,14 +722,14 @@
       color: #333 !important;
       font-weight: 500 !important;
       display: flex !important;
-      align-items: center !important; /* Centrado vertical */
+      align-items: center !important;
     }
 
     /* MODIFICACIÓN: Hielitos centrado con ancho fijo para 3 dígitos */
     .item-cantidad-inventario {
       text-align: center !important;
       font-weight: bold !important;
-      width: 60px !important; /* Ancho fijo para 3 dígitos */
+      width: 60px !important;
       font-size: 0.95rem !important;
       display: flex !important;
       align-items: center !important;
@@ -504,11 +744,15 @@
       color: #dc3545;
     }
 
+    .item-cantidad-correccion {
+      color: #ffc107;
+    }
+
     /* MODIFICACIÓN: Stock centrado con ancho fijo para 3 dígitos */
     .item-stock-inventario {
       text-align: center !important;
       color: #666 !important;
-      width: 60px !important; /* Ancho fijo para 3 dígitos */
+      width: 60px !important;
       font-size: 0.9rem !important;
       display: flex !important;
       align-items: center !important;
@@ -524,7 +768,7 @@
     /* MODIFICACIÓN: Total con nuevo grid - etiqueta alineada a la derecha en columna sabor, valor en columna hielitos */
     .total-fila-inventario {
       display: grid !important;
-      grid-template-columns: 1fr 60px 60px !important; /* Mismo grid que los items */
+      grid-template-columns: 1fr 60px 60px !important;
       gap: 1rem !important;
     }
 
@@ -536,14 +780,14 @@
       font-size: 0.95rem !important;
       display: flex !important;
       align-items: center !important;
-      justify-content: flex-end !important; /* Alineado a la derecha */
+      justify-content: flex-end !important;
     }
 
     /* MODIFICACIÓN: Valor del total centrado en la columna de hielitos con color dinámico según tipo de movimiento */
     .total-valor-inventario {
       text-align: center !important;
       font-weight: bold !important;
-      width: 60px !important; /* Mismo ancho que hielitos */
+      width: 60px !important;
       font-size: 0.95rem !important;
       display: flex !important;
       align-items: center !important;
@@ -552,15 +796,19 @@
 
     /* Colores dinámicos para totales según tipo de movimiento predominante */
     .total-valor-entradas {
-      color: #4ecdc4 !important; /* Verde/turquesa para entradas */
+      color: #4ecdc4 !important;
     }
 
     .total-valor-ventas {
-      color: #dc3545 !important; /* Rojo para ventas */
+      color: #dc3545 !important;
     }
 
     .total-valor-mixto {
-      color: #6f42c1 !important; /* Morado para movimientos mixtos */
+      color: #6f42c1 !important;
+    }
+
+    .total-valor-correcciones {
+      color: #ffc107 !important;
     }
 
     /* MODIFICACIÓN: Columna vacía para completar el grid (donde estaría stock) */
@@ -598,54 +846,39 @@
         font-size: 0.9rem !important;
       }
 
-      /* Responsive para modal historial */
-      #modalHistorial {
-        padding: 1rem;
-        padding-top: 1rem !important;
-        padding-bottom: 2rem !important; /* Más espacio abajo en móvil */
-      }
-      
-      #modalHistorial .modal-content {
-        width: 100%;
-        max-height: calc(100vh - 6rem) !important; /* Más conservador en móvil */
-        min-height: 250px !important;
-      }
-      
-      #modalHistorial .modal-content h4 {
-        padding: 1rem;
-        font-size: 1.1rem;
-      }
-      
-      #modalHistorial .modal-body {
-        padding: 0.8rem;
-        max-height: calc(100vh - 280px); /* Extra espacio para barras móviles */
-      }
-
-      #modalHistorial #listaHistorial {
-        max-height: calc(100vh - 380px); /* Aún más conservador en móvil */
-      }
-
-      /* Responsive para modal añadir stock */
-      #modalAñadirStock {
+      /* Responsive para modales */
+      #modalHistorial,
+      #modalAñadirStock,
+      #modalCorreccionStock {
         padding: 1rem;
         padding-top: 1rem !important;
         padding-bottom: 2rem !important;
       }
       
-      #modalAñadirStock .modal-content {
+      #modalHistorial .modal-content,
+      #modalAñadirStock .modal-content,
+      #modalCorreccionStock .modal-content {
         width: 100%;
         max-height: calc(100vh - 6rem) !important;
         min-height: 250px !important;
       }
       
-      #modalAñadirStock .modal-content h4 {
+      #modalHistorial .modal-content h4,
+      #modalAñadirStock .modal-content h4,
+      #modalCorreccionStock .modal-content h4 {
         padding: 1rem;
         font-size: 1.1rem;
       }
       
-      #modalAñadirStock .modal-body {
+      #modalHistorial .modal-body,
+      #modalAñadirStock .modal-body,
+      #modalCorreccionStock .modal-body {
         padding: 0.8rem;
         max-height: calc(100vh - 280px);
+      }
+
+      #modalHistorial #listaHistorial {
+        max-height: calc(100vh - 380px);
       }
 
       .fecha-stock-input {
@@ -658,17 +891,15 @@
         font-size: 0.9rem;
       }
       
-      /* MODIFICACIÓN RESPONSIVE: Mantener grid en móvil con columnas más pequeñas */
       .movimiento-item {
         padding: 0.3rem 0.8rem !important;
         gap: 0.8rem !important;
-        grid-template-columns: 1fr 50px 50px !important; /* Columnas más pequeñas en móvil */
+        grid-template-columns: 1fr 50px 50px !important;
       }
       
-      /* MODIFICACIÓN RESPONSIVE: Ajustar anchos en móvil */
       .item-cantidad-inventario,
       .item-stock-inventario {
-        width: 50px !important; /* Más pequeño en móvil */
+        width: 50px !important;
         font-size: 0.9rem !important;
       }
       
@@ -676,7 +907,6 @@
         padding: 0.5rem 0.8rem;
       }
       
-      /* MODIFICACIÓN RESPONSIVE: Grid del total también más pequeño en móvil */
       .total-fila-inventario {
         gap: 0.8rem !important;
         grid-template-columns: 1fr 50px 50px !important;
@@ -691,23 +921,22 @@
         font-size: 0.9rem !important;
       }
       
-      /* MODIFICACIONES RESPONSIVE: Ajustes para móvil */
       .input-cantidad-stock {
-        width: 55px; /* Mantener tamaño móvil */
-        padding: 0.2rem 0.2rem !important; /* Padding ajustado para móvil */
+        width: 55px;
+        padding: 0.2rem 0.2rem !important;
         font-size: 0.9rem;
-        height: 1.6rem !important; /* Altura menor en móvil */
+        height: 1.6rem !important;
       }
 
       .btn-eliminar-sabor-stock {
-        width: 22px !important; /* Aún más pequeño en móvil */
+        width: 22px !important;
         height: 22px !important;
         padding: 0.05rem !important;
         font-size: 0.8rem !important;
       }
 
       .col-eliminar-stock {
-        width: 35px; /* Columna más estrecha en móvil */
+        width: 35px;
       }
 
       .col-cantidad-stock {
@@ -715,8 +944,18 @@
       }
 
       .tabla-stock td {
-        padding: 0.25rem 0.2rem; /* Padding aún más reducido en móvil */
-        height: 2rem; /* Altura ligeramente menor en móvil */
+        padding: 0.25rem 0.2rem;
+        height: 2rem;
+      }
+
+      /* Responsive para modal corrección */
+      .radio-group {
+        gap: 0.4rem;
+      }
+      
+      .radio-option {
+        padding: 0.4rem 0.6rem;
+        font-size: 0.9rem;
       }
     }
   </style>
@@ -752,21 +991,6 @@
       </div>
     </div>
 
-    <!-- Modal para editar stock -->
-    <div id="modalStock" class="modal oculto">
-      <div class="modal-content">
-        <h4 id="modalTitulo">Agregar stock</h4>
-        <div class="modal-body">
-          <label for="cantidadInput">Cantidad a agregar:</label>
-          <input type="number" id="cantidadInput" min="1" inputmode="numeric" />
-          <div class="modal-botones">
-            <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
-            <button class="btn-confirmar" onclick="confirmarStock()">✅ Confirmar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- Modal de confirmación -->
     <div id="modalConfirmacion" class="modal oculto">
       <div class="modal-content">
@@ -776,6 +1000,71 @@
           <div class="modal-botones">
             <button class="btn-cancelar" onclick="cancelarOperacion()">Cancelar</button>
             <button class="btn-confirmar" onclick="ejecutarOperacion()">Continuar</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal corrección de stock -->
+    <div id="modalCorreccionStock" class="modal oculto">
+      <div class="modal-content">
+        <h4 id="tituloCorreccionStock">🔧 Corrección de Stock</h4>
+        <div class="modal-body">
+          <!-- Stock actual -->
+          <div class="stock-actual-info">
+            <p class="stock-actual-contenido">Stock actual: <span id="stockActualValor" class="stock-actual-numero">0</span></p>
+          </div>
+
+          <!-- Tipo de corrección -->
+          <div class="tipo-correccion">
+            <label>🔧 Tipo de corrección:</label>
+            <div class="radio-group">
+              <div class="radio-option" onclick="seleccionarTipoCorreccion('agregar')">
+                <label for="radioAgregar">➕ Agregar al stock actual</label>
+                <input type="radio" name="tipoCorreccion" value="agregar" id="radioAgregar">
+              </div>
+              <div class="radio-option" onclick="seleccionarTipoCorreccion('reducir')">
+                <label for="radioReducir">➖ Reducir del stock actual</label>
+                <input type="radio" name="tipoCorreccion" value="reducir" id="radioReducir">
+              </div>
+              <div class="radio-option" onclick="seleccionarTipoCorreccion('establecer')">
+                <label for="radioEstablecer">🎯 Establecer stock exacto</label>
+                <input type="radio" name="tipoCorreccion" value="establecer" id="radioEstablecer">
+              </div>
+            </div>
+          </div>
+
+          <!-- Cantidad -->
+          <div class="cantidad-correccion">
+            <div class="cantidad-fila">
+              <label id="labelCantidad">📝 Cantidad:</label>
+              <input type="number" id="inputCantidadCorreccion" class="input-cantidad-correccion" min="0" max="999" inputmode="numeric" placeholder="0" oninput="calcularResultado()">
+            </div>
+          </div>
+
+          <!-- Preview del resultado -->
+          <div id="resultadoPreview" class="resultado-preview">
+            <p class="resultado-contenido">Resultado: <span id="resultadoStockNuevo" class="resultado-numero">0</span></p>
+          </div>
+
+          <!-- Motivo de la corrección -->
+          <div class="motivo-correccion">
+            <label>📋 Motivo de la corrección:</label>
+            <select id="selectMotivo" class="select-motivo" onchange="manejarCambioMotivo()">
+              <option value="">Seleccionar motivo...</option>
+              <option value="error_conteo">Error de conteo</option>
+              <option value="merma_dano">Merma/Daño</option>
+              <option value="stock_perdido">Stock perdido</option>
+              <option value="conteo_fisico">Conteo físico</option>
+              <option value="otro">Otro...</option>
+            </select>
+            <input type="text" id="inputMotivoOtro" class="input-motivo-otro" placeholder="Especificar motivo..." maxlength="100">
+          </div>
+
+          <!-- Botones del modal -->
+          <div class="modal-botones" style="margin-top: 2rem; border-top: 1px solid #eee; padding-top: 1rem;">
+            <button class="btn-cancelar" onclick="cerrarModalCorreccion()">Cancelar</button>
+            <button class="btn-confirmar" onclick="procesarCorreccion()">✅ Aplicar Corrección</button>
           </div>
         </div>
       </div>
@@ -857,7 +1146,8 @@
     let ordenActual = 'alfabetico';
     let fechaHistorialActual = null;
     let diasConMovimientos = [];
-    let saboresSeleccionadosStock = []; // Array para guardar sabores seleccionados
+    let saboresSeleccionadosStock = [];
+    let datosCorreccionActual = null;
     const tablaInventario = document.getElementById("tablaInventario");
 
     function cargarSabores() {
@@ -904,7 +1194,7 @@
           <div style="padding: 0 0.8rem; display: flex; align-items: center;">${sabor.nombre}</div>
           <div class="col-stock" style="padding: 0 0.8rem;">${sabor.stock}</div>
           <div class="col-accion" style="padding: 0 0.8rem;">
-            <button class="btn-editar" onclick="editarStock('${sabor.id}', '${sabor.nombre}')">✏️</button>
+            <button class="btn-editar" onclick="abrirModalCorreccion('${sabor.id}', '${sabor.nombre}', ${sabor.stock})">🔧</button>
           </div>
         `;
         tablaInventario.appendChild(fila);
@@ -925,82 +1215,280 @@
       cargarSabores();
     }
 
-    function editarStock(saborId, saborNombre) {
-      saborActual = { id: saborId, nombre: saborNombre };
-      document.getElementById("modalTitulo").textContent = `Agregar stock - ${saborNombre}`;
-      document.getElementById("cantidadInput").value = "";
-      document.getElementById("modalStock").classList.remove("oculto");
-      document.getElementById("cantidadInput").focus();
-    }
+    // ===== FUNCIONES PARA CORRECCIÓN DE STOCK =====
+    function abrirModalCorreccion(saborId, saborNombre, stockActual) {
+      datosCorreccionActual = {
+        id: saborId,
+        nombre: saborNombre,
+        stockActual: stockActual
+      };
 
-    function cerrarModal() {
-      document.getElementById("modalStock").classList.add("oculto");
-      document.getElementById("modalConfirmacion").classList.add("oculto");
-      saborActual = null;
-      cantidadPendiente = 0;
-    }
-
-    function confirmarStock() {
-      const cantidad = parseInt(document.getElementById("cantidadInput").value);
+      // Configurar modal - TÍTULO EN DOS LÍNEAS
+      document.getElementById("tituloCorreccionStock").innerHTML = `
+        🔧 Corrección de Stock<br>
+        <span style="font-size: 1rem; font-weight: normal; color: #666;">${saborNombre}</span>
+      `;
       
-      if (!cantidad || cantidad <= 0) {
-        alert("Ingrese una cantidad válida");
+      document.getElementById("stockActualValor").textContent = stockActual;
+
+      // Limpiar formulario
+      limpiarFormularioCorreccion();
+
+      // Mostrar modal
+      document.getElementById("modalCorreccionStock").classList.remove("oculto");
+    }
+
+    function cerrarModalCorreccion() {
+      document.getElementById("modalCorreccionStock").classList.add("oculto");
+      datosCorreccionActual = null;
+      limpiarFormularioCorreccion();
+    }
+
+    function limpiarFormularioCorreccion() {
+      // Limpiar radio buttons
+      document.querySelectorAll('input[name="tipoCorreccion"]').forEach(radio => {
+        radio.checked = false;
+      });
+      document.querySelectorAll('.radio-option').forEach(option => {
+        option.classList.remove('selected');
+      });
+
+      // Limpiar inputs
+      document.getElementById("inputCantidadCorreccion").value = "";
+      document.getElementById("selectMotivo").value = "";
+      document.getElementById("inputMotivoOtro").value = "";
+      document.getElementById("inputMotivoOtro").classList.remove("visible");
+
+      // Ocultar preview
+      document.getElementById("resultadoPreview").classList.remove("visible");
+
+      // Resetear label
+      document.getElementById("labelCantidad").textContent = "📝 Cantidad:";
+    }
+
+    function seleccionarTipoCorreccion(tipo) {
+      // Limpiar selecciones anteriores
+      document.querySelectorAll('.radio-option').forEach(option => {
+        option.classList.remove('selected');
+      });
+
+      // Marcar opción seleccionada
+      const radioOption = document.querySelector(`#radio${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).parentNode;
+      radioOption.classList.add('selected');
+      document.querySelector(`#radio${tipo.charAt(0).toUpperCase() + tipo.slice(1)}`).checked = true;
+
+      // Actualizar label según el tipo
+      const labelCantidad = document.getElementById("labelCantidad");
+      switch(tipo) {
+        case 'agregar':
+          labelCantidad.textContent = "➕ Cantidad a agregar:";
+          break;
+        case 'reducir':
+          labelCantidad.textContent = "➖ Cantidad a reducir:";
+          break;
+        case 'establecer':
+          labelCantidad.textContent = "🎯 Stock exacto a establecer:";
+          break;
+      }
+
+      // Recalcular resultado si hay cantidad
+      calcularResultado();
+    }
+
+    function calcularResultado() {
+      const tipoSeleccionado = document.querySelector('input[name="tipoCorreccion"]:checked');
+      const cantidad = parseInt(document.getElementById("inputCantidadCorreccion").value) || 0;
+      const preview = document.getElementById("resultadoPreview");
+      const stockNuevo = document.getElementById("resultadoStockNuevo");
+
+      if (!tipoSeleccionado || cantidad === 0) {
+        preview.classList.remove("visible");
         return;
       }
 
-      cantidadPendiente = cantidad;
-      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
-      const stockActual = inventario[saborActual.id] ? inventario[saborActual.id].stock : 0;
-      const nuevoStock = stockActual + cantidad;
+      let resultado = 0;
+      const stockActual = datosCorreccionActual.stockActual;
 
-      document.getElementById("mensajeConfirmacion").innerHTML = `
-        Se van a anexar <strong>${cantidad}</strong> unidades a <strong>${saborActual.nombre}</strong><br>
-        Resultado: <strong>${nuevoStock}</strong> en stock
-      `;
-      
-      document.getElementById("modalStock").classList.add("oculto");
-      document.getElementById("modalConfirmacion").classList.remove("oculto");
+      switch(tipoSeleccionado.value) {
+        case 'agregar':
+          resultado = stockActual + cantidad;
+          break;
+        case 'reducir':
+          resultado = Math.max(0, stockActual - cantidad);
+          break;
+        case 'establecer':
+          resultado = cantidad;
+          break;
+      }
+
+      stockNuevo.textContent = resultado;
+      preview.classList.add("visible");
+
+      // Validar que el resultado sea válido
+      if (resultado < 0) {
+        stockNuevo.style.color = '#dc3545';
+        preview.style.borderColor = '#dc3545';
+        preview.style.backgroundColor = '#f8d7da';
+      } else {
+        stockNuevo.style.color = '#2c7a73';
+        preview.style.borderColor = '#4ecdc4';
+        preview.style.backgroundColor = '#e8f5f4';
+      }
     }
 
-    function cancelarOperacion() {
-      cerrarModal();
+    function manejarCambioMotivo() {
+      const selectMotivo = document.getElementById("selectMotivo");
+      const inputOtro = document.getElementById("inputMotivoOtro");
+
+      if (selectMotivo.value === "otro") {
+        inputOtro.classList.add("visible");
+        inputOtro.focus();
+      } else {
+        inputOtro.classList.remove("visible");
+        inputOtro.value = "";
+      }
     }
 
-    // ✅ FUNCIÓN CORREGIDA 1: ejecutarOperacion()
-    function ejecutarOperacion() {
-      if (!saborActual || !cantidadPendiente) return;
+    function procesarCorreccion() {
+      const tipoSeleccionado = document.querySelector('input[name="tipoCorreccion"]:checked');
+      const cantidad = parseInt(document.getElementById("inputCantidadCorreccion").value) || 0;
+      const motivoSelect = document.getElementById("selectMotivo").value;
+      const motivoOtro = document.getElementById("inputMotivoOtro").value.trim();
 
+      // Validaciones
+      if (!tipoSeleccionado) {
+        alert("Selecciona un tipo de corrección");
+        return;
+      }
+
+      if (cantidad <= 0) {
+        alert("Ingresa una cantidad válida mayor a 0");
+        return;
+      }
+
+      if (!motivoSelect) {
+        alert("Selecciona un motivo para la corrección");
+        return;
+      }
+
+      if (motivoSelect === "otro" && !motivoOtro) {
+        alert("Especifica el motivo de la corrección");
+        return;
+      }
+
+      // Calcular resultado final
+      const stockActual = datosCorreccionActual.stockActual;
+      let stockNuevo = 0;
+      let diferencia = 0;
+
+      switch(tipoSeleccionado.value) {
+        case 'agregar':
+          stockNuevo = stockActual + cantidad;
+          diferencia = cantidad;
+          break;
+        case 'reducir':
+          stockNuevo = Math.max(0, stockActual - cantidad);
+          diferencia = -(stockActual - stockNuevo);
+          break;
+        case 'establecer':
+          stockNuevo = cantidad;
+          diferencia = stockNuevo - stockActual;
+          break;
+      }
+
+      if (stockNuevo < 0) {
+        alert("El resultado no puede ser negativo");
+        return;
+      }
+
+      // Preparar datos para confirmación
+      const motivo = motivoSelect === "otro" ? motivoOtro : obtenerTextoMotivo(motivoSelect);
+      const tipoTexto = obtenerTextoTipo(tipoSeleccionado.value);
+
+      let mensaje = `Confirmar corrección de stock:\n\n`;
+      mensaje += `🍦 Sabor: ${datosCorreccionActual.nombre}\n`;
+      mensaje += `🔧 Tipo: ${tipoTexto}\n`;
+      mensaje += `📝 Cantidad: ${cantidad}\n`;
+      mensaje += `📋 Motivo: ${motivo}\n\n`;
+      mensaje += `📊 Resultado:\n`;
+      mensaje += `• Stock actual: ${stockActual}\n`;
+      mensaje += `• Stock nuevo: ${stockNuevo}\n`;
+      mensaje += `• Diferencia: ${diferencia >= 0 ? '+' : ''}${diferencia}\n\n`;
+      mensaje += `¿Confirmar corrección?`;
+
+      if (confirm(mensaje)) {
+        ejecutarCorreccion(tipoSeleccionado.value, cantidad, stockNuevo, diferencia, motivo);
+      }
+    }
+
+    function obtenerTextoMotivo(valor) {
+      const motivos = {
+        'error_conteo': 'Error de conteo',
+        'merma_dano': 'Merma/Daño',
+        'stock_perdido': 'Stock perdido',
+        'conteo_fisico': 'Conteo físico'
+      };
+      return motivos[valor] || valor;
+    }
+
+    function obtenerTextoTipo(valor) {
+      const tipos = {
+        'agregar': 'Agregar al stock',
+        'reducir': 'Reducir del stock',
+        'establecer': 'Establecer stock exacto'
+      };
+      return tipos[valor] || valor;
+    }
+
+    function ejecutarCorreccion(tipo, cantidad, stockNuevo, diferencia, motivo) {
       const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
-      
-      // ✅ USAR FUNCIONES DE script.js para fecha/hora correcta México GMT-6
       const fechaHora = obtenerFechaHoraLocal();
-      const fecha = fechaHora.fecha;
-      const hora = fechaHora.hora;
-      
-      if (!inventario[saborActual.id]) {
-        inventario[saborActual.id] = {
-          sabor: saborActual.nombre,
+
+      // Inicializar inventario si no existe
+      if (!inventario[datosCorreccionActual.id]) {
+        inventario[datosCorreccionActual.id] = {
+          sabor: datosCorreccionActual.nombre,
           stock: 0,
           historial: []
         };
       }
 
-      inventario[saborActual.id].stock += cantidadPendiente;
-      inventario[saborActual.id].historial.push({
-        fecha: fecha,
-        hora: hora,
-        cantidad: cantidadPendiente,
-        tipo: "entrada",
-        stockResultante: inventario[saborActual.id].stock
+      // Actualizar stock
+      inventario[datosCorreccionActual.id].stock = stockNuevo;
+
+      // Agregar al historial
+      inventario[datosCorreccionActual.id].historial.push({
+        fecha: fechaHora.fecha,
+        hora: fechaHora.hora,
+        cantidad: diferencia,
+        tipo: "correccion",
+        stockResultante: stockNuevo,
+        motivo: motivo,
+        tipoCorreccion: tipo,
+        cantidadOriginal: cantidad
       });
 
+      // Guardar cambios
       localStorage.setItem("inventario_hielitos", JSON.stringify(inventario));
-      
-      cerrarModal();
+
+      // Cerrar modal y actualizar vista
+      cerrarModalCorreccion();
       cargarSabores();
-      
-      alert(`Stock actualizado correctamente\n${saborActual.nombre}: ${inventario[saborActual.id].stock} unidades`);
+
+      // Mostrar confirmación
+      let mensajeExito = `✅ Corrección aplicada correctamente!\n\n`;
+      mensajeExito += `🍦 ${datosCorreccionActual.nombre}\n`;
+      mensajeExito += `📊 Stock: ${datosCorreccionActual.stockActual} → ${stockNuevo}\n`;
+      mensajeExito += `📋 Motivo: ${motivo}`;
+
+      alert(mensajeExito);
     }
+
+    function cancelarOperacion() {
+      document.getElementById("modalConfirmacion").classList.add("oculto");
+    }
+
+    // Esta función ya no se usa - eliminada para evitar conflictos
 
     function mostrarHistorial() {
       const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
@@ -1045,9 +1533,6 @@
       }, 100);
     }
 
-    
-
-
     function cargarMovimientosDia(fecha) {
       const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
       const listaHistorial = document.getElementById("listaHistorial");
@@ -1063,7 +1548,10 @@
                 hora: mov.hora || '00:00',
                 cantidad: mov.cantidad,
                 tipo: mov.tipo || 'entrada',
-                stockResultante: mov.stockResultante
+                stockResultante: mov.stockResultante,
+                motivo: mov.motivo || '',
+                tipoCorreccion: mov.tipoCorreccion || '',
+                cantidadOriginal: mov.cantidadOriginal || 0
               });
             }
           });
@@ -1084,25 +1572,15 @@
       const btnAnterior = document.getElementById("btnDiaAnterior");
       const btnSiguiente = document.getElementById("btnDiaSiguiente");
       
-      console.log(`Configurando botones - Índice: ${indiceFechaActual}, Total: ${diasConMovimientos.length}`);
-      console.log(`Fecha mostrada: ${fecha}`);
-      console.log(`Array de días:`, diasConMovimientos);
-      
-      // Limpiar eventos anteriores y agregar nuevos
       btnAnterior.onclick = null;
       btnSiguiente.onclick = null;
       
-      // Calcular estado de botones
-      const puedeIrAnterior = indiceFechaActual < diasConMovimientos.length - 1; // Puede ir a días más antiguos
-      const puedeIrSiguiente = indiceFechaActual > 0; // Puede ir a días más recientes
+      const puedeIrAnterior = indiceFechaActual < diasConMovimientos.length - 1;
+      const puedeIrSiguiente = indiceFechaActual > 0;
       
-      console.log(`Puede ir anterior (más antiguo): ${puedeIrAnterior}`);
-      console.log(`Puede ir siguiente (más reciente): ${puedeIrSiguiente}`);
-      
-      // Configurar botón anterior (ir a día más antiguo)
       if (puedeIrAnterior) {
         btnAnterior.disabled = false;
-        btnAnterior.onclick = () => cambiarDia(1); // +1 porque el array está ordenado de reciente a antiguo
+        btnAnterior.onclick = () => cambiarDia(1);
         btnAnterior.style.backgroundColor = "#4ecdc4";
         btnAnterior.style.opacity = "1";
         btnAnterior.style.cursor = "pointer";
@@ -1114,10 +1592,9 @@
         btnAnterior.style.cursor = "not-allowed";
       }
       
-      // Configurar botón siguiente (ir a día más reciente)
       if (puedeIrSiguiente) {
         btnSiguiente.disabled = false;
-        btnSiguiente.onclick = () => cambiarDia(-1); // -1 porque el array está ordenado de reciente a antiguo
+        btnSiguiente.onclick = () => cambiarDia(-1);
         btnSiguiente.style.backgroundColor = "#4ecdc4";
         btnSiguiente.style.opacity = "1";
         btnSiguiente.style.cursor = "pointer";
@@ -1136,7 +1613,8 @@
         // Agrupar movimientos por TIPO primero, luego por hora
         const movimientosPorTipo = {
           entrada: {},
-          venta: {}
+          venta: {},
+          correccion: {}
         };
         
         movimientosDelDia.forEach(mov => {
@@ -1149,10 +1627,11 @@
           movimientosPorTipo[tipo][hora].push(mov);
         });
         
-        // Obtener todas las horas de ambos tipos y ordenarlas
+        // Obtener todas las horas de todos los tipos y ordenarlas
         const todasLasHoras = new Set([
           ...Object.keys(movimientosPorTipo.entrada),
-          ...Object.keys(movimientosPorTipo.venta)
+          ...Object.keys(movimientosPorTipo.venta),
+          ...Object.keys(movimientosPorTipo.correccion)
         ]);
         const horasOrdenadas = Array.from(todasLasHoras).sort((a, b) => b.localeCompare(a));
         
@@ -1186,23 +1665,14 @@
             
             htmlCompleto += `
               <div class="movimiento-card">
-                <!-- Fila de la hora para ENTRADAS -->
                 <div class="movimiento-hora" style="background-color: #e8f5f4; border-bottom: 2px solid #4ecdc4;">
                   📦 ${hora} - Entradas de Stock
                 </div>
-                
-                <!-- Separador -->
                 <div class="separador-inventario"></div>
-                
-                <!-- Movimientos de entradas -->
                 <div class="movimientos-items">
                   ${itemsEntradasHTML}
                 </div>
-                
-                <!-- Separador -->
                 <div class="separador-inventario"></div>
-                
-                <!-- Total de entradas -->
                 <div class="movimientos-totales" style="background-color: #e8f5f4;">
                   <div class="total-fila-inventario">
                     <div class="total-etiqueta-inventario">Total agregado:</div>
@@ -1241,27 +1711,66 @@
             
             htmlCompleto += `
               <div class="movimiento-card">
-                <!-- Fila de la hora para VENTAS -->
                 <div class="movimiento-hora" style="background-color: #fdeaea; border-bottom: 2px solid #dc3545;">
                   🛒 ${hora} - Ventas
                 </div>
-                
-                <!-- Separador -->
                 <div class="separador-inventario"></div>
-                
-                <!-- Movimientos de ventas -->
                 <div class="movimientos-items">
                   ${itemsVentasHTML}
                 </div>
-                
-                <!-- Separador -->
                 <div class="separador-inventario"></div>
-                
-                <!-- Total de ventas -->
                 <div class="movimientos-totales" style="background-color: #fdeaea;">
                   <div class="total-fila-inventario">
                     <div class="total-etiqueta-inventario">Total vendido:</div>
                     <div class="total-valor-inventario total-valor-ventas">${totalVentas}</div>
+                    <div class="total-columna-vacia"></div>
+                  </div>
+                </div>
+              </div>
+            `;
+          }
+
+          // SECCIÓN DE CORRECCIONES (si las hay en esta hora)
+          if (movimientosPorTipo.correccion[hora] && movimientosPorTipo.correccion[hora].length > 0) {
+            const correccionesHora = movimientosPorTipo.correccion[hora];
+            
+            const itemsCorreccionesHTML = correccionesHora
+              .filter(mov => {
+                return mov && 
+                       mov.sabor && 
+                       mov.sabor.trim() !== '' &&
+                       mov.cantidad !== null && 
+                       mov.cantidad !== undefined &&
+                       mov.cantidad !== '';
+              })
+              .map(mov => {
+                const signo = mov.cantidad >= 0 ? '+' : '';
+                return `
+                  <div class="movimiento-item">
+                    <div class="item-sabor-inventario">${mov.sabor}${mov.motivo ? ` (${mov.motivo})` : ''}</div>
+                    <div class="item-cantidad-inventario item-cantidad-correccion">${signo}${mov.cantidad}</div>
+                    <div class="item-stock-inventario">${mov.stockResultante}</div>
+                  </div>
+                `;
+              }).join('');
+            
+            const totalCorrecciones = correccionesHora.reduce((sum, mov) => sum + mov.cantidad, 0);
+            const signoTotal = totalCorrecciones >= 0 ? '+' : '';
+            
+            htmlCompleto += `
+              <div class="movimiento-card">
+                <div class="movimiento-hora" style="background-color: #fef9e6; border-bottom: 2px solid #ffc107;">
+                  🔧 ${hora} - Correcciones de Stock
+                </div>
+                <div class="separador-inventario"></div>
+                <div class="movimientos-items">
+                  ${itemsCorreccionesHTML}
+                </div>
+                <div class="separador-inventario"></div>
+                <div class="movimientos-totales" style="background-color: #fef9e6;">
+                  <div class="total-fila-inventario">
+                    <div class="total-etiqueta-inventario">Total corregido:</div>
+                    <div class="total-valor-inventario total-valor-correcciones">${signoTotal}${totalCorrecciones}</div>
                     <div class="total-columna-vacia"></div>
                   </div>
                 </div>
@@ -1278,20 +1787,9 @@
       const indiceActual = diasConMovimientos.indexOf(fechaHistorialActual);
       const nuevoIndice = indiceActual + direccion;
       
-      console.log(`=== CAMBIAR DÍA ===`);
-      console.log(`Dirección: ${direccion}`);
-      console.log(`Índice actual: ${indiceActual}`);
-      console.log(`Nuevo índice: ${nuevoIndice}`);
-      console.log(`Total días: ${diasConMovimientos.length}`);
-      console.log(`Días disponibles:`, diasConMovimientos);
-      console.log(`Fecha actual: ${fechaHistorialActual}`);
-      
       if (nuevoIndice >= 0 && nuevoIndice < diasConMovimientos.length) {
         fechaHistorialActual = diasConMovimientos[nuevoIndice];
-        console.log(`✅ Cambiando a: ${fechaHistorialActual}`);
         cargarMovimientosDia(fechaHistorialActual);
-      } else {
-        console.log(`❌ Fuera de rango - no se puede cambiar`);
       }
     }
 
@@ -1301,21 +1799,15 @@
     }
 
     // ===== FUNCIONES PARA AÑADIR STOCK MASIVO =====
-    // ✅ FUNCIÓN CORREGIDA 2: abrirModalAñadirStock()
     function abrirModalAñadirStock() {
-      // Inicializar fecha con día actual
       const fechaInput = document.getElementById("fechaStock");
-      
-      // ✅ USAR FUNCIÓN DE script.js para fecha correcta México GMT-6
       const fechaHoy = obtenerFechaLocal();
       fechaInput.value = fechaHoy;
-      fechaInput.max = fechaHoy; // No permitir fechas futuras
+      fechaInput.max = fechaHoy;
       
-      // Limpiar sabores seleccionados
       saboresSeleccionadosStock = [];
       actualizarVistaSaboresSeleccionados();
       
-      // Mostrar modal
       document.getElementById("modalAñadirStock").classList.remove("oculto");
     }
 
@@ -1325,7 +1817,6 @@
     }
 
     function abrirSelectorSabores() {
-      // Cargar sabores disponibles (excluyendo los ya seleccionados)
       const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
       const saboresDisponibles = sabores.filter(sabor => 
         sabor.disponible && 
@@ -1344,7 +1835,6 @@
           </p>
         `;
       } else {
-        // Ordenar alfabéticamente
         saboresDisponibles.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
         
         listaSaboresSelector.innerHTML = saboresDisponibles.map(sabor => `
@@ -1363,7 +1853,6 @@
     }
 
     function confirmarSaboresSeleccionados() {
-      // Obtener checkboxes marcados
       const checkboxes = document.querySelectorAll('.sabor-checkbox:checked');
       const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
       
@@ -1380,7 +1869,6 @@
         }
       });
       
-      // Cerrar modal selector y actualizar vista
       cerrarSelectorSabores();
       actualizarVistaSaboresSeleccionados();
     }
@@ -1397,10 +1885,8 @@
         return;
       }
       
-      // ORDENAR ALFABÉTICAMENTE toda la lista cada vez que se actualiza
       saboresSeleccionadosStock.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
       
-      // FASE 2: Crear formulario dinámico con TABLA INVISIBLE para alineamiento perfecto
       contenedor.innerHTML = `
         <div class="formulario-sabores-stock">
           <h5>📝 Cantidades a agregar:</h5>
@@ -1441,40 +1927,31 @@
       actualizarVistaSaboresSeleccionados();
     }
 
-    // ===== FUNCIONES PARA MANEJO DE INPUTS DE STOCK (FASE 2) =====
     function manejarFocoInputStock(input) {
-      // Seleccionar todo el contenido al hacer focus
       setTimeout(() => {
         input.select();
       }, 50);
       
-      // Desplazar la página para que el input quede visible arriba del teclado
       setTimeout(() => {
-        // Calcular la posición del input
         const rect = input.getBoundingClientRect();
         const inputTop = rect.top + window.pageYOffset;
-        
-        // Calcular cuánto desplazar (dejando un margen de 120px arriba del teclado virtual)
         const offset = 120;
         const scrollTo = inputTop - offset;
         
-        // Desplazar suavemente
         window.scrollTo({
           top: Math.max(0, scrollTo),
           behavior: 'smooth'
         });
-      }, 300); // Esperar un poco para que aparezca el teclado
+      }, 300);
     }
 
     function manejarBlurInputStock(input, saborId) {
-      // Si el campo queda vacío, volver a poner valor vacío
       let valor = parseInt(input.value) || 0;
       if (valor < 0) {
         valor = 0;
         input.value = '';
       }
       
-      // Actualizar el array de sabores
       actualizarCantidadSabor(saborId, valor);
     }
 
@@ -1485,24 +1962,18 @@
       }
     }
 
-    // ✅ FUNCIÓN CORREGIDA 3: obtenerHoraStock()
     function obtenerHoraStock() {
       const fechaInput = document.getElementById("fechaStock");
-      
-      // ✅ USAR FUNCIONES DE script.js para fecha/hora correcta México GMT-6
       const fechaHoy = obtenerFechaLocal();
       const fechaSeleccionada = fechaInput.value;
       
-      // Si es entrada del día actual, usar hora real
       if (fechaSeleccionada === fechaHoy) {
         return obtenerHoraLocal();
       } else {
-        // Si es entrada retroactiva, usar las 23:00
         return "23:00";
       }
     }
 
-    // ✅ FUNCIÓN CORREGIDA 4: procesarStock()
     function procesarStock() {
       if (saboresSeleccionadosStock.length === 0) {
         alert("Selecciona al menos un sabor para continuar");
@@ -1515,14 +1986,12 @@
         return;
       }
 
-      // ✅ VALIDAR que la fecha no sea futura usando función de script.js
       const fechaHoy = obtenerFechaLocal();
       if (fecha > fechaHoy) {
         alert("No se pueden agregar movimientos a fechas futuras");
         return;
       }
 
-      // Validar que haya al menos una cantidad válida
       const stockValido = saboresSeleccionadosStock.filter(sabor => {
         const cantidad = parseInt(sabor.cantidad) || 0;
         return cantidad > 0;
@@ -1533,9 +2002,8 @@
         return;
       }
 
-      // Mostrar confirmación detallada
       const fechaFormateada = fecha.split('-').reverse().join('/');
-      const horaStock = obtenerHoraStock(); // ✅ Ya corregida
+      const horaStock = obtenerHoraStock();
       const esRetroactiva = fecha !== fechaHoy;
       
       let mensaje = `Confirmar entrada de stock:\n\n`;
@@ -1569,7 +2037,6 @@
           const sabor = sabores.find(s => s.id === saborStock.id);
           if (!sabor) return;
 
-          // Inicializar inventario si no existe
           if (!inventario[saborStock.id]) {
             inventario[saborStock.id] = {
               sabor: sabor.nombre,
@@ -1578,11 +2045,9 @@
             };
           }
 
-          // Actualizar stock
           const stockAnterior = inventario[saborStock.id].stock;
           inventario[saborStock.id].stock += saborStock.cantidad;
 
-          // Agregar al historial
           inventario[saborStock.id].historial.push({
             fecha: fecha,
             hora: hora,
@@ -1599,15 +2064,12 @@
           });
         });
 
-        // Guardar cambios
         localStorage.setItem("inventario_hielitos", JSON.stringify(inventario));
 
-        // Limpiar formulario y cerrar modal
         saboresSeleccionadosStock = [];
         cerrarModalAñadirStock();
-        cargarSabores(); // Actualizar tabla principal
+        cargarSabores();
 
-        // Mostrar confirmación de éxito
         let mensajeExito = `✅ Stock actualizado correctamente!\n\n`;
         mensajeExito += `📅 ${fecha.split('-').reverse().join('/')} a las ${hora}\n\n`;
         mensajeExito += `📋 Resumen:\n`;
@@ -1639,10 +2101,13 @@
 
     document.addEventListener("click", function(e) {
       if (e.target.classList.contains("modal")) {
-        cerrarModal();
-        cerrarHistorial();
-        cerrarModalAñadirStock();
-        cerrarSelectorSabores();
+        // Solo cerrar modales que no sean de confirmación crítica
+        if (e.target.id !== "modalConfirmacion") {
+          cerrarHistorial();
+          cerrarModalAñadirStock();
+          cerrarSelectorSabores();
+          cerrarModalCorreccion();
+        }
       }
     });
 
