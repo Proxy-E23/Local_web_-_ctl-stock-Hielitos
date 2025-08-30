@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Modificar Stock</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f8ff;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding-top: 2rem;
+      z-index: 1000;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+      width: 90%;
+      max-width: 500px;
+      max-height: calc(100vh - 2rem);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      background: linear-gradient(135deg, #4ecdc4, #3da9a1);
+      color: white;
+      padding: 1.5rem;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 12px 12px 0 0;
+    }
+
+    .modal-body {
+      padding: 2rem;
+      flex-grow: 1;
+      overflow-y: auto;
+    }
+
+    /* Stock actual - una línea */
+    .stock-actual-card {
+      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+      border: 2px solid #dee2e6;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .stock-actual-contenido {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .stock-actual-numero {
+      color: #4ecdc4;
+      font-weight: bold;
+    }
+
+    /* Opciones de corrección - espaciado reducido */
+    .opciones-correccion {
+      background: #f8f9fa;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #e9ecef;
+    }
+
+    .opciones-titulo {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+
+    .opciones-grid {
+      display: grid;
+      gap: 0.8rem;
+    }
+
+    .opcion-item {
+      display: grid;
+      grid-template-columns: 2.5rem 1fr auto;
+      align-items: center;
+      padding: 1rem;
+      background: white;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-height: 60px;
+    }
+
+    .opcion-item:hover {
+      border-color: #4ecdc4;
+      background: #f0fdfc;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(78, 205, 196, 0.2);
+    }
+
+    .opcion-item.selected {
+      border-color: #4ecdc4;
+      background: #e8f5f4;
+      box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+
+    .opcion-icono {
+      font-size: 1.5rem;
+      text-align: center;
+    }
+
+    .opcion-texto {
+      font-size: 1rem;
+      font-weight: 500;
+      color: #495057;
+      padding: 0 1rem;
+    }
+
+    .opcion-radio {
+      width: 20px;
+      height: 20px;
+      transform: scale(1.2);
+      cursor: pointer;
+    }
+
+    /* Sección de entrada - espaciado reducido */
+    .entrada-section {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #e9ecef;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .entrada-grid {
+      display: grid;
+      grid-template-columns: 2.5rem 1fr auto;
+      align-items: center;
+      gap: 1rem;
+      min-height: 60px;
+    }
+
+    .entrada-icono {
+      font-size: 1.5rem;
+      text-align: center;
+      color: #4ecdc4;
+    }
+
+    .entrada-label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: #495057;
+    }
+
+    .entrada-input {
+      width: 100px;
+      padding: 0.75rem;
+      font-size: 1.1rem;
+      text-align: center;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      background: white;
+      transition: all 0.3s ease;
+      font-weight: 600;
+    }
+
+    .entrada-input:focus {
+      border-color: #4ecdc4;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+      background: #f0fdfc;
+    }
+
+    /* Preview del resultado - una línea */
+    .resultado-preview {
+      background: linear-gradient(135deg, #e8f5f4, #d1ecf1);
+      border: 2px solid #4ecdc4;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      text-align: center;
+      margin-bottom: 1rem;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s ease;
+      box-shadow: 0 4px 16px rgba(78, 205, 196, 0.2);
+    }
+
+    .resultado-preview.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .resultado-contenido {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #2c7a73;
+    }
+
+    .resultado-numero {
+      color: #2c7a73;
+      font-weight: bold;
+    }
+
+    /* Selector de motivo - espaciado reducido */
+    .motivo-section {
+      background: white;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      border: 1px solid #e9ecef;
+    }
+
+    .motivo-label {
+      display: block;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #495057;
+      margin-bottom: 1rem;
+    }
+
+    .motivo-select {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      background: white;
+      transition: all 0.3s ease;
+    }
+
+    .motivo-select:focus {
+      border-color: #4ecdc4;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+
+    .motivo-input {
+      width: 100%;
+      padding: 0.75rem;
+      font-size: 1rem;
+      border: 2px solid #e9ecef;
+      border-radius: 8px;
+      background: white;
+      margin-top: 1rem;
+      transition: all 0.3s ease;
+      display: none;
+    }
+
+    .motivo-input.visible {
+      display: block;
+    }
+
+    .motivo-input:focus {
+      border-color: #4ecdc4;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
+    }
+
+    /* Botones del modal */
+    .modal-botones {
+      padding: 1.5rem 2rem;
+      border-top: 1px solid #e9ecef;
+      display: flex;
+      gap: 1rem;
+      justify-content: center;
+      background: #f8f9fa;
+    }
+
+    .btn-cancelar,
+    .btn-confirmar {
+      padding: 0.75rem 2rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      min-width: 120px;
+    }
+
+    .btn-cancelar {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .btn-cancelar:hover {
+      background-color: #545b62;
+      transform: translateY(-1px);
+    }
+
+    .btn-confirmar {
+      background: linear-gradient(135deg, #4ecdc4, #3da9a1);
+      color: white;
+      box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+    }
+
+    .btn-confirmar:hover {
+      background: linear-gradient(135deg, #3da9a1, #2c7a73);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(78, 205, 196, 0.4);
+    }
+
+    /* Estados ocultos */
+    .entrada-section.hidden {
+      display: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .modal-content {
+        width: 95%;
+        margin: 1rem;
+      }
+
+      .modal-body {
+        padding: 1.5rem;
+      }
+
+      .opciones-grid {
+        gap: 0.6rem;
+      }
+
+      .opcion-item {
+        padding: 0.8rem;
+        min-height: 50px;
+      }
+
+      .entrada-grid {
+        grid-template-columns: 2rem 1fr auto;
+        gap: 0.8rem;
+      }
+
+      .entrada-input {
+        width: 80px;
+        padding: 0.6rem;
+      }
+
+      .stock-actual-valor {
+        font-size: 1.8rem;
+      }
+
+      .resultado-valor {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        🔧 Corrección de Stock<br>
+        <span style="font-size: 1rem; font-weight: normal; opacity: 0.9;">Chocolate</span>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Stock actual -->
+        <div class="stock-actual-card">
+          <div class="stock-actual-contenido">Stock actual: <span class="stock-actual-numero">25</span></div>
+        </div>
+
+        <!-- Opciones de corrección -->
+        <div class="opciones-correccion">
+          <div class="opciones-titulo">Tipo de corrección</div>
+          <div class="opciones-grid">
+            <div class="opcion-item" onclick="seleccionarOpcion('agregar', this)">
+              <div class="opcion-icono">➕</div>
+              <div class="opcion-texto">Agregar al stock actual</div>
+              <input type="radio" name="tipoCorreccion" value="agregar" class="opcion-radio">
+            </div>
+            <div class="opcion-item" onclick="seleccionarOpcion('reducir', this)">
+              <div class="opcion-icono">➖</div>
+              <div class="opcion-texto">Reducir del stock actual</div>
+              <input type="radio" name="tipoCorreccion" value="reducir" class="opcion-radio">
+            </div>
+            <div class="opcion-item" onclick="seleccionarOpcion('establecer', this)">
+              <div class="opcion-icono">🎯</div>
+              <div class="opcion-texto">Fijar nuevo stock</div>
+              <input type="radio" name="tipoCorreccion" value="establecer" class="opcion-radio">
+            </div>
+          </div>
+        </div>
+
+        <!-- Entrada de cantidad - dinámica -->
+        <div class="entrada-section hidden" id="entradaAgregar">
+          <div class="entrada-grid">
+            <div class="entrada-icono">➕</div>
+            <div class="entrada-label">Cantidad a agregar</div>
+            <input type="number" class="entrada-input" min="1" max="999" placeholder="0" oninput="calcularResultado()">
+          </div>
+        </div>
+
+        <div class="entrada-section hidden" id="entradaReducir">
+          <div class="entrada-grid">
+            <div class="entrada-icono">➖</div>
+            <div class="entrada-label">Cantidad a reducir</div>
+            <input type="number" class="entrada-input" min="1" max="999" placeholder="0" oninput="calcularResultado()">
+          </div>
+        </div>
+
+        <div class="entrada-section hidden" id="entradaEstablecer">
+          <div class="entrada-grid">
+            <div class="entrada-icono">🎯</div>
+            <div class="entrada-label">Nuevo stock</div>
+            <input type="number" class="entrada-input" min="0" max="999" placeholder="0" oninput="calcularResultado()">
+          </div>
+        </div>
+
+        <!-- Preview del resultado -->
+        <div class="resultado-preview" id="resultadoPreview">
+          <div class="resultado-contenido">Nuevo stock: <span class="resultado-numero" id="resultadoValor">0</span></div>
+        </div>
+
+        <!-- Motivo -->
+        <div class="motivo-section">
+          <label class="motivo-label">📋 Motivo de la corrección</label>
+          <select class="motivo-select" onchange="manejarCambioMotivo(this)">
+            <option value="">Seleccionar motivo...</option>
+            <option value="error_conteo">Error de conteo</option>
+            <option value="merma_dano">Merma/Daño</option>
+            <option value="stock_perdido">Stock perdido</option>
+            <option value="conteo_fisico">Conteo físico</option>
+            <option value="otro">Otro...</option>
+          </select>
+          <input type="text" class="motivo-input" placeholder="Especificar motivo..." maxlength="100">
+        </div>
+      </div>
+
+      <div class="modal-botones">
+        <button class="btn-cancelar">Cancelar</button>
+        <button class="btn-confirmar">✅ Aplicar Corrección</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let stockActual = 25;
+    let tipoSeleccionado = null;
+
+    function seleccionarOpcion(tipo, elemento) {
+      // Limpiar selecciones anteriores
+      document.querySelectorAll('.opcion-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      
+      // Marcar como seleccionado
+      elemento.classList.add('selected');
+      elemento.querySelector('input[type="radio"]').checked = true;
+      
+      // Ocultar todas las entradas
+      document.querySelectorAll('.entrada-section').forEach(section => {
+        section.classList.add('hidden');
+      });
+      
+      // Mostrar la entrada correspondiente
+      document.getElementById('entrada' + tipo.charAt(0).toUpperCase() + tipo.slice(1)).classList.remove('hidden');
+      
+      tipoSeleccionado = tipo;
+      calcularResultado();
+    }
+
+    function calcularResultado() {
+      if (!tipoSeleccionado) return;
+      
+      const entradaActiva = document.querySelector('.entrada-section:not(.hidden) .entrada-input');
+      if (!entradaActiva) return;
+      
+      const cantidad = parseInt(entradaActiva.value) || 0;
+      const preview = document.getElementById('resultadoPreview');
+      const valorResultado = document.getElementById('resultadoValor');
+      
+      if (cantidad === 0) {
+        preview.classList.remove('visible');
+        return;
+      }
+      
+      let resultado = 0;
+      
+      switch(tipoSeleccionado) {
+        case 'agregar':
+          resultado = stockActual + cantidad;
+          break;
+        case 'reducir':
+          resultado = Math.max(0, stockActual - cantidad);
+          break;
+        case 'establecer':
+          resultado = cantidad;
+          break;
+      }
+      
+      valorResultado.textContent = resultado;
+      preview.classList.add('visible');
+      
+      // Cambiar colores según el resultado
+      if (resultado < 0) {
+        valorResultado.style.color = '#dc3545';
+        preview.style.borderColor = '#dc3545';
+        preview.style.background = 'linear-gradient(135deg, #f8d7da, #f5c6cb)';
+      } else {
+        valorResultado.style.color = '#2c7a73';
+        preview.style.borderColor = '#4ecdc4';
+        preview.style.background = 'linear-gradient(135deg, #e8f5f4, #d1ecf1)';
+      }
+    }
+
+    function manejarCambioMotivo(select) {
+      const inputOtro = select.parentElement.querySelector('.motivo-input');
+      
+      if (select.value === 'otro') {
+        inputOtro.classList.add('visible');
+        inputOtro.focus();
+      } else {
+        inputOtro.classList.remove('visible');
+        inputOtro.value = '';
+      }
+    }
+
+    // Simular selección inicial para demostración
+    setTimeout(() => {
+      document.querySelector('.opcion-item').click();
+    }, 500);
+  </script>
+</body>
+</html>
