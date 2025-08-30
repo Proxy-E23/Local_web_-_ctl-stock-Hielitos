@@ -13,7 +13,7 @@
 
     body {
       font-family: Arial, sans-serif;
-      background-color: #f0f8ff;
+      background-color: transparent !important;
       padding: 20px;
       display: flex;
       justify-content: center;
@@ -380,13 +380,13 @@
     <div class="modal-content">
       <div class="modal-header">
         🔧 Corrección de Stock<br>
-        <span style="font-size: 1rem; font-weight: normal; opacity: 0.9;">Chocolate</span>
+        <span id="nombreSabor" style="font-size: 1rem; font-weight: normal; opacity: 0.9;"></span>
       </div>
       
       <div class="modal-body">
         <!-- Stock actual -->
         <div class="stock-actual-card">
-          <div class="stock-actual-contenido">Stock actual: <span class="stock-actual-numero">25</span></div>
+          <div class="stock-actual-contenido">Stock actual: <span class="stock-actual-numero" id="stockActualValor">0</span></div>
         </div>
 
         <!-- Opciones de corrección -->
@@ -444,7 +444,7 @@
         <!-- Motivo -->
         <div class="motivo-section">
           <label class="motivo-label">📋 Motivo de la corrección</label>
-          <select class="motivo-select" onchange="manejarCambioMotivo(this)">
+          <select class="motivo-select" id="selectMotivo" onchange="manejarCambioMotivo(this)">
             <option value="">Seleccionar motivo...</option>
             <option value="error_conteo">Error de conteo</option>
             <option value="merma_dano">Merma/Daño</option>
@@ -452,20 +452,111 @@
             <option value="conteo_fisico">Conteo físico</option>
             <option value="otro">Otro...</option>
           </select>
-          <input type="text" class="motivo-input" placeholder="Especificar motivo..." maxlength="100">
+          <input type="text" class="motivo-input" id="inputMotivoOtro" placeholder="Especificar motivo..." maxlength="100">
         </div>
       </div>
 
       <div class="modal-botones">
-        <button class="btn-cancelar">Cancelar</button>
-        <button class="btn-confirmar">✅ Aplicar Corrección</button>
+        <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-confirmar" onclick="procesarCorreccion()">✅ Aplicar Corrección</button>
       </div>
     </div>
   </div>
 
   <script>
-    let stockActual = 25;
+    // Variables globales para el modal
+    let datosCorreccionActual = null;
     let tipoSeleccionado = null;
+
+    // ===== FUNCIONES DE ZONA HORARIA (COPIADAS DE script.js) =====
+    function obtenerFechaLocal() {
+      const ahora = new Date();
+      const offsetMexico = -6; // GMT-6 para México
+      const utc = ahora.getTime() + (ahora.getTimezoneOffset() * 60000);
+      const fechaMexico = new Date(utc + (offsetMexico * 3600000));
+      
+      const año = fechaMexico.getFullYear();
+      const mes = (fechaMexico.getMonth() + 1).toString().padStart(2, '0');
+      const dia = fechaMexico.getDate().toString().padStart(2, '0');
+      
+      return `${año}-${mes}-${dia}`;
+    }
+
+    function obtenerHoraLocal() {
+      const ahora = new Date();
+      const offsetMexico = -6; // GMT-6 para México
+      const utc = ahora.getTime() + (ahora.getTimezoneOffset() * 60000);
+      const fechaMexico = new Date(utc + (offsetMexico * 3600000));
+      
+      const horas = fechaMexico.getHours().toString().padStart(2, '0');
+      const minutos = fechaMexico.getMinutes().toString().padStart(2, '0');
+      
+      return `${horas}:${minutos}`;
+    }
+
+    function obtenerFechaHoraLocal() {
+      return {
+        fecha: obtenerFechaLocal(),
+        hora: obtenerHoraLocal()
+      };
+    }
+
+    // ===== FUNCIONES DEL MODAL =====
+    function inicializarModal() {
+      // Obtener parámetros de la URL
+      const urlParams = new URLSearchParams(window.location.search);
+      const saborId = urlParams.get('id');
+      const saborNombre = urlParams.get('nombre');
+      const stockActual = parseInt(urlParams.get('stock')) || 0;
+
+      if (!saborId || !saborNombre) {
+        alert('Error: Datos del sabor no encontrados');
+        cerrarModal();
+        return;
+      }
+
+      // Configurar datos actuales
+      datosCorreccionActual = {
+        id: saborId,
+        nombre: saborNombre,
+        stockActual: stockActual
+      };
+
+      // Actualizar interfaz
+      document.getElementById('nombreSabor').textContent = saborNombre;
+      document.getElementById('stockActualValor').textContent = stockActual;
+
+      // Limpiar formulario
+      limpiarFormulario();
+    }
+
+    function limpiarFormulario() {
+      // Limpiar radio buttons
+      document.querySelectorAll('.opcion-item').forEach(item => {
+        item.classList.remove('selected');
+      });
+      document.querySelectorAll('input[name="tipoCorreccion"]').forEach(radio => {
+        radio.checked = false;
+      });
+
+      // Ocultar todas las secciones de entrada
+      document.querySelectorAll('.entrada-section').forEach(section => {
+        section.classList.add('hidden');
+      });
+
+      // Limpiar inputs
+      document.querySelectorAll('.entrada-input').forEach(input => {
+        input.value = '';
+      });
+      document.getElementById('selectMotivo').value = '';
+      document.getElementById('inputMotivoOtro').value = '';
+      document.getElementById('inputMotivoOtro').classList.remove('visible');
+
+      // Ocultar preview
+      document.getElementById('resultadoPreview').classList.remove('visible');
+
+      tipoSeleccionado = null;
+    }
 
     function seleccionarOpcion(tipo, elemento) {
       // Limpiar selecciones anteriores
@@ -483,14 +574,15 @@
       });
       
       // Mostrar la entrada correspondiente
-      document.getElementById('entrada' + tipo.charAt(0).toUpperCase() + tipo.slice(1)).classList.remove('hidden');
+      const entradaId = 'entrada' + tipo.charAt(0).toUpperCase() + tipo.slice(1);
+      document.getElementById(entradaId).classList.remove('hidden');
       
       tipoSeleccionado = tipo;
       calcularResultado();
     }
 
     function calcularResultado() {
-      if (!tipoSeleccionado) return;
+      if (!tipoSeleccionado || !datosCorreccionActual) return;
       
       const entradaActiva = document.querySelector('.entrada-section:not(.hidden) .entrada-input');
       if (!entradaActiva) return;
@@ -505,6 +597,7 @@
       }
       
       let resultado = 0;
+      const stockActual = datosCorreccionActual.stockActual;
       
       switch(tipoSeleccionado) {
         case 'agregar':
@@ -534,7 +627,7 @@
     }
 
     function manejarCambioMotivo(select) {
-      const inputOtro = select.parentElement.querySelector('.motivo-input');
+      const inputOtro = document.getElementById('inputMotivoOtro');
       
       if (select.value === 'otro') {
         inputOtro.classList.add('visible');
@@ -545,10 +638,166 @@
       }
     }
 
-    // Simular selección inicial para demostración
-    setTimeout(() => {
-      document.querySelector('.opcion-item').click();
-    }, 500);
+    function procesarCorreccion() {
+      const tipoSeleccionadoInput = document.querySelector('input[name="tipoCorreccion"]:checked');
+      const entradaActiva = document.querySelector('.entrada-section:not(.hidden) .entrada-input');
+      const cantidad = parseInt(entradaActiva?.value) || 0;
+      const motivoSelect = document.getElementById('selectMotivo').value;
+      const motivoOtro = document.getElementById('inputMotivoOtro').value.trim();
+
+      // Validaciones
+      if (!tipoSeleccionadoInput) {
+        alert("Selecciona un tipo de corrección");
+        return;
+      }
+
+      if (cantidad <= 0) {
+        alert("Ingresa una cantidad válida mayor a 0");
+        return;
+      }
+
+      if (!motivoSelect) {
+        alert("Selecciona un motivo para la corrección");
+        return;
+      }
+
+      if (motivoSelect === "otro" && !motivoOtro) {
+        alert("Especifica el motivo de la corrección");
+        return;
+      }
+
+      // Calcular resultado final
+      const stockActual = datosCorreccionActual.stockActual;
+      let stockNuevo = 0;
+      let diferencia = 0;
+
+      switch(tipoSeleccionadoInput.value) {
+        case 'agregar':
+          stockNuevo = stockActual + cantidad;
+          diferencia = cantidad;
+          break;
+        case 'reducir':
+          stockNuevo = Math.max(0, stockActual - cantidad);
+          diferencia = -(stockActual - stockNuevo);
+          break;
+        case 'establecer':
+          stockNuevo = cantidad;
+          diferencia = stockNuevo - stockActual;
+          break;
+      }
+
+      if (stockNuevo < 0) {
+        alert("El resultado no puede ser negativo");
+        return;
+      }
+
+      // Preparar datos para confirmación
+      const motivo = motivoSelect === "otro" ? motivoOtro : obtenerTextoMotivo(motivoSelect);
+      const tipoTexto = obtenerTextoTipo(tipoSeleccionadoInput.value);
+
+      let mensaje = `Confirmar corrección de stock:\n\n`;
+      mensaje += `🍦 Sabor: ${datosCorreccionActual.nombre}\n`;
+      mensaje += `🔧 Tipo: ${tipoTexto}\n`;
+      mensaje += `📝 Cantidad: ${cantidad}\n`;
+      mensaje += `📋 Motivo: ${motivo}\n\n`;
+      mensaje += `📊 Resultado:\n`;
+      mensaje += `• Stock actual: ${stockActual}\n`;
+      mensaje += `• Stock nuevo: ${stockNuevo}\n`;
+      mensaje += `• Diferencia: ${diferencia >= 0 ? '+' : ''}${diferencia}\n\n`;
+      mensaje += `¿Confirmar corrección?`;
+
+      if (confirm(mensaje)) {
+        ejecutarCorreccion(tipoSeleccionadoInput.value, cantidad, stockNuevo, diferencia, motivo);
+      }
+    }
+
+    function obtenerTextoMotivo(valor) {
+      const motivos = {
+        'error_conteo': 'Error de conteo',
+        'merma_dano': 'Merma/Daño',
+        'stock_perdido': 'Stock perdido',
+        'conteo_fisico': 'Conteo físico'
+      };
+      return motivos[valor] || valor;
+    }
+
+    function obtenerTextoTipo(valor) {
+      const tipos = {
+        'agregar': 'Agregar al stock',
+        'reducir': 'Reducir del stock',
+        'establecer': 'Establecer stock exacto'
+      };
+      return tipos[valor] || valor;
+    }
+
+    function ejecutarCorreccion(tipo, cantidad, stockNuevo, diferencia, motivo) {
+      try {
+        const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+        const fechaHora = obtenerFechaHoraLocal();
+
+        // Inicializar inventario si no existe
+        if (!inventario[datosCorreccionActual.id]) {
+          inventario[datosCorreccionActual.id] = {
+            sabor: datosCorreccionActual.nombre,
+            stock: 0,
+            historial: []
+          };
+        }
+
+        // Actualizar stock
+        inventario[datosCorreccionActual.id].stock = stockNuevo;
+
+        // Agregar al historial
+        inventario[datosCorreccionActual.id].historial.push({
+          fecha: fechaHora.fecha,
+          hora: fechaHora.hora,
+          cantidad: diferencia,
+          tipo: "correccion",
+          stockResultante: stockNuevo,
+          motivo: motivo,
+          tipoCorreccion: tipo,
+          cantidadOriginal: cantidad
+        });
+
+        // Guardar cambios
+        localStorage.setItem("inventario_hielitos", JSON.stringify(inventario));
+
+        // Mostrar confirmación
+        let mensajeExito = `✅ Corrección aplicada correctamente!\n\n`;
+        mensajeExito += `🍦 ${datosCorreccionActual.nombre}\n`;
+        mensajeExito += `📊 Stock: ${datosCorreccionActual.stockActual} → ${stockNuevo}\n`;
+        mensajeExito += `📋 Motivo: ${motivo}`;
+
+        alert(mensajeExito);
+
+        // Cerrar modal y regresar a inventario
+        cerrarModal();
+
+      } catch (error) {
+        console.error("Error al ejecutar corrección:", error);
+        alert("❌ Error al procesar la corrección. Inténtalo de nuevo.");
+      }
+    }
+
+    function cerrarModal() {
+      // Enviar mensaje al padre para cerrar
+      if (window.parent !== window) {
+        window.parent.postMessage('cerrarModal', '*');
+      } else {
+    // Si no está en iframe, navegar normalmente
+        window.location.href = 'inventario.html';
+      }
+    }
+
+    // Inicializar cuando se carga la página
+    window.addEventListener('DOMContentLoaded', inicializarModal);
+
+    // Cerrar con ESC
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        cerrarModal();
+      }
+    });
   </script>
 </body>
 </html>
