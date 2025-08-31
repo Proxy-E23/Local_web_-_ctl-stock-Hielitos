@@ -13,7 +13,7 @@
 
     body {
       font-family: Arial, sans-serif;
-      background-color: transparent !importan;
+      background-color: transparent !important;
       padding: 0px;
       margin: 0;
       display: flex;
@@ -56,12 +56,14 @@
       font-size: 1.2rem;
       font-weight: bold;
       border-radius: 12px 12px 0 0;
+      flex-shrink: 0;
     }
 
     .modal-body {
       padding: 1.5rem;
       flex-grow: 1;
       overflow-y: auto;
+      min-height: 0;
     }
 
     .stock-actual-card {
@@ -70,7 +72,7 @@
       border-radius: 10px;
       padding: 1rem 1.5rem;
       text-align: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.5rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
@@ -89,7 +91,7 @@
       background: #f8f9fa;
       border-radius: 10px;
       padding: 1.5rem;
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.3rem;
       border: 1px solid #e9ecef;
     }
 
@@ -153,40 +155,40 @@
 
     .entrada-section {
       background: white;
-      border-radius: 10px;
-      padding: 1.5rem;
-      margin-bottom: 0.8rem;
+      border-radius: 8px;
+      padding: 1rem 1.2rem;
+      margin-bottom: 0.3rem;
       border: 1px solid #e9ecef;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
 
     .entrada-grid {
       display: grid;
-      grid-template-columns: 2.5rem 1fr auto;
+      grid-template-columns: 2rem 1fr auto;
       align-items: center;
-      gap: 1rem;
-      min-height: 60px;
+      gap: 0.8rem;
+      min-height: 45px;
     }
 
     .entrada-icono {
-      font-size: 1.5rem;
+      font-size: 1.3rem;
       text-align: center;
       color: #4ecdc4;
     }
 
     .entrada-label {
-      font-size: 1rem;
+      font-size: 0.95rem;
       font-weight: 600;
       color: #495057;
     }
 
     .entrada-input {
-      width: 100px;
-      padding: 0.75rem;
-      font-size: 1.1rem;
+      width: 85px;
+      padding: 0.6rem;
+      font-size: 1rem;
       text-align: center;
       border: 2px solid #e9ecef;
-      border-radius: 8px;
+      border-radius: 6px;
       background: white;
       transition: all 0.3s ease;
       font-weight: 600;
@@ -205,16 +207,18 @@
       border-radius: 10px;
       padding: 1rem 1.5rem;
       text-align: center;
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.3rem;
       opacity: 0;
       transform: translateY(10px);
       transition: all 0.4s ease;
       box-shadow: 0 4px 16px rgba(78, 205, 196, 0.2);
+      display: none; /* OCULTO POR COMPLETO inicialmente */
     }
 
     .resultado-preview.visible {
       opacity: 1;
       transform: translateY(0);
+      display: block; /* SE MUESTRA cuando es visible */
     }
 
     .resultado-contenido {
@@ -232,7 +236,7 @@
       background: white;
       border-radius: 10px;
       padding: 1.5rem;
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.3rem;
       border: 1px solid #e9ecef;
     }
 
@@ -283,8 +287,8 @@
     }
 
     .modal-botones {
-      padding: 1rem 0 0 0;
-      margin-top: 1rem;
+      padding: 0.8rem 0 0 0;
+      margin-top: 0.6rem;
       border-top: 1px solid #e9ecef;
       display: flex;
       gap: 1rem;
@@ -326,8 +330,24 @@
       box-shadow: 0 6px 16px rgba(78, 205, 196, 0.4);
     }
 
-    .entrada-section.hidden {
-      display: none;
+    /* Entrada deshabilitada */
+    .entrada-input:disabled {
+      background-color: #f8f9fa;
+      color: #6c757d;
+      cursor: not-allowed;
+      border-color: #e9ecef;
+    }
+
+    .entrada-section.disabled {
+      opacity: 0.6;
+    }
+
+    .entrada-section.disabled .entrada-icono {
+      color: #6c757d;
+    }
+
+    .entrada-section.disabled .entrada-label {
+      color: #6c757d;
     }
 
     @media (max-width: 768px) {
@@ -340,12 +360,13 @@
         padding: 1rem;
       }
       
-       .stock-actual-card,
-       .opciones-correccion,
-       .entrada-section,
-       .resultado-preview,
-       .motivo-section {
-       margin-bottom: 0.6rem;
+      .stock-actual-card,
+      .opciones-correccion,
+      .entrada-section,
+      .resultado-preview,
+      .motivo-section {
+        margin-bottom: 0.6rem;
+      }
 
       .opciones-grid {
         gap: 0.6rem;
@@ -412,28 +433,12 @@
           </div>
         </div>
 
-        <!-- Entrada de cantidad - dinámica -->
-        <div class="entrada-section hidden" id="entradaAgregar">
+        <!-- Entrada de cantidad - UN SOLO RECTÁNGULO FIJO -->
+        <div class="entrada-section" id="entradaCantidad">
           <div class="entrada-grid">
-            <div class="entrada-icono">➕</div>
-            <div class="entrada-label">Cantidad a agregar</div>
-            <input type="number" class="entrada-input" min="1" max="999" placeholder="0" oninput="calcularResultado()">
-          </div>
-        </div>
-
-        <div class="entrada-section hidden" id="entradaReducir">
-          <div class="entrada-grid">
-            <div class="entrada-icono">➖</div>
-            <div class="entrada-label">Cantidad a reducir</div>
-            <input type="number" class="entrada-input" min="1" max="999" placeholder="0" oninput="calcularResultado()">
-          </div>
-        </div>
-
-        <div class="entrada-section hidden" id="entradaEstablecer">
-          <div class="entrada-grid">
-            <div class="entrada-icono">🎯</div>
-            <div class="entrada-label">Nuevo stock</div>
-            <input type="number" class="entrada-input" min="0" max="999" placeholder="0" oninput="calcularResultado()">
+            <div class="entrada-icono" id="iconoEntrada">❓</div>
+            <div class="entrada-label" id="labelEntrada">Selecciona una opción</div>
+            <input type="number" class="entrada-input" id="inputEntrada" min="0" max="999" placeholder="0" disabled oninput="calcularResultado()">
           </div>
         </div>
 
@@ -456,10 +461,11 @@
           <input type="text" class="motivo-input" id="inputMotivoOtro" placeholder="Especificar motivo..." maxlength="100">
         </div>
 
-      <div class="modal-botones">
-        <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
-        <button class="btn-confirmar" onclick="procesarCorreccion()">✅ Aplicar Corrección</button>
-       </div>
+        <!-- BOTONES MOVIDOS DENTRO DEL MODAL-BODY -->
+        <div class="modal-botones">
+          <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+          <button class="btn-confirmar" onclick="procesarCorreccion()">✅ Aplicar Corrección</button>
+        </div>
       </div>
     </div>
   </div>
@@ -540,15 +546,19 @@
         radio.checked = false;
       });
 
-      // Ocultar todas las secciones de entrada
-      document.querySelectorAll('.entrada-section').forEach(section => {
-        section.classList.add('hidden');
-      });
+      // Resetear entrada a estado inicial
+      const seccionEntrada = document.getElementById('entradaCantidad');
+      const iconoEntrada = document.getElementById('iconoEntrada');
+      const labelEntrada = document.getElementById('labelEntrada');
+      const inputEntrada = document.getElementById('inputEntrada');
+      
+      seccionEntrada.classList.add('disabled');
+      iconoEntrada.textContent = '❓';
+      labelEntrada.textContent = 'Selecciona una opción';
+      inputEntrada.disabled = true;
+      inputEntrada.value = '';
 
-      // Limpiar inputs
-      document.querySelectorAll('.entrada-input').forEach(input => {
-        input.value = '';
-      });
+      // Limpiar otros inputs
       document.getElementById('selectMotivo').value = '';
       document.getElementById('inputMotivoOtro').value = '';
       document.getElementById('inputMotivoOtro').classList.remove('visible');
@@ -569,14 +579,33 @@
       elemento.classList.add('selected');
       elemento.querySelector('input[type="radio"]').checked = true;
       
-      // Ocultar todas las entradas
-      document.querySelectorAll('.entrada-section').forEach(section => {
-        section.classList.add('hidden');
-      });
+      // Actualizar la entrada única según el tipo seleccionado
+      const seccionEntrada = document.getElementById('entradaCantidad');
+      const iconoEntrada = document.getElementById('iconoEntrada');
+      const labelEntrada = document.getElementById('labelEntrada');
+      const inputEntrada = document.getElementById('inputEntrada');
       
-      // Mostrar la entrada correspondiente
-      const entradaId = 'entrada' + tipo.charAt(0).toUpperCase() + tipo.slice(1);
-      document.getElementById(entradaId).classList.remove('hidden');
+      seccionEntrada.classList.remove('disabled');
+      inputEntrada.disabled = false;
+      inputEntrada.value = '';
+      
+      switch(tipo) {
+        case 'agregar':
+          iconoEntrada.textContent = '➕';
+          labelEntrada.textContent = 'Cantidad a agregar';
+          inputEntrada.min = '1';
+          break;
+        case 'reducir':
+          iconoEntrada.textContent = '➖';
+          labelEntrada.textContent = 'Cantidad a reducir';
+          inputEntrada.min = '1';
+          break;
+        case 'establecer':
+          iconoEntrada.textContent = '🎯';
+          labelEntrada.textContent = 'Nuevo stock';
+          inputEntrada.min = '0';
+          break;
+      }
       
       tipoSeleccionado = tipo;
       calcularResultado();
@@ -585,10 +614,10 @@
     function calcularResultado() {
       if (!tipoSeleccionado || !datosCorreccionActual) return;
       
-      const entradaActiva = document.querySelector('.entrada-section:not(.hidden) .entrada-input');
-      if (!entradaActiva) return;
+      const inputEntrada = document.getElementById('inputEntrada');
+      if (!inputEntrada || inputEntrada.disabled) return;
       
-      const cantidad = parseInt(entradaActiva.value) || 0;
+      const cantidad = parseInt(inputEntrada.value) || 0;
       const preview = document.getElementById('resultadoPreview');
       const valorResultado = document.getElementById('resultadoValor');
       
@@ -641,8 +670,8 @@
 
     function procesarCorreccion() {
       const tipoSeleccionadoInput = document.querySelector('input[name="tipoCorreccion"]:checked');
-      const entradaActiva = document.querySelector('.entrada-section:not(.hidden) .entrada-input');
-      const cantidad = parseInt(entradaActiva?.value) || 0;
+      const inputEntrada = document.getElementById('inputEntrada');
+      const cantidad = parseInt(inputEntrada?.value) || 0;
       const motivoSelect = document.getElementById('selectMotivo').value;
       const motivoOtro = document.getElementById('inputMotivoOtro').value.trim();
 
@@ -787,8 +816,8 @@
       } else {
         // Si no está en iframe, navegar normalmente
         window.location.href = 'inventario.html';
-     }
-   }
+      }
+    }
 
     // Inicializar cuando se carga la página
     window.addEventListener('DOMContentLoaded', inicializarModal);
