@@ -13,8 +13,9 @@
 
     body {
       font-family: Arial, sans-serif;
-      background-color: transparent !important;
-      padding: 20px;
+      background-color: transparent !importan;
+      padding: 0px;
+      margin: 0;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -27,7 +28,7 @@
       left: 0;
       width: 100%;
       height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
+      background-color: transparent !important;
       display: flex;
       justify-content: center;
       align-items: flex-start;
@@ -58,19 +59,18 @@
     }
 
     .modal-body {
-      padding: 2rem;
+      padding: 1.5rem;
       flex-grow: 1;
       overflow-y: auto;
     }
 
-    /* Stock actual - una línea */
     .stock-actual-card {
       background: linear-gradient(135deg, #f8f9fa, #e9ecef);
       border: 2px solid #dee2e6;
       border-radius: 10px;
       padding: 1rem 1.5rem;
       text-align: center;
-      margin-bottom: 1.5rem;
+      margin-bottom: 1rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
     }
 
@@ -85,12 +85,11 @@
       font-weight: bold;
     }
 
-    /* Opciones de corrección - espaciado reducido */
     .opciones-correccion {
       background: #f8f9fa;
       border-radius: 10px;
       padding: 1.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
       border: 1px solid #e9ecef;
     }
 
@@ -152,12 +151,11 @@
       cursor: pointer;
     }
 
-    /* Sección de entrada - espaciado reducido */
     .entrada-section {
       background: white;
       border-radius: 10px;
       padding: 1.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
       border: 1px solid #e9ecef;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
     }
@@ -201,14 +199,13 @@
       background: #f0fdfc;
     }
 
-    /* Preview del resultado - una línea */
     .resultado-preview {
       background: linear-gradient(135deg, #e8f5f4, #d1ecf1);
       border: 2px solid #4ecdc4;
       border-radius: 10px;
       padding: 1rem 1.5rem;
       text-align: center;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
       opacity: 0;
       transform: translateY(10px);
       transition: all 0.4s ease;
@@ -231,12 +228,11 @@
       font-weight: bold;
     }
 
-    /* Selector de motivo - espaciado reducido */
     .motivo-section {
       background: white;
       border-radius: 10px;
       padding: 1.5rem;
-      margin-bottom: 1rem;
+      margin-bottom: 0.8rem;
       border: 1px solid #e9ecef;
     }
 
@@ -286,14 +282,14 @@
       box-shadow: 0 0 0 3px rgba(78, 205, 196, 0.1);
     }
 
-    /* Botones del modal */
     .modal-botones {
-      padding: 1.5rem 2rem;
+      padding: 1rem 0 0 0;
+      margin-top: 1rem;
       border-top: 1px solid #e9ecef;
       display: flex;
       gap: 1rem;
       justify-content: center;
-      background: #f8f9fa;
+      background: transparent;
     }
 
     .btn-cancelar,
@@ -330,21 +326,26 @@
       box-shadow: 0 6px 16px rgba(78, 205, 196, 0.4);
     }
 
-    /* Estados ocultos */
     .entrada-section.hidden {
       display: none;
     }
 
-    /* Responsive */
     @media (max-width: 768px) {
-      .modal-content {
-        width: 95%;
-        margin: 1rem;
+      .modal-botones {
+        padding: 0.8rem 0 0 0;
+        margin-top: 0.8rem;
       }
 
       .modal-body {
-        padding: 1.5rem;
+        padding: 1rem;
       }
+      
+       .stock-actual-card,
+       .opciones-correccion,
+       .entrada-section,
+       .resultado-preview,
+       .motivo-section {
+       margin-bottom: 0.6rem;
 
       .opciones-grid {
         gap: 0.6rem;
@@ -454,11 +455,11 @@
           </select>
           <input type="text" class="motivo-input" id="inputMotivoOtro" placeholder="Especificar motivo..." maxlength="100">
         </div>
-      </div>
 
       <div class="modal-botones">
         <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
         <button class="btn-confirmar" onclick="procesarCorreccion()">✅ Aplicar Corrección</button>
+       </div>
       </div>
     </div>
   </div>
@@ -784,10 +785,10 @@
       if (window.parent !== window) {
         window.parent.postMessage('cerrarModal', '*');
       } else {
-    // Si no está en iframe, navegar normalmente
+        // Si no está en iframe, navegar normalmente
         window.location.href = 'inventario.html';
-      }
-    }
+     }
+   }
 
     // Inicializar cuando se carga la página
     window.addEventListener('DOMContentLoaded', inicializarModal);
@@ -796,6 +797,21 @@
     document.addEventListener('keydown', function(e) {
       if (e.key === 'Escape') {
         cerrarModal();
+      }
+    });
+    
+    // Interceptar navegación hacia atrás
+    window.addEventListener('popstate', function(event) {
+      if (window.parent !== window) {
+        event.preventDefault();
+        cerrarModal();
+      }
+    });
+
+    // Agregar estado al historial cuando se carga el modal
+    window.addEventListener('load', function() {
+      if (window.parent !== window) {
+        history.pushState({ modal: 'editarStock' }, '', '');
       }
     });
   </script>
