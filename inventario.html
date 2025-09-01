@@ -110,7 +110,7 @@
       background: white;
       border-radius: 10px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      width: 90%;
+      width: 90 %;
       max-width: 600px;
       min-height: 300px !important;
       max-height: calc(100vh - 2rem) !important;
@@ -912,7 +912,8 @@
           display: flex;
           justify-content: center;
           align-items: flex-start;
-          padding-top: 2rem;
+          padding-top: 0rem !important;
+          box-sizing: border-box;
         `;
         // Crear iframe
         const iframe = document.createElement('iframe');
@@ -922,9 +923,10 @@
           max-width: 500px;
           height: calc(100vh - 4rem);
           border: none;
-          
           background: transparent;
           box-shadow: none;
+          margin: 0;
+          padding: 0;
         `;
   
       modalOverlay.appendChild(iframe);
