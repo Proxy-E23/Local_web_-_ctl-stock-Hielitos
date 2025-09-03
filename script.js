@@ -75,3 +75,24 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
+
+// Función para scroll automático cuando se enfoca un input
+function manejarFocoInput(input) {
+  setTimeout(() => {
+    input.select();
+  }, 50);
+  
+  // Scroll para que los botones queden sobre el teclado
+  setTimeout(() => {
+    const botones = document.querySelector('.modal-botones') || 
+                   document.querySelector('.botones-formulario') ||
+                   document.querySelector('.botones');
+    if (botones) {
+      botones.scrollIntoView({
+        behavior: 'smooth',
+        block: 'end',
+        inline: 'nearest'
+      });
+    }
+  }, 300);
+}
