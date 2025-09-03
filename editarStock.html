@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Modificar Stock</title>
+  <script> src="script.js" </script>
   <style>
     * {
       margin: 0;
@@ -14,44 +15,29 @@
     body {
       font-family: Arial, sans-serif;
       background-color: transparent !important;
-      padding: 0px;
+      padding: 0 !important;
       margin: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
       min-height: 100vh;
-    }
-
-    .modal-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: transparent !important;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start;
-      padding-top: 2rem;
-      z-index: 1000;
     }
 
     .modal-content {
       background: white;
       border-radius: 12px;
       box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
-      width: 90%;
-      max-width: 500px;
-      max-height: calc(100vh - 2rem);
+      width: 100%;
+      max-width: 600px;
+      max-height: calc(100vh - 2rem) !important;
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      margin: 0 auto;
+      margin-top: 0 !important;
     }
 
     .modal-header {
       background: linear-gradient(135deg, #4ecdc4, #3da9a1);
       color: white;
-      padding: 1.5rem;
+      padding: 0.75rem;
       text-align: center;
       font-size: 1.2rem;
       font-weight: bold;
@@ -70,7 +56,7 @@
       background: linear-gradient(135deg, #f8f9fa, #e9ecef);
       border: 2px solid #dee2e6;
       border-radius: 10px;
-      padding: 1rem 1.5rem;
+      padding: .75rem 1rem;
       text-align: center;
       margin-bottom: 0.5rem;
       box-shadow: 0 2px 8px rgba(0,0,0,0.1);
@@ -90,7 +76,7 @@
     .opciones-correccion {
       background: #f8f9fa;
       border-radius: 10px;
-      padding: 1.5rem;
+      padding: .75rem;
       margin-bottom: 0.3rem;
       border: 1px solid #e9ecef;
     }
@@ -156,7 +142,7 @@
     .entrada-section {
       background: white;
       border-radius: 8px;
-      padding: 1rem 1.2rem;
+      padding: .5rem 1rem;
       margin-bottom: 0.3rem;
       border: 1px solid #e9ecef;
       box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -167,7 +153,7 @@
       grid-template-columns: 2rem 1fr auto;
       align-items: center;
       gap: 0.8rem;
-      min-height: 45px;
+      min-height: 10px;
     }
 
     .entrada-icono {
@@ -184,7 +170,7 @@
 
     .entrada-input {
       width: 85px;
-      padding: 0.6rem;
+      padding: .25rem .75rem;
       font-size: 1rem;
       text-align: center;
       border: 2px solid #e9ecef;
@@ -205,20 +191,20 @@
       background: linear-gradient(135deg, #e8f5f4, #d1ecf1);
       border: 2px solid #4ecdc4;
       border-radius: 10px;
-      padding: 1rem 1.5rem;
+      padding: .75rem 1rem;
       text-align: center;
       margin-bottom: 0.3rem;
       opacity: 0;
       transform: translateY(10px);
       transition: all 0.4s ease;
       box-shadow: 0 4px 16px rgba(78, 205, 196, 0.2);
-      display: none; /* OCULTO POR COMPLETO inicialmente */
+      display: none;
     }
 
     .resultado-preview.visible {
       opacity: 1;
       transform: translateY(0);
-      display: block; /* SE MUESTRA cuando es visible */
+      display: block;
     }
 
     .resultado-contenido {
@@ -235,7 +221,7 @@
     .motivo-section {
       background: white;
       border-radius: 10px;
-      padding: 1.5rem;
+      padding: .75rem;
       margin-bottom: 0.3rem;
       border: 1px solid #e9ecef;
     }
@@ -287,13 +273,16 @@
     }
 
     .modal-botones {
-      padding: 0.8rem 0 0 0;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e9ecef;
+      box-shadow: 0 2px 8px rgba (0,0,0,0.05);
+      padding: .5rem 1.5rem;
       margin-top: 0.6rem;
-      border-top: 1px solid #e9ecef;
+      margin-bottom: 0.3rem;
       display: flex;
       gap: 1rem;
       justify-content: center;
-      background: transparent;
     }
 
     .btn-cancelar,
@@ -351,9 +340,12 @@
     }
 
     @media (max-width: 768px) {
-      .modal-botones {
-        padding: 0.8rem 0 0 0;
-        margin-top: 0.8rem;
+      body {
+        padding: 1rem 0.5rem 0.5rem 0.5rem;
+      }
+
+      .modal-content {
+        max-height: calc(100vh - 2rem);
       }
 
       .modal-body {
@@ -398,74 +390,72 @@
   </style>
 </head>
 <body>
-  <div class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        🔧 Corrección de Stock<br>
-        <span id="nombreSabor" style="font-size: 1rem; font-weight: normal; opacity: 0.9;"></span>
+  <div class="modal-content">
+    <div class="modal-header">
+      🔧 Corrección de Stock<br>
+      <span id="nombreSabor" style="font-size: 1rem; font-weight: normal; opacity: 0.9;"></span>
+    </div>
+    
+    <div class="modal-body">
+      <!-- Stock actual -->
+      <div class="stock-actual-card">
+        <div class="stock-actual-contenido">Stock actual: <span class="stock-actual-numero" id="stockActualValor">0</span></div>
       </div>
-      
-      <div class="modal-body">
-        <!-- Stock actual -->
-        <div class="stock-actual-card">
-          <div class="stock-actual-contenido">Stock actual: <span class="stock-actual-numero" id="stockActualValor">0</span></div>
-        </div>
 
-        <!-- Opciones de corrección -->
-        <div class="opciones-correccion">
-          <div class="opciones-titulo">Tipo de corrección</div>
-          <div class="opciones-grid">
-            <div class="opcion-item" onclick="seleccionarOpcion('agregar', this)">
-              <div class="opcion-icono">➕</div>
-              <div class="opcion-texto">Agregar al stock actual</div>
-              <input type="radio" name="tipoCorreccion" value="agregar" class="opcion-radio">
-            </div>
-            <div class="opcion-item" onclick="seleccionarOpcion('reducir', this)">
-              <div class="opcion-icono">➖</div>
-              <div class="opcion-texto">Reducir del stock actual</div>
-              <input type="radio" name="tipoCorreccion" value="reducir" class="opcion-radio">
-            </div>
-            <div class="opcion-item" onclick="seleccionarOpcion('establecer', this)">
-              <div class="opcion-icono">🎯</div>
-              <div class="opcion-texto">Fijar nuevo stock</div>
-              <input type="radio" name="tipoCorreccion" value="establecer" class="opcion-radio">
-            </div>
+      <!-- Opciones de corrección -->
+      <div class="opciones-correccion">
+        <div class="opciones-titulo">Tipo de corrección</div>
+        <div class="opciones-grid">
+          <div class="opcion-item" onclick="seleccionarOpcion('agregar', this)">
+            <div class="opcion-icono">➕</div>
+            <div class="opcion-texto">Agregar al stock actual</div>
+            <input type="radio" name="tipoCorreccion" value="agregar" class="opcion-radio">
+          </div>
+          <div class="opcion-item" onclick="seleccionarOpcion('reducir', this)">
+            <div class="opcion-icono">➖</div>
+            <div class="opcion-texto">Reducir del stock actual</div>
+            <input type="radio" name="tipoCorreccion" value="reducir" class="opcion-radio">
+          </div>
+          <div class="opcion-item" onclick="seleccionarOpcion('establecer', this)">
+            <div class="opcion-icono">🎯</div>
+            <div class="opcion-texto">Fijar nuevo stock</div>
+            <input type="radio" name="tipoCorreccion" value="establecer" class="opcion-radio">
           </div>
         </div>
+      </div>
 
-        <!-- Entrada de cantidad - UN SOLO RECTÁNGULO FIJO -->
-        <div class="entrada-section" id="entradaCantidad">
-          <div class="entrada-grid">
-            <div class="entrada-icono" id="iconoEntrada">❓</div>
-            <div class="entrada-label" id="labelEntrada">Selecciona una opción</div>
-            <input type="number" class="entrada-input" id="inputEntrada" min="0" max="999" placeholder="0" disabled oninput="calcularResultado()">
-          </div>
+      <!-- Entrada de cantidad - UN SOLO RECTÁNGULO FIJO -->
+      <div class="entrada-section" id="entradaCantidad">
+        <div class="entrada-grid">
+          <div class="entrada-icono" id="iconoEntrada">❓</div>
+          <div class="entrada-label" id="labelEntrada">Selecciona una opción</div>
+          <input type="number" class="entrada-input" id="inputEntrada" min="0" max="999" placeholder="0" disabled oninput="calcularResultado()" onfocus="manejarFocoInput(this)">
         </div>
+      </div>
 
-        <!-- Preview del resultado -->
-        <div class="resultado-preview" id="resultadoPreview">
-          <div class="resultado-contenido">Nuevo stock: <span class="resultado-numero" id="resultadoValor">0</span></div>
-        </div>
+      <!-- Preview del resultado -->
+      <div class="resultado-preview" id="resultadoPreview">
+        <div class="resultado-contenido">Nuevo stock: <span class="resultado-numero" id="resultadoValor">0</span></div>
+      </div>
 
-        <!-- Motivo -->
-        <div class="motivo-section">
-          <label class="motivo-label">📋 Motivo de la corrección</label>
-          <select class="motivo-select" id="selectMotivo" onchange="manejarCambioMotivo(this)">
-            <option value="">Seleccionar motivo...</option>
-            <option value="error_conteo">Error de conteo</option>
-            <option value="merma_dano">Merma/Daño</option>
-            <option value="stock_perdido">Stock perdido</option>
-            <option value="conteo_fisico">Conteo físico</option>
-            <option value="otro">Otro...</option>
-          </select>
-          <input type="text" class="motivo-input" id="inputMotivoOtro" placeholder="Especificar motivo..." maxlength="100">
-        </div>
+      <!-- Motivo -->
+      <div class="motivo-section">
+        <label class="motivo-label">📋 Motivo de la corrección</label>
+        <select class="motivo-select" id="selectMotivo" onchange="manejarCambioMotivo(this)">
+          <option value="">Seleccionar motivo...</option>
+          <option value="error_conteo">Error de conteo</option>
+          <option value="merma_dano">Merma/Daño</option>
+          <option value="stock_perdido">Stock perdido</option>
+          <option value="conteo_fisico">Conteo físico</option>
+          <option value="otro">Otro...</option>
+        </select>
+        <input type="text" class="motivo-input" id="inputMotivoOtro" placeholder="Especificar motivo..." maxlength="100">
+      </div>
 
-        <!-- BOTONES MOVIDOS DENTRO DEL MODAL-BODY -->
-        <div class="modal-botones">
-          <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
-          <button class="btn-confirmar" onclick="procesarCorreccion()">✅ Aplicar Corrección</button>
-        </div>
+      <!-- BOTONES MOVIDOS DENTRO DEL MODAL-BODY -->
+      <div class="modal-botones">
+        <button class="btn-cancelar" onclick="cerrarModal()">Cancelar</button>
+        <button class="btn-confirmar" onclick="procesarCorreccion()">✅ Aplicar</button>
       </div>
     </div>
   </div>
