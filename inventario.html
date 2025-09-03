@@ -110,8 +110,8 @@
       background: white;
       border-radius: 10px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      width: 90 %;
-      max-width: 600px;
+      width: 200%;
+      max-width: 900px;
       min-height: 300px !important;
       max-height: calc(100vh - 2rem) !important;
       overflow: hidden;
@@ -179,8 +179,8 @@
       background: white;
       border-radius: 10px;
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      width: 90%;
-      max-width: 600px;
+      width: 200%;
+      max-width: 900px;
       min-height: 300px !important;
       max-height: calc(100vh - 2rem) !important;
       overflow: hidden;
@@ -898,6 +898,7 @@
     function abrirModalCorreccion(saborId, saborNombre, stockActual) {
       const url = `editarStock.html?id=${encodeURIComponent(saborId)}&nombre=${encodeURIComponent(saborNombre)}&stock=${stockActual}`;
      
+    document.body.style.overflow = 'hidden';
       // Crear modal overlay
       const modalOverlay = document.createElement('div');
       modalOverlay.id = 'modalExternoOverlay';
@@ -906,22 +907,22 @@
           top: 0;
           left: 0;
           width: 100%;
-          height: 100%;
+          max-height: calc(100vh - 2rem);
           background-color: rgba(0, 0, 0, 0.5);
           z-index: 1000;
           display: flex;
           justify-content: center;
           align-items: flex-start;
-          padding-top: 0rem !important;
+          padding-top: 1rem !important;
           box-sizing: border-box;
         `;
         // Crear iframe
         const iframe = document.createElement('iframe');
         iframe.src = url;
         iframe.style.cssText = `
-          width: 90%;
-          max-width: 500px;
-          height: calc(100vh - 4rem);
+          width: 100%;
+          max-width: 380px;
+          height: calc(100vh - 2rem);
           border: none;
           background: transparent;
           box-shadow: none;
@@ -935,6 +936,7 @@
       // Cerrar al hacer clic fuera
       modalOverlay.addEventListener('click', function(e) {
         if (e.target === modalOverlay) {
+          document.body.style.overflow = '';
           document.body.removeChild(modalOverlay);
           cargarSabores(); // Actualizar tabla
         }
@@ -943,6 +945,7 @@
       // Escuchar mensajes del iframe para cerrar
       window.addEventListener('message', function(e) {
         if (e.data === 'cerrarModal') {
+          document.body.style.overflow = '';
           document.body.removeChild(modalOverlay);
           cargarSabores(); // Actualizar tabla
         }
