@@ -894,97 +894,111 @@
       cargarSabores();
     }
 
-    // ===== FUNCIÓN PARA ABRIR MODAL EXTERNO DE CORRECCIÓN =====
+    // ===== FUNCIÓN PARA ABRIR MODAL EXTERNO DE CORRECCIÓN - VERSIÓN CORREGIDA =====
     function abrirModalCorreccion(saborId, saborNombre, stockActual) {
       const url = `editarStock.html?id=${encodeURIComponent(saborId)}&nombre=${encodeURIComponent(saborNombre)}&stock=${stockActual}`;
      
-    document.body.style.overflow = 'hidden';
+      document.body.style.overflow = 'hidden';
+      
       // Crear modal overlay
       const modalOverlay = document.createElement('div');
       modalOverlay.id = 'modalExternoOverlay';
       modalOverlay.style.cssText = `
-          position: fixed;
-          top: 0;
-          left: 0;
-          width: 100%;
-          max-height: calc(100vh - 2rem);
-          background-color: rgba(0, 0, 0, 0.5);
-          z-index: 1000;
-          display: flex;
-          justify-content: center;
-          align-items: flex-start;
-          padding-top: 1rem !important;
-          box-sizing: border-box;
-        `;
-        // Crear iframe
-        const iframe = document.createElement('iframe');
-        iframe.src = url;
-        iframe.style.cssText = `
-          width: 100%;
-          max-width: 380px;
-          height: calc(100vh - 2rem);
-          border: none;
-          background: transparent;
-          box-shadow: none;
-          margin: 0;
-          padding: 0;
-        `;
-  
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        max-height: calc(100vh - 2rem);
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 1rem !important;
+        box-sizing: border-box;
+      `;
+
+      // Crear iframe
+      const iframe = document.createElement('iframe');
+      iframe.src = url;
+      iframe.style.cssText = `
+        width: 100%;
+        max-width: 380px;
+        height: calc(100vh - 2rem);
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        margin: 0;
+        padding: 0;
+      `;
+
       modalOverlay.appendChild(iframe);
       document.body.appendChild(modalOverlay);
       
-window.addEventListener('message', function(e) {
-  if (e.data && e.data.action === 'scroll' && e.data.direction === 'down') {
-  // Mover iframe hacia arriba
-  const iframe = modalOverlay.querySelector('iframe');
-  if (iframe) {
-    iframe.style.transform = 'translateY(-180px)';
-    iframe.style.transition = 'transform 0.3s ease';
-  }
-}
-if (e.data && e.data.action === 'scroll' && e.data.direction === 'up') {
-  // Restaurar posición original
-  const iframe = modalOverlay.querySelector('iframe');
-  if (iframe) {
-    iframe.style.transform = 'translateY(0px)';
-    iframe.style.transition = 'transform 0.3s ease';
-  }
-}
-  if (e.data === 'cerrarModal') {
-    document.body.style.overflow = '';
-    document.body.removeChild(modalOverlay);
-    cargarSabores();
-  }
-});
+      // ===== LISTENER ÚNICO PARA MENSAJES DEL IFRAME =====
+      const messageHandler = function(e) {
+        // Manejar scroll del teclado
+        if (e.data && e.data.action === 'scroll' && e.data.direction === 'down') {
+          // Mover iframe hacia arriba
+          const iframe = modalOverlay.querySelector('iframe');
+          if (iframe) {
+            iframe.style.transform = 'translateY(-180px)';
+            iframe.style.transition = 'transform 0.3s ease';
+          }
+        }
+        
+        if (e.data && e.data.action === 'scroll' && e.data.direction === 'up') {
+          // Restaurar posición original
+          const iframe = modalOverlay.querySelector('iframe');
+          if (iframe) {
+            iframe.style.transform = 'translateY(0px)';
+            iframe.style.transition = 'transform 0.3s ease';
+          }
+        }
+
+        // Cerrar modal
+        if (e.data === 'cerrarModal') {
+          document.body.style.overflow = '';
+          if (document.body.contains(modalOverlay)) {
+            document.body.removeChild(modalOverlay);
+          }
+          // Remover el listener después de usarlo
+          window.removeEventListener('message', messageHandler);
+          window.removeEventListener('resize', resizeHandler);
+          cargarSabores();
+        }
+      };
+
+      // ===== LISTENER PARA RESIZE (TECLADO VIRTUAL) =====
+      const resizeHandler = function() {
+        if (window.innerHeight < 500) { // Si la ventana se hace pequeña (teclado abierto)
+          setTimeout(() => {
+            window.scrollTo({
+              top: 400,
+              behavior: 'smooth'
+            });
+          }, 100);
+        }
+      };
+
+      // Agregar listeners
+      window.addEventListener('message', messageHandler);
+      window.addEventListener('resize', resizeHandler);
       
-      // Cerrar al hacer clic fuera
+      // ===== LISTENER PARA CERRAR AL HACER CLIC FUERA =====
       modalOverlay.addEventListener('click', function(e) {
         if (e.target === modalOverlay) {
           document.body.style.overflow = '';
-          document.body.removeChild(modalOverlay);
-          cargarSabores(); // Actualizar tabla
+          if (document.body.contains(modalOverlay)) {
+            document.body.removeChild(modalOverlay);
+          }
+          // Remover listeners
+          window.removeEventListener('message', messageHandler);
+          window.removeEventListener('resize', resizeHandler);
+          cargarSabores();
         }
       });
-      
-        window.addEventListener('resize', function() {
-    if (window.innerHeight < 500) { // Si la ventana se hace pequeña (teclado abierto)
-      setTimeout(() => {
-        window.scrollTo({
-          top: 200,
-          behavior: 'smooth'
-        });
-      }, 100);
     }
-  });
-      // Escuchar mensajes del iframe para cerrar
-      window.addEventListener('message', function(e) {
-        if (e.data === 'cerrarModal') {
-          document.body.style.overflow = '';
-          document.body.removeChild(modalOverlay);
-          cargarSabores(); // Actualizar tabla
-        }
-      }, { once: true });
-        }
 
     function cancelarOperacion() {
       document.getElementById("modalConfirmacion").classList.add("oculto");
