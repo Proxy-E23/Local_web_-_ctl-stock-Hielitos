@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Modificar Stock</title>
-  <script> src="script.js" </script>
   <style>
     * {
       margin: 0;
@@ -429,7 +428,7 @@
         <div class="entrada-grid">
           <div class="entrada-icono" id="iconoEntrada">❓</div>
           <div class="entrada-label" id="labelEntrada">Selecciona una opción</div>
-          <input type="number" class="entrada-input" id="inputEntrada" min="0" max="999" placeholder="0" disabled oninput="calcularResultado()" onfocus="manejarFocoInput(this)">
+          <input type="number" class="entrada-input" id="inputEntrada" min="0" max="999" placeholder="0" disabled oninput="calcularResultado()" onfocus="manejarFocoInput(this)" onblur="manejarBlurInput(this)">
         </div>
       </div>
 
@@ -449,7 +448,7 @@
           <option value="conteo_fisico">Conteo físico</option>
           <option value="otro">Otro...</option>
         </select>
-        <input type="text" class="motivo-input" id="inputMotivoOtro" placeholder="Especificar motivo..." maxlength="100">
+        <input type="text" class="motivo-input" id="inputMotivoOtro" placeholder="Especificar motivo..." maxlength="100" onfocus="manejarFocoInput(this)" onblur="manejarBlurInput(this)">
       </div>
 
       <!-- BOTONES MOVIDOS DENTRO DEL MODAL-BODY -->
@@ -497,7 +496,27 @@
         hora: obtenerHoraLocal()
       };
     }
+function manejarFocoInput(input) {
+  setTimeout(() => {
+    input.select();
+  }, 50);
+  
+  // Enviar mensaje simple al padre para scroll inmediato
+  setTimeout(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ action: 'scroll', direction: 'down' }, '*');
+    }
+  }, 100);
+}
 
+function manejarBlurInput(input) {
+  // Restaurar posición cuando se cierra el teclado
+  setTimeout(() => {
+    if (window.parent !== window) {
+      window.parent.postMessage({ action: 'scroll', direction: 'up' }, '*');
+    }
+  }, 100);
+}
     // ===== FUNCIONES DEL MODAL =====
     function inicializarModal() {
       // Obtener parámetros de la URL
@@ -833,6 +852,7 @@
         history.pushState({ modal: 'editarStock' }, '', '');
       }
     });
+    // Función local para manejar foco del input (versión simplificada)
   </script>
 </body>
 </html>
