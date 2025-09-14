@@ -32,132 +32,6 @@
       align-items: center !important;
       justify-content: center !important;
     }
-    
-    /* BOTONES DE NAVEGACIÓN DEL HISTORIAL - ESTILO CORREGIDO */
-    .btn-navegacion-historial {
-      padding: 0.7rem 1rem !important;
-      background-color: #4ecdc4 !important;
-      color: white !important;
-      border: none !important;
-      border-radius: 5px !important;
-      cursor: pointer !important;
-      font-weight: 600 !important;
-      transition: all 0.3s ease !important;
-      font-size: 1.3rem !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-
-    .btn-navegacion-historial:hover:not(:disabled) {
-      background-color: #3da9a1 !important;
-      transform: translateY(-1px) !important;
-    }
-
-    .btn-navegacion-historial:disabled {
-      background-color: #6c757d !important;
-      opacity: 0.6 !important;
-      cursor: not-allowed !important;
-      transform: none !important;
-    }
-
-    /* Contenedor de navegación del historial */
-    .navegacion-historial {
-      display: flex !important;
-      justify-content: space-between !important;
-      align-items: center !important;
-      margin-bottom: 1rem !important;
-      padding: 0.8rem !important;
-      background-color: #f8f9fa !important;
-      border-radius: 5px !important;
-    }
-
-    .fecha-historial-info {
-      text-align: center !important;
-      flex-grow: 1 !important;
-    }
-
-    .fecha-historial-titulo {
-      font-size: 1.1rem !important;
-      font-weight: bold !important;
-      color: #333 !important;
-      margin-bottom: 0.2rem !important;
-    }
-
-    .fecha-historial-valor {
-      font-size: 1rem !important;
-      font-weight: 600 !important;
-      color: #4ecdc4 !important;
-    }
-
-    /* ===== ESTILOS PARA MODAL HISTORIAL FIJO SUPERIOR ===== */
-    #modalHistorial {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      display: flex;
-      justify-content: center;
-      align-items: flex-start !important;
-      padding-top: 2rem !important;
-      box-sizing: border-box;
-    }
-
-    #modalHistorial .modal-content {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
-      width: 200%;
-      max-width: 900px;
-      min-height: 300px !important;
-      max-height: calc(100vh - 2rem) !important;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-
-    #modalHistorial .modal-content h4 {
-      margin: 0;
-      padding: 1.5rem 1.5rem 1rem 1.5rem;
-      color: #333;
-      text-align: center;
-      border-bottom: 1px solid #eee;
-      flex-shrink: 0;
-    }
-
-    #modalHistorial .modal-body {
-      padding: 1rem 1.5rem;
-      flex-grow: 1;
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      max-height: calc(100vh - 240px);
-    }
-
-    #modalHistorial .navegacion-historial {
-      flex-shrink: 0;
-      margin-bottom: 1rem;
-    }
-
-    #modalHistorial #listaHistorial {
-      flex-grow: 1;
-      min-height: 100px;
-      max-height: calc(100vh - 320px);
-      overflow-y: auto;
-      border: 1px solid #eee;
-      border-radius: 5px;
-      background-color: white;
-    }
-
-    #modalHistorial .modal-botones {
-      flex-shrink: 0;
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid #eee;
-    }
 
     /* ===== ESTILOS PARA MODAL AÑADIR STOCK ===== */
     #modalAñadirStock {
@@ -432,248 +306,37 @@
       color: #333;
     }
 
-    /* ===== ESTILOS PARA EL NUEVO FORMATO DE HISTORIAL DE INVENTARIO MODIFICADO ===== */
-    .movimiento-card {
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      overflow: hidden;
-      background-color: white;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    }
-
-    .movimiento-hora {
-      background-color: #f8f9fa;
-      padding: 0.6rem 1rem;
-      border-bottom: 2px solid #ddd;
-      text-align: left;
-      font-weight: bold;
-      color: #495057;
-      font-size: 1rem;
-    }
-
-    .movimientos-items {
-      background-color: white;
-    }
-
-    /* MODIFICACIÓN: Nuevo grid con columnas optimizadas: Sabor (resto), Hielitos (60px), Stock (60px) */
-    .movimiento-item {
-      display: grid !important;
-      grid-template-columns: 1fr 60px 60px !important;
-      gap: 1rem !important;
-      padding: 0.4rem 1rem !important;
-      border-bottom: 1px solid #f0f0f0 !important;
-      transition: background-color 0.2s ease !important;
-    }
-
-    .movimiento-item:hover {
-      background-color: #f8f9fa;
-    }
-
-    .movimiento-item:last-child {
-      border-bottom: none;
-    }
-
-    /* MODIFICACIÓN: Sabor alineado a la izquierda y centrado verticalmente */
-    .item-sabor-inventario {
-      text-align: left !important;
-      line-height: 1.3 !important;
-      color: #333 !important;
-      font-weight: 500 !important;
-      display: flex !important;
-      align-items: center !important;
-    }
-
-    /* MODIFICACIÓN: Hielitos centrado con ancho fijo para 3 dígitos */
-    .item-cantidad-inventario {
-      text-align: center !important;
-      font-weight: bold !important;
-      width: 60px !important;
-      font-size: 0.95rem !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-
-    .item-cantidad-entrada {
-      color: #4ecdc4;
-    }
-
-    .item-cantidad-venta {
-      color: #dc3545;
-    }
-
-    .item-cantidad-correccion {
-      color: #ffc107;
-    }
-
-    /* MODIFICACIÓN: Stock centrado con ancho fijo para 3 dígitos */
-    .item-stock-inventario {
-      text-align: center !important;
-      color: #666 !important;
-      width: 60px !important;
-      font-size: 0.9rem !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-
-    .movimientos-totales {
-      background-color: #f8f9fa;
-      padding: 0.6rem 1rem;
-      border-top: 1px solid #ddd;
-    }
-
-    /* MODIFICACIÓN: Total con nuevo grid - etiqueta alineada a la derecha en columna sabor, valor en columna hielitos */
-    .total-fila-inventario {
-      display: grid !important;
-      grid-template-columns: 1fr 60px 60px !important;
-      gap: 1rem !important;
-    }
-
-    /* MODIFICACIÓN: Etiqueta del total alineada a la derecha en la columna de sabores */
-    .total-etiqueta-inventario {
-      text-align: right !important;
-      color: #666 !important;
-      font-weight: 500 !important;
-      font-size: 0.95rem !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: flex-end !important;
-    }
-
-    /* MODIFICACIÓN: Valor del total centrado en la columna de hielitos con color dinámico según tipo de movimiento */
-    .total-valor-inventario {
-      text-align: center !important;
-      font-weight: bold !important;
-      width: 60px !important;
-      font-size: 0.95rem !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: center !important;
-    }
-
-    /* Colores dinámicos para totales según tipo de movimiento predominante */
-    .total-valor-entradas {
-      color: #4ecdc4 !important;
-    }
-
-    .total-valor-ventas {
-      color: #dc3545 !important;
-    }
-
-    .total-valor-mixto {
-      color: #6f42c1 !important;
-    }
-
-    .total-valor-correcciones {
-      color: #ffc107 !important;
-    }
-
-    /* MODIFICACIÓN: Columna vacía para completar el grid (donde estaría stock) */
-    .total-columna-vacia {
-      width: 60px !important;
-    }
-
-    /* Separadores visuales */
-    .separador-inventario {
-      height: 1px;
-      background-color: #ddd;
-      margin: 0;
-    }
-
     @media (max-width: 768px) {
       .tabla-header.inventario,
       .tabla-fila.inventario {
         grid-template-columns: 1fr 50px 50px !important;
       }
-      
-      .btn-navegacion-historial {
-        padding: 0.6rem 0.8rem !important;
-        font-size: 1.2rem !important;
-      }
-      
-      .navegacion-historial {
-        padding: 0.6rem !important;
-      }
-      
-      .fecha-historial-titulo {
-        font-size: 1rem !important;
-      }
-      
-      .fecha-historial-valor {
-        font-size: 0.9rem !important;
-      }
 
       /* Responsive para modales */
-      #modalHistorial,
       #modalAñadirStock {
         padding: 1rem;
         padding-top: 1rem !important;
         padding-bottom: 2rem !important;
       }
       
-      #modalHistorial .modal-content,
       #modalAñadirStock .modal-content {
         width: 100%;
         max-height: calc(100vh - 6rem) !important;
         min-height: 250px !important;
       }
       
-      #modalHistorial .modal-content h4,
       #modalAñadirStock .modal-content h4 {
         padding: 1rem;
         font-size: 1.1rem;
       }
       
-      #modalHistorial .modal-body,
       #modalAñadirStock .modal-body {
         padding: 0.8rem;
         max-height: calc(100vh - 280px);
       }
 
-      #modalHistorial #listaHistorial {
-        max-height: calc(100vh - 380px);
-      }
-
       .fecha-stock-input {
         max-width: 100%;
-      }
-
-      /* Responsive para nuevo formato de historial inventario */
-      .movimiento-hora {
-        padding: 0.5rem 0.8rem;
-        font-size: 0.9rem;
-      }
-      
-      .movimiento-item {
-        padding: 0.3rem 0.8rem !important;
-        gap: 0.8rem !important;
-        grid-template-columns: 1fr 50px 50px !important;
-      }
-      
-      .item-cantidad-inventario,
-      .item-stock-inventario {
-        width: 50px !important;
-        font-size: 0.9rem !important;
-      }
-      
-      .movimientos-totales {
-        padding: 0.5rem 0.8rem;
-      }
-      
-      .total-fila-inventario {
-        gap: 0.8rem !important;
-        grid-template-columns: 1fr 50px 50px !important;
-      }
-      
-      .total-valor-inventario {
-        width: 50px !important;
-        font-size: 0.9rem !important;
-      }
-      
-      .total-etiqueta-inventario {
-        font-size: 0.9rem !important;
       }
       
       .input-cantidad-stock {
@@ -713,7 +376,7 @@
   <main class="container">
     <div class="botones-superiores">
       <button class="btn-volver" onclick="window.location.href='index.html'">← Atrás</button>
-      <button class="btn-borrar" onclick="mostrarHistorial()">📊 Historial</button>
+      <button class="btn-borrar" onclick="abrirModalHistorial()">📊 Historial</button>
       <button class="btn-borrar" onclick="abrirModalAñadirStock()" style="background-color: #28a745;">📦 Añadir Stock</button>
     </div>
 
@@ -745,29 +408,6 @@
           <div class="modal-botones">
             <button class="btn-cancelar" onclick="cancelarOperacion()">Cancelar</button>
             <button class="btn-confirmar" onclick="ejecutarOperacion()">Continuar</button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Modal historial -->
-    <div id="modalHistorial" class="modal oculto">
-      <div class="modal-content modal-grande">
-        <h4>Historial de movimientos</h4>
-        <div class="modal-body">
-          <!-- Navegación por días con estructura mejorada -->
-          <div class="navegacion-historial">
-            <button id="btnDiaAnterior" class="btn-navegacion-historial">←</button>
-            <div class="fecha-historial-info">
-              <div class="fecha-historial-titulo">Movimientos del</div>
-              <div id="fechaActualHistorial" class="fecha-historial-valor"></div>
-            </div>
-            <button id="btnDiaSiguiente" class="btn-navegacion-historial">→</button>
-          </div>
-          
-          <div id="listaHistorial"></div>
-          <div class="modal-botones">
-            <button class="btn-confirmar" onclick="cerrarHistorial()">Cerrar</button>
           </div>
         </div>
       </div>
@@ -824,8 +464,6 @@
     let saborActual = null;
     let cantidadPendiente = 0;
     let ordenActual = 'alfabetico';
-    let fechaHistorialActual = null;
-    let diasConMovimientos = [];
     let saboresSeleccionadosStock = [];
     const tablaInventario = document.getElementById("tablaInventario");
 
@@ -894,7 +532,7 @@
       cargarSabores();
     }
 
-    // ===== FUNCIÓN PARA ABRIR MODAL EXTERNO DE CORRECCIÓN - VERSIÓN CORREGIDA =====
+    // ===== FUNCIÓN PARA ABRIR MODAL EXTERNO DE CORRECCIÓN =====
     function abrirModalCorreccion(saborId, saborNombre, stockActual) {
       const url = `editarStock.html?id=${encodeURIComponent(saborId)}&nombre=${encodeURIComponent(saborNombre)}&stock=${stockActual}`;
      
@@ -923,7 +561,7 @@
       iframe.src = url;
       iframe.style.cssText = `
         width: 100%;
-        max-width: 380px;
+        max-width: 350px;
         height: calc(100vh - 2rem);
         border: none;
         background: transparent;
@@ -1000,316 +638,78 @@
       });
     }
 
-    function cancelarOperacion() {
-      document.getElementById("modalConfirmacion").classList.add("oculto");
-    }
+    // ===== FUNCIÓN PARA ABRIR MODAL EXTERNO DE HISTORIAL =====
+    function abrirModalHistorial() {
+      const url = `movimientos.html`;
+     
+      document.body.style.overflow = 'hidden';
+      
+      // Crear modal overlay
+      const modalOverlay = document.createElement('div');
+      modalOverlay.id = 'modalHistorialOverlay';
+      modalOverlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        padding-top: 2rem !important;
+        box-sizing: border-box;
+      `;
 
-    function mostrarHistorial() {
-      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
-      
-      let historialCompleto = [];
-      Object.values(inventario).forEach(item => {
-        item.historial.forEach(mov => {
-          historialCompleto.push({
-            sabor: item.sabor,
-            ...mov
-          });
-        });
-      });
-      
-      if (historialCompleto.length === 0) {
-        document.getElementById("listaHistorial").innerHTML = '<p class="no-sabores">No hay movimientos registrados</p>';
-        document.getElementById("modalHistorial").classList.remove("oculto");
-        
-        setTimeout(() => {
-          const modal = document.getElementById("modalHistorial");
-          const modalContent = modal.querySelector(".modal-content");
-          modalContent.scrollTop = 0;
-        }, 100);
-        
-        return;
-      }
-      
-      diasConMovimientos = [...new Set(historialCompleto.map(mov => mov.fecha))];
-      diasConMovimientos.sort((a, b) => new Date(b) - new Date(a));
-      
-      if (!fechaHistorialActual || !diasConMovimientos.includes(fechaHistorialActual)) {
-        fechaHistorialActual = diasConMovimientos[0];
-      }
-      
-      cargarMovimientosDia(fechaHistorialActual);
-      document.getElementById("modalHistorial").classList.remove("oculto");
-      
-      setTimeout(() => {
-        const modal = document.getElementById("modalHistorial");
-        const modalContent = modal.querySelector(".modal-content");
-        modalContent.scrollTop = 0;
-      }, 100);
-    }
+      // Crear iframe
+      const iframe = document.createElement('iframe');
+      iframe.src = url;
+      iframe.style.cssText = `
+        width: 100%;
+        max-width: 380px;
+        height: calc(100vh - 2rem);
+        border: none;
+        background: transparent;
+        box-shadow: none;
+        margin: 0;
+        padding: 0;
+      `;
 
-    function cargarMovimientosDia(fecha) {
-      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
-      const listaHistorial = document.getElementById("listaHistorial");
+      modalOverlay.appendChild(iframe);
+      document.body.appendChild(modalOverlay);
       
-      let movimientosDelDia = [];
-      Object.values(inventario).forEach(item => {
-        if (item.historial) {
-          item.historial.forEach(mov => {
-            if (mov && mov.fecha === fecha) {
-              movimientosDelDia.push({
-                sabor: item.sabor,
-                fecha: mov.fecha,
-                hora: mov.hora || '00:00',
-                cantidad: mov.cantidad,
-                tipo: mov.tipo || 'entrada',
-                stockResultante: mov.stockResultante,
-                motivo: mov.motivo || '',
-                tipoCorreccion: mov.tipoCorreccion || '',
-                cantidadOriginal: mov.cantidadOriginal || 0
-              });
-            }
-          });
+      // ===== LISTENER ÚNICO PARA MENSAJES DEL IFRAME =====
+      const messageHandler = function(e) {
+        // Cerrar modal
+        if (e.data === 'cerrarModal') {
+          document.body.style.overflow = '';
+          if (document.body.contains(modalOverlay)) {
+            document.body.removeChild(modalOverlay);
+          }
+          // Remover el listener después de usarlo
+          window.removeEventListener('message', messageHandler);
+        }
+      };
+
+      // Agregar listeners
+      window.addEventListener('message', messageHandler);
+      
+      // ===== LISTENER PARA CERRAR AL HACER CLIC FUERA =====
+      modalOverlay.addEventListener('click', function(e) {
+        if (e.target === modalOverlay) {
+          document.body.style.overflow = '';
+          if (document.body.contains(modalOverlay)) {
+            document.body.removeChild(modalOverlay);
+          }
+          // Remover listeners
+          window.removeEventListener('message', messageHandler);
         }
       });
-      
-      movimientosDelDia.sort((a, b) => {
-        const horaA = a.hora || '00:00';
-        const horaB = b.hora || '00:00';
-        return horaB.localeCompare(horaA);
-      });
-      
-      const fechaFormateada = fecha.split('-').reverse().join('/');
-      document.getElementById("fechaActualHistorial").textContent = fechaFormateada;
-      
-      // CONFIGURAR EVENTOS DE BOTONES Y ACTUALIZAR ESTADO
-      const indiceFechaActual = diasConMovimientos.indexOf(fecha);
-      const btnAnterior = document.getElementById("btnDiaAnterior");
-      const btnSiguiente = document.getElementById("btnDiaSiguiente");
-      
-      btnAnterior.onclick = null;
-      btnSiguiente.onclick = null;
-      
-      const puedeIrAnterior = indiceFechaActual < diasConMovimientos.length - 1;
-      const puedeIrSiguiente = indiceFechaActual > 0;
-      
-      if (puedeIrAnterior) {
-        btnAnterior.disabled = false;
-        btnAnterior.onclick = () => cambiarDia(1);
-        btnAnterior.style.backgroundColor = "#4ecdc4";
-        btnAnterior.style.opacity = "1";
-        btnAnterior.style.cursor = "pointer";
-      } else {
-        btnAnterior.disabled = true;
-        btnAnterior.onclick = null;
-        btnAnterior.style.backgroundColor = "#6c757d";
-        btnAnterior.style.opacity = "0.6";
-        btnAnterior.style.cursor = "not-allowed";
-      }
-      
-      if (puedeIrSiguiente) {
-        btnSiguiente.disabled = false;
-        btnSiguiente.onclick = () => cambiarDia(-1);
-        btnSiguiente.style.backgroundColor = "#4ecdc4";
-        btnSiguiente.style.opacity = "1";
-        btnSiguiente.style.cursor = "pointer";
-      } else {
-        btnSiguiente.disabled = true;
-        btnSiguiente.onclick = null;
-        btnSiguiente.style.backgroundColor = "#6c757d";
-        btnSiguiente.style.opacity = "0.6";
-        btnSiguiente.style.cursor = "not-allowed";
-      }
-      
-      // MOSTRAR CONTENIDO CON LAS MODIFICACIONES APLICADAS
-      if (movimientosDelDia.length === 0) {
-        listaHistorial.innerHTML = '<p class="no-sabores">No hay movimientos en esta fecha</p>';
-      } else {
-        // Agrupar movimientos por TIPO primero, luego por hora
-        const movimientosPorTipo = {
-          entrada: {},
-          venta: {},
-          correccion: {}
-        };
-        
-        movimientosDelDia.forEach(mov => {
-          const tipo = mov.tipo || 'entrada';
-          const hora = mov.hora || '00:00';
-          
-          if (!movimientosPorTipo[tipo][hora]) {
-            movimientosPorTipo[tipo][hora] = [];
-          }
-          movimientosPorTipo[tipo][hora].push(mov);
-        });
-        
-        // Obtener todas las horas de todos los tipos y ordenarlas
-        const todasLasHoras = new Set([
-          ...Object.keys(movimientosPorTipo.entrada),
-          ...Object.keys(movimientosPorTipo.venta),
-          ...Object.keys(movimientosPorTipo.correccion)
-        ]);
-        const horasOrdenadas = Array.from(todasLasHoras).sort((a, b) => b.localeCompare(a));
-        
-        listaHistorial.innerHTML = horasOrdenadas.map(hora => {
-          let htmlCompleto = '';
-          
-          // SECCIÓN DE ENTRADAS DE STOCK (si las hay en esta hora)
-          if (movimientosPorTipo.entrada[hora] && movimientosPorTipo.entrada[hora].length > 0) {
-            const entradasHora = movimientosPorTipo.entrada[hora];
-            
-            const itemsEntradasHTML = entradasHora
-              .filter(mov => {
-                return mov && 
-                       mov.sabor && 
-                       mov.sabor.trim() !== '' &&
-                       mov.cantidad !== null && 
-                       mov.cantidad !== undefined &&
-                       mov.cantidad !== '';
-              })
-              .map(mov => {
-                return `
-                  <div class="movimiento-item">
-                    <div class="item-sabor-inventario">${mov.sabor}</div>
-                    <div class="item-cantidad-inventario item-cantidad-entrada">+${Math.abs(mov.cantidad)}</div>
-                    <div class="item-stock-inventario">${mov.stockResultante}</div>
-                  </div>
-                `;
-              }).join('');
-            
-            const totalEntradas = entradasHora.reduce((sum, mov) => sum + Math.abs(mov.cantidad), 0);
-            
-            htmlCompleto += `
-              <div class="movimiento-card">
-                <div class="movimiento-hora" style="background-color: #e8f5f4; border-bottom: 2px solid #4ecdc4;">
-                  📦 ${hora} - Entradas de Stock
-                </div>
-                <div class="separador-inventario"></div>
-                <div class="movimientos-items">
-                  ${itemsEntradasHTML}
-                </div>
-                <div class="separador-inventario"></div>
-                <div class="movimientos-totales" style="background-color: #e8f5f4;">
-                  <div class="total-fila-inventario">
-                    <div class="total-etiqueta-inventario">Total agregado:</div>
-                    <div class="total-valor-inventario total-valor-entradas">${totalEntradas}</div>
-                    <div class="total-columna-vacia"></div>
-                  </div>
-                </div>
-              </div>
-            `;
-          }
-          
-          // SECCIÓN DE VENTAS (si las hay en esta hora)
-          if (movimientosPorTipo.venta[hora] && movimientosPorTipo.venta[hora].length > 0) {
-            const ventasHora = movimientosPorTipo.venta[hora];
-            
-            const itemsVentasHTML = ventasHora
-              .filter(mov => {
-                return mov && 
-                       mov.sabor && 
-                       mov.sabor.trim() !== '' &&
-                       mov.cantidad !== null && 
-                       mov.cantidad !== undefined &&
-                       mov.cantidad !== '';
-              })
-              .map(mov => {
-                return `
-                  <div class="movimiento-item">
-                    <div class="item-sabor-inventario">${mov.sabor}</div>
-                    <div class="item-cantidad-inventario item-cantidad-venta">${Math.abs(mov.cantidad)}</div>
-                    <div class="item-stock-inventario">${mov.stockResultante}</div>
-                  </div>
-                `;
-              }).join('');
-            
-            const totalVentas = ventasHora.reduce((sum, mov) => sum + Math.abs(mov.cantidad), 0);
-            
-            htmlCompleto += `
-              <div class="movimiento-card">
-                <div class="movimiento-hora" style="background-color: #fdeaea; border-bottom: 2px solid #dc3545;">
-                  🛒 ${hora} - Ventas
-                </div>
-                <div class="separador-inventario"></div>
-                <div class="movimientos-items">
-                  ${itemsVentasHTML}
-                </div>
-                <div class="separador-inventario"></div>
-                <div class="movimientos-totales" style="background-color: #fdeaea;">
-                  <div class="total-fila-inventario">
-                    <div class="total-etiqueta-inventario">Total vendido:</div>
-                    <div class="total-valor-inventario total-valor-ventas">${totalVentas}</div>
-                    <div class="total-columna-vacia"></div>
-                  </div>
-                </div>
-              </div>
-            `;
-          }
-
-          // SECCIÓN DE CORRECCIONES (si las hay en esta hora)
-          if (movimientosPorTipo.correccion[hora] && movimientosPorTipo.correccion[hora].length > 0) {
-            const correccionesHora = movimientosPorTipo.correccion[hora];
-            
-            const itemsCorreccionesHTML = correccionesHora
-              .filter(mov => {
-                return mov && 
-                       mov.sabor && 
-                       mov.sabor.trim() !== '' &&
-                       mov.cantidad !== null && 
-                       mov.cantidad !== undefined &&
-                       mov.cantidad !== '';
-              })
-              .map(mov => {
-                const signo = mov.cantidad >= 0 ? '+' : '';
-                return `
-                  <div class="movimiento-item">
-                    <div class="item-sabor-inventario">${mov.sabor}${mov.motivo ? ` (${mov.motivo})` : ''}</div>
-                    <div class="item-cantidad-inventario item-cantidad-correccion">${signo}${mov.cantidad}</div>
-                    <div class="item-stock-inventario">${mov.stockResultante}</div>
-                  </div>
-                `;
-              }).join('');
-            
-            const totalCorrecciones = correccionesHora.reduce((sum, mov) => sum + mov.cantidad, 0);
-            const signoTotal = totalCorrecciones >= 0 ? '+' : '';
-            
-            htmlCompleto += `
-              <div class="movimiento-card">
-                <div class="movimiento-hora" style="background-color: #fef9e6; border-bottom: 2px solid #ffc107;">
-                  🔧 ${hora} - Correcciones de Stock
-                </div>
-                <div class="separador-inventario"></div>
-                <div class="movimientos-items">
-                  ${itemsCorreccionesHTML}
-                </div>
-                <div class="separador-inventario"></div>
-                <div class="movimientos-totales" style="background-color: #fef9e6;">
-                  <div class="total-fila-inventario">
-                    <div class="total-etiqueta-inventario">Total corregido:</div>
-                    <div class="total-valor-inventario total-valor-correcciones">${signoTotal}${totalCorrecciones}</div>
-                    <div class="total-columna-vacia"></div>
-                  </div>
-                </div>
-              </div>
-            `;
-          }
-          
-          return htmlCompleto;
-        }).join('');
-      }
     }
 
-    function cambiarDia(direccion) {
-      const indiceActual = diasConMovimientos.indexOf(fechaHistorialActual);
-      const nuevoIndice = indiceActual + direccion;
-      
-      if (nuevoIndice >= 0 && nuevoIndice < diasConMovimientos.length) {
-        fechaHistorialActual = diasConMovimientos[nuevoIndice];
-        cargarMovimientosDia(fechaHistorialActual);
-      }
-    }
-
-    function cerrarHistorial() {
-      document.getElementById("modalHistorial").classList.add("oculto");
-      fechaHistorialActual = null;
+    function cancelarOperacion() {
+      document.getElementById("modalConfirmacion").classList.add("oculto");
     }
 
     // ===== FUNCIONES PARA AÑADIR STOCK MASIVO =====
@@ -1650,7 +1050,6 @@
       if (e.target.classList.contains("modal")) {
         // Solo cerrar modales que no sean de confirmación crítica
         if (e.target.id !== "modalConfirmacion") {
-          cerrarHistorial();
           cerrarModalAñadirStock();
           cerrarSelectorSabores();
         }
