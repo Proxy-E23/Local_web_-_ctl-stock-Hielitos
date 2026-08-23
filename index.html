@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#4ecdc4" />
   <title>Control Hielitos</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="data.js"></script>
   <style>
     /* Forzar estilos para que funcionen bien */
     .botones-menu {
@@ -97,6 +105,7 @@
       <div id="menu-opciones" class="menu-oculto">
         <a href="sabores.html">Sabores</a>
         <a href="precios.html">Precios</a>
+        <a href="#" onclick="cerrarSesion(); return false;">Cerrar sesión</a>
       </div>
     </div>
   </header>
@@ -220,9 +229,9 @@
   <script>
     let datosImportacionPendientes = null;
 
-    function exportarRespaldoCompleto() {
+    async function exportarRespaldoCompleto() {
       try {
-        // Recopilar todos los datos del localStorage
+        // Recopilar todos los datos
         const respaldoCompleto = {
           metadata: {
             fecha_respaldo: new Date().toISOString().split('T')[0],
@@ -231,10 +240,10 @@
             descripcion: "Respaldo completo del sistema Control Hielitos"
           },
           datos: {
-            sabores: JSON.parse(localStorage.getItem("shielitos") || "[]"),
-            precios: JSON.parse(localStorage.getItem("precios_hielitos") || "[]"),
-            inventario: JSON.parse(localStorage.getItem("inventario_hielitos") || "{}"),
-            ventas: JSON.parse(localStorage.getItem("ventas_hielitos") || "[]")
+            sabores: await getSabores(),
+            precios: await getPrecios(),
+            inventario: await getInventario(),
+            ventas: await getVentas()
           }
         };
 
@@ -262,6 +271,11 @@
         a.download = `Respaldo_Completo_Hielitos_-_${fecha}_-_${hora}-${minuto}.json`;
         a.click();
         URL.revokeObjectURL(url);
+
+        // Registrar que se hizo el respaldo hoy, para que la alerta
+        // de "falta hacer respaldo" no vuelva a aparecer por unos días
+        await registrarRespaldoHecho();
+        sessionStorage.removeItem("alerta_respaldo_mostrada");
 
         // Mostrar confirmación con resumen
         mostrarInfo("✅ Respaldo creado", 
@@ -318,17 +332,17 @@
       input.value = '';
     }
 
-    function confirmarImportacion() {
+    async function confirmarImportacion() {
       if (!datosImportacionPendientes) return;
 
       try {
         const { sabores, precios, inventario, ventas } = datosImportacionPendientes.datos;
 
-        // Sobrescribir todos los datos en localStorage
-        localStorage.setItem("shielitos", JSON.stringify(sabores));
-        localStorage.setItem("precios_hielitos", JSON.stringify(precios));
-        localStorage.setItem("inventario_hielitos", JSON.stringify(inventario));
-        localStorage.setItem("ventas_hielitos", JSON.stringify(ventas));
+        // Sobrescribir todos los datos
+        await guardarSabores(sabores);
+        await guardarPrecios(precios);
+        await guardarInventario(inventario);
+        await guardarVentas(ventas);
 
         // Mostrar confirmación con resumen
         const totalSabores = sabores.length;
@@ -393,13 +407,13 @@
       document.getElementById("modalConfirmacionFinal").classList.remove("oculto");
     }
 
-    function ejecutarBorradoCompleto() {
+    async function ejecutarBorradoCompleto() {
       try {
-        // Borrar todos los datos del localStorage
-        localStorage.removeItem("shielitos");
-        localStorage.removeItem("precios_hielitos");
-        localStorage.removeItem("inventario_hielitos");
-        localStorage.removeItem("ventas_hielitos");
+        // Borrar todos los datos
+        await borrarSabores();
+        await borrarPrecios();
+        await borrarInventario();
+        await borrarVentas();
 
         // Cerrar modales
         cancelarBorradoCompleto();
@@ -415,6 +429,22 @@
         console.error("Error al eliminar datos:", error);
         mostrarInfo("❌ Error", "Error al eliminar los datos. Inténtalo de nuevo.");
       }
+    }
+
+    // Alertas locales: pedir permiso de notificaciones y revisar
+    // condiciones (stock bajo, respaldo pendiente) al abrir la app
+    window.addEventListener("DOMContentLoaded", async function () {
+      await pedirPermisoNotificaciones();
+      await revisarAlertas();
+    });
+  </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("service-worker.js").catch(function (error) {
+          console.error("No se pudo registrar el service worker:", error);
+        });
+      });
     }
   </script>
 </body>

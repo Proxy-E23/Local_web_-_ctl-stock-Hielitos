@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#4ecdc4" />
   <title>Sabores</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="data.js"></script>
   <style>
     /* Estilos específicos para sabores con edición inline */
     .tabla-header.sabores {
@@ -169,8 +177,8 @@
       return `sh${next}`;
     }
 
-    function renderizarLista() {
-      const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
+    async function renderizarLista() {
+      const sabores = await getSabores();
       sabores.sort((a, b) => a.nombre.localeCompare(b.nombre, 'es'));
       listaSabores.innerHTML = "";
       
@@ -263,7 +271,7 @@
       }, 300); // Esperar un poco para que aparezca el teclado
     }
 
-    function guardarEdicion(saborId) {
+    async function guardarEdicion(saborId) {
       const nuevoNombre = document.getElementById(`input_${saborId}`).value.trim();
       const checkbox = document.querySelector(`#fila_${saborId} .checkbox-editable`);
       const nuevoDisponible = checkbox.checked;
@@ -275,7 +283,7 @@
       }
 
       // Validar que no exista otro sabor con el mismo nombre (excluyendo el actual)
-      const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
+      const sabores = await getSabores();
       const nombreExiste = sabores.some(s => 
         s.id !== saborId && 
         s.nombre.toLowerCase() === nuevoNombre.toLowerCase()
@@ -305,15 +313,15 @@
 
           // Actualizar también el inventario si cambió el nombre
           if (nombreCambio) {
-            const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+            const inventario = await getInventario();
             if (inventario[saborId]) {
               inventario[saborId].sabor = nuevoNombre;
-              localStorage.setItem("inventario_hielitos", JSON.stringify(inventario));
+              await guardarInventario(inventario);
             }
           }
 
           // Guardar cambios
-          localStorage.setItem("shielitos", JSON.stringify(sabores));
+          await guardarSabores(sabores);
 
           // Mostrar mensaje de éxito compacto
           const cambios = [];
@@ -342,7 +350,7 @@
       renderizarLista();
     }
 
-    form.addEventListener("submit", function (e) {
+    form.addEventListener("submit", async function (e) {
       e.preventDefault();
       
       // Si hay una edición en curso, cancelarla primero
@@ -354,7 +362,7 @@
       const disponible = document.getElementById("disponible").checked;
       const fecha = document.getElementById("fecha").value;
 
-      let sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
+      let sabores = await getSabores();
 
       if (sabores.some((s) => s.nombre.toLowerCase() === nombre.toLowerCase())) {
         alert("Ese sabor ya existe.");
@@ -363,13 +371,13 @@
 
       const id = generarID(sabores);
       sabores.push({ id, nombre, disponible, fecha });
-      localStorage.setItem("shielitos", JSON.stringify(sabores));
+      await guardarSabores(sabores);
       form.reset();
       fechaInput.valueAsDate = new Date();
       renderizarLista();
     });
 
-    function confirmarBorrado() {
+    async function confirmarBorrado() {
       const confirmacion = confirm(
         "⚠️ ATENCIÓN ⚠️\n\nEsto borrará TODOS los sabores guardados.\nTambién se eliminará su inventario asociado.\n\n¿Estás seguro de continuar?"
       );
@@ -380,8 +388,8 @@
           datosOriginales = null;
         }
         
-        localStorage.removeItem("shielitos");
-        localStorage.removeItem("inventario_hielitos");
+        await guardarSabores([]);
+        await borrarInventario();
         alert("Sabores borrados correctamente.\nEl inventario asociado también fue eliminado.");
         renderizarLista();
       }
@@ -403,6 +411,15 @@
     });
 
     window.addEventListener("DOMContentLoaded", renderizarLista);
+  </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("service-worker.js").catch(function (error) {
+          console.error("No se pudo registrar el service worker:", error);
+        });
+      });
+    }
   </script>
 </body>
 </html>

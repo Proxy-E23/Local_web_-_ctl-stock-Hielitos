@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#4ecdc4" />
   <title>Historial de Movimientos</title>
   <style>
     * {
@@ -409,47 +411,23 @@
     </div>
   </div>
 
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="data.js"></script>
   <script>
     // Variables globales para el historial
     let fechaHistorialActual = null;
     let diasConMovimientos = [];
 
-    // ===== FUNCIONES DE ZONA HORARIA (COPIADAS DE script.js) =====
-    function obtenerFechaLocal() {
-      const ahora = new Date();
-      const offsetMexico = -6; // GMT-6 para México
-      const utc = ahora.getTime() + (ahora.getTimezoneOffset() * 60000);
-      const fechaMexico = new Date(utc + (offsetMexico * 3600000));
-      
-      const año = fechaMexico.getFullYear();
-      const mes = (fechaMexico.getMonth() + 1).toString().padStart(2, '0');
-      const dia = fechaMexico.getDate().toString().padStart(2, '0');
-      
-      return `${año}-${mes}-${dia}`;
-    }
-
-    function obtenerHoraLocal() {
-      const ahora = new Date();
-      const offsetMexico = -6; // GMT-6 para México
-      const utc = ahora.getTime() + (ahora.getTimezoneOffset() * 60000);
-      const fechaMexico = new Date(utc + (offsetMexico * 3600000));
-      
-      const horas = fechaMexico.getHours().toString().padStart(2, '0');
-      const minutos = fechaMexico.getMinutes().toString().padStart(2, '0');
-      
-      return `${horas}:${minutos}`;
-    }
-
-    function obtenerFechaHoraLocal() {
-      return {
-        fecha: obtenerFechaLocal(),
-        hora: obtenerHoraLocal()
-      };
-    }
+    // Funciones de zona horaria: obtenerFechaLocal(), obtenerHoraLocal()
+    // y obtenerFechaHoraLocal() ahora viven en data.js
 
     // ===== FUNCIONES DEL HISTORIAL =====
-    function inicializarHistorial() {
-      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+    async function inicializarHistorial() {
+      const inventario = await getInventario();
       
       let historialCompleto = [];
       Object.values(inventario).forEach(item => {
@@ -485,8 +463,8 @@
       cargarMovimientosDia(fechaHistorialActual);
     }
 
-    function cargarMovimientosDia(fecha) {
-      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+    async function cargarMovimientosDia(fecha) {
+      const inventario = await getInventario();
       const listaHistorial = document.getElementById("listaHistorial");
       
       let movimientosDelDia = [];
@@ -779,6 +757,15 @@
         history.pushState({ modal: 'movimientos' }, '', '');
       }
     });
+  </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("service-worker.js").catch(function (error) {
+          console.error("No se pudo registrar el service worker:", error);
+        });
+      });
+    }
   </script>
 </body>
 </html>

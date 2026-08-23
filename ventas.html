@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#4ecdc4" />
   <title>Ventas</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="data.js"></script>
   <style>
     /* Estilos específicos para ventas */
     .tabla-header.ventas {
@@ -555,11 +563,10 @@
     let fechaHistorialVentasActual = null;
     let diasConVentas = [];
 
-    function cargarPrecioActual() {
+    async function cargarPrecioActual() {
       try {
-        const precios = JSON.parse(localStorage.getItem("precios_hielitos")) || [];
-        const precio = precios.find(p => p.actual === true);
-        precioActual = precio ? precio.precio : 0;
+        const precio = await getPrecioActual();
+        precioActual = precio || 0;
         document.getElementById("precioActual").textContent = `$${precioActual.toFixed(2)}`;
       } catch (error) {
         console.error("Error al cargar precio actual:", error);
@@ -605,10 +612,9 @@
       }
     }
 
-    function cargarSaboresVentas() {
+    async function cargarSaboresVentas() {
       try {
-        const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
-        const saboresDisponibles = sabores.filter(sabor => sabor.disponible);
+        const saboresDisponibles = await getSaboresDisponibles();
         
         tablaVentas.innerHTML = "";
         
@@ -648,10 +654,10 @@
       });
     }
 
-    function confirmarVentas() {
+    async function confirmarVentas() {
       try {
-        const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
-        const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+        const sabores = await getSabores();
+        const inventario = await getInventario();
         const inputs = document.querySelectorAll('.input-cantidad');
         const fechaVenta = document.getElementById("fechaVenta").value;
         
@@ -737,63 +743,29 @@
       }
     }
 
-    function procesarVentas() {
+    async function procesarVentas() {
       try {
-        const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
-        const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
-        const ventasHistorial = JSON.parse(localStorage.getItem("ventas_hielitos")) || [];
+        const sabores = await getSabores();
         const inputs = document.querySelectorAll('.input-cantidad');
-        
+
         const fechaVenta = document.getElementById("fechaVenta").value;
         const horaVenta = obtenerHoraVenta();
-        
-        let ventasProcesadas = [];
-        let montoTotal = 0;
 
+        const itemsVendidos = [];
         inputs.forEach(input => {
           const cantidad = parseInt(input.value) || 0;
           if (cantidad > 0) {
             const saborId = input.id.replace('cantidad_', '');
             const sabor = sabores.find(s => s.id === saborId);
-
-            // Descontar del inventario
-            if (inventario[saborId]) {
-              inventario[saborId].stock -= cantidad;
-              
-              // Agregar al historial de inventario con fecha y hora específicas
-              inventario[saborId].historial.push({
-                fecha: fechaVenta,
-                hora: horaVenta,
-                cantidad: -cantidad,
-                tipo: "venta",
-                stockResultante: inventario[saborId].stock
-              });
-            }
-
-            ventasProcesadas.push({
-              sabor: sabor.nombre,
-              cantidad: cantidad
-            });
-            montoTotal += cantidad * precioActual;
+            itemsVendidos.push({ id: saborId, sabor: sabor.nombre, cantidad });
           }
         });
 
-        // Guardar venta en historial
-        const ventaCompleta = {
-          id: `venta_${Date.now()}`,
-          fecha: fechaVenta,
-          hora: horaVenta,
-          items: ventasProcesadas,
-          precioUnitario: precioActual,
-          totalHielitos: ventasProcesadas.reduce((sum, item) => sum + item.cantidad, 0),
-          montoTotal: montoTotal
-        };
+        const ventaCompleta = await registrarVenta(itemsVendidos, fechaVenta, horaVenta, precioActual);
 
-        ventasHistorial.push(ventaCompleta);
-
-        // Guardar en localStorage
-        localStorage.setItem("inventario_hielitos", JSON.stringify(inventario));
-        localStorage.setItem("ventas_hielitos", JSON.stringify(ventasHistorial));
+        // Revisar si esta venta dejó algún sabor con stock bajo
+        sessionStorage.removeItem("alerta_stock_mostrada");
+        await revisarAlertas();
 
         // Limpiar formulario y cerrar modal
         limpiarTodo();
@@ -801,7 +773,7 @@
 
         // Mostrar confirmación
         const fechaFormateada = fechaVenta.split('-').reverse().join('/');
-        alert(`Venta procesada correctamente\n\nFecha: ${fechaFormateada} a las ${horaVenta}\nTotal: ${ventaCompleta.totalHielitos} hielitos\nMonto: ${montoTotal.toFixed(2)}`);
+        alert(`Venta procesada correctamente\n\nFecha: ${fechaFormateada} a las ${horaVenta}\nTotal: ${ventaCompleta.totalHielitos} hielitos\nMonto: ${ventaCompleta.montoTotal.toFixed(2)}`);
         
       } catch (error) {
         console.error("Error al procesar ventas:", error);
@@ -809,9 +781,9 @@
       }
     }
 
-    function mostrarHistorialVentas() {
+    async function mostrarHistorialVentas() {
       try {
-        const ventasHistorial = JSON.parse(localStorage.getItem("ventas_hielitos")) || [];
+        const ventasHistorial = await getVentas();
         
         if (ventasHistorial.length === 0) {
           document.getElementById("listaHistorialVentas").innerHTML = '<p class="no-sabores">No hay ventas registradas</p>';
@@ -835,7 +807,7 @@
           fechaHistorialVentasActual = diasConVentas[0];
         }
         
-        cargarVentasDelDia(fechaHistorialVentasActual);
+        await cargarVentasDelDia(fechaHistorialVentasActual);
         document.getElementById("modalHistorialVentas").classList.remove("oculto");
         
         setTimeout(() => {
@@ -851,8 +823,8 @@
       }
     }
 
-    function cargarVentasDelDia(fecha) {
-      const ventasHistorial = JSON.parse(localStorage.getItem("ventas_hielitos")) || [];
+    async function cargarVentasDelDia(fecha) {
+      const ventasHistorial = await getVentas();
       const listaHistorial = document.getElementById("listaHistorialVentas");
       
       // Filtrar ventas del día específico
@@ -1060,6 +1032,15 @@
       inicializarFecha();
       cargarSaboresVentas();
     });
+  </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("service-worker.js").catch(function (error) {
+          console.error("No se pudo registrar el service worker:", error);
+        });
+      });
+    }
   </script>
 </body>
 </html>

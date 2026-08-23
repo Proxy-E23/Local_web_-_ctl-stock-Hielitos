@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#4ecdc4" />
   <title>Precios</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="data.js"></script>
   <style>
     /* Estilos específicos para precios con edición inline */
     .tabla-header.precios {
@@ -171,15 +179,15 @@
     function generarID(precios) {
       let max = 0;
       precios.forEach((p) => {
-        const num = parseInt(p.id.replace("pr", ""));
+        const num = parseInt(p.id.replace("ph", ""));
         if (!isNaN(num) && num > max) max = num;
       });
       const next = (max + 1).toString().padStart(3, "0");
-      return `pr${next}`;
+      return `ph${next}`;
     }
 
-    function renderizarLista() {
-      const precios = JSON.parse(localStorage.getItem("precios_hielitos")) || [];
+    async function renderizarLista() {
+      const precios = await getPrecios();
       precios.sort((a, b) => new Date(b.fecha) - new Date(a.fecha)); // Ordenar por fecha más reciente
       listaPrecios.innerHTML = "";
       
@@ -216,7 +224,7 @@
       });
     }
 
-    function iniciarEdicionPrecio(precioId, estadoActual) {
+    async function iniciarEdicionPrecio(precioId, estadoActual) {
       // Si ya hay una fila en edición, cancelar esa primero
       if (filaEnEdicionPrecio) {
         cancelarEdicionPrecio();
@@ -234,7 +242,7 @@
       
       // Si se está activando este precio, resaltar en rojo y desmarcar el que estaba activo
       if (nuevoEstado && !estadoOriginal) {
-        const precios = JSON.parse(localStorage.getItem("precios_hielitos")) || [];
+        const precios = await getPrecios();
         const precioActivoAnterior = precios.find(p => p.actual && p.id !== precioId);
         
         if (precioActivoAnterior) {
@@ -264,9 +272,9 @@
       `;
     }
 
-    function confirmarCambioPrecio(precioId) {
+    async function confirmarCambioPrecio(precioId) {
       try {
-        const precios = JSON.parse(localStorage.getItem("precios_hielitos")) || [];
+        const precios = await getPrecios();
         const checkbox = document.querySelector(`#fila_precio_${precioId} .checkbox-editable-precio`);
         const nuevoEstado = checkbox.checked;
 
@@ -291,7 +299,7 @@
           precios[indice].actual = nuevoEstado;
           
           // Guardar cambios
-          localStorage.setItem("precios_hielitos", JSON.stringify(precios));
+          await guardarPrecios(precios);
 
           // Mostrar mensaje de éxito
           const mensaje = nuevoEstado ? "Precio marcado como activo" : "Precio marcado como inactivo";
@@ -308,14 +316,14 @@
       }
     }
 
-    function confirmarBorrarPrecio(precioId) {
+    async function confirmarBorrarPrecio(precioId) {
       const confirmacion = confirm(
         "¿Estás seguro de que quieres eliminar este precio?\n\nEsta acción no se puede deshacer."
       );
       
       if (confirmacion) {
         try {
-          let precios = JSON.parse(localStorage.getItem("precios_hielitos")) || [];
+          let precios = await getPrecios();
           
           // Encontrar el precio a eliminar
           const precioAEliminar = precios.find(p => p.id === precioId);
@@ -332,7 +340,7 @@
           }
           
           // Guardar cambios
-          localStorage.setItem("precios_hielitos", JSON.stringify(precios));
+          await guardarPrecios(precios);
           
           alert("✓ Precio eliminado correctamente");
           
@@ -363,7 +371,7 @@
       renderizarLista();
     }
 
-    form.addEventListener("submit", function (e) {
+    form.addEventListener("submit", async function (e) {
       e.preventDefault();
       
       // Si hay una edición en curso, cancelarla primero
@@ -375,7 +383,7 @@
       const actual = document.getElementById("actual").checked;
       const fecha = document.getElementById("fecha").value;
 
-      let precios = JSON.parse(localStorage.getItem("precios_hielitos")) || [];
+      let precios = await getPrecios();
 
       // Si se marca como precio actual, desmarcar todos los demás
       if (actual) {
@@ -384,13 +392,13 @@
 
       const id = generarID(precios);
       precios.push({ id, precio: parseFloat(precio), actual, fecha });
-      localStorage.setItem("precios_hielitos", JSON.stringify(precios));
+      await guardarPrecios(precios);
       form.reset();
       fechaInput.valueAsDate = new Date();
       renderizarLista();
     });
 
-    function confirmarBorrado() {
+    async function confirmarBorrado() {
       const confirmacion = confirm(
         "⚠️ ATENCIÓN ⚠️\n\nEsto borrará TODOS los precios guardados.\n\n¿Estás seguro de continuar?"
       );
@@ -401,7 +409,7 @@
           estadoOriginal = null;
         }
         
-        localStorage.removeItem("precios_hielitos");
+        await guardarPrecios([]);
         alert("Precios borrados correctamente.");
         renderizarLista();
       }
@@ -423,6 +431,15 @@
     });
 
     window.addEventListener("DOMContentLoaded", renderizarLista);
+  </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("service-worker.js").catch(function (error) {
+          console.error("No se pudo registrar el service worker:", error);
+        });
+      });
+    }
   </script>
 </body>
 </html>

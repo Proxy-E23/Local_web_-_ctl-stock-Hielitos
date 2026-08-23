@@ -3,8 +3,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#4ecdc4" />
   <title>Inventario</title>
   <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <script src="auth-guard.js"></script>
+  <script src="data.js"></script>
   <style>
   
     /* Coraregir tabla inventario - Centrado limpio con columnas optimizadas (ACTUALIZADO: 2 COLUMNAS) */
@@ -467,9 +475,9 @@
     let saboresSeleccionadosStock = [];
     const tablaInventario = document.getElementById("tablaInventario");
 
-    function cargarSabores() {
-      const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
-      const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
+    async function cargarSabores() {
+      const sabores = await getSabores();
+      const inventario = await getInventario();
       
       const saboresDisponibles = sabores.filter(sabor => sabor.disponible === true);
       
@@ -730,8 +738,8 @@
       saboresSeleccionadosStock = [];
     }
 
-    function abrirSelectorSabores() {
-      const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
+    async function abrirSelectorSabores() {
+      const sabores = await getSabores();
       const saboresDisponibles = sabores.filter(sabor => 
         sabor.disponible && 
         !saboresSeleccionadosStock.some(seleccionado => seleccionado.id === sabor.id)
@@ -766,9 +774,9 @@
       document.getElementById("modalSelectorSabores").classList.add("oculto");
     }
 
-    function confirmarSaboresSeleccionados() {
+    async function confirmarSaboresSeleccionados() {
       const checkboxes = document.querySelectorAll('.sabor-checkbox:checked');
-      const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
+      const sabores = await getSabores();
       
       checkboxes.forEach(checkbox => {
         const saborId = checkbox.dataset.saborId;
@@ -940,45 +948,10 @@
       }
     }
 
-    function ejecutarStockMasivo(fecha, hora, stockValido) {
+    async function ejecutarStockMasivo(fecha, hora, stockValido) {
       try {
-        const inventario = JSON.parse(localStorage.getItem("inventario_hielitos")) || {};
-        const sabores = JSON.parse(localStorage.getItem("shielitos")) || [];
-        
-        let resultados = [];
-
-        stockValido.forEach(saborStock => {
-          const sabor = sabores.find(s => s.id === saborStock.id);
-          if (!sabor) return;
-
-          if (!inventario[saborStock.id]) {
-            inventario[saborStock.id] = {
-              sabor: sabor.nombre,
-              stock: 0,
-              historial: []
-            };
-          }
-
-          const stockAnterior = inventario[saborStock.id].stock;
-          inventario[saborStock.id].stock += saborStock.cantidad;
-
-          inventario[saborStock.id].historial.push({
-            fecha: fecha,
-            hora: hora,
-            cantidad: saborStock.cantidad,
-            tipo: "entrada",
-            stockResultante: inventario[saborStock.id].stock
-          });
-
-          resultados.push({
-            nombre: sabor.nombre,
-            cantidad: saborStock.cantidad,
-            stockAnterior: stockAnterior,
-            stockNuevo: inventario[saborStock.id].stock
-          });
-        });
-
-        localStorage.setItem("inventario_hielitos", JSON.stringify(inventario));
+        const items = stockValido.map(s => ({ id: s.id, cantidad: s.cantidad }));
+        const resultados = await agregarStock(items, fecha, hora);
 
         saboresSeleccionadosStock = [];
         cerrarModalAñadirStock();
@@ -1002,49 +975,19 @@
       }
     }
 
-    function confirmarBorradoInventario() {
+    async function confirmarBorradoInventario() {
       const confirmacion = confirm(
         "⚠️ ATENCIÓN ⚠️\n\nEsto borrará TODO el inventario (stock y historial).\nLos SABORES se mantendrán intactos.\n\n¿Estás seguro de continuar?"
       );
       if (confirmacion) {
-        localStorage.removeItem("inventario_hielitos");
+        await borrarInventario();
         alert("Inventario borrado correctamente.\nLos sabores se mantienen intactos.");
         cargarSabores();
       }
     }
 
     // Funciones de zona horaria (importadas de script.js)
-    function obtenerFechaLocal() {
-      const ahora = new Date();
-      const offsetMexico = -6;
-      const utc = ahora.getTime() + (ahora.getTimezoneOffset() * 60000);
-      const fechaMexico = new Date(utc + (offsetMexico * 3600000));
-      
-      const año = fechaMexico.getFullYear();
-      const mes = (fechaMexico.getMonth() + 1).toString().padStart(2, '0');
-      const dia = fechaMexico.getDate().toString().padStart(2, '0');
-      
-      return `${año}-${mes}-${dia}`;
-    }
-
-    function obtenerHoraLocal() {
-      const ahora = new Date();
-      const offsetMexico = -6;
-      const utc = ahora.getTime() + (ahora.getTimezoneOffset() * 60000);
-      const fechaMexico = new Date(utc + (offsetMexico * 3600000));
-      
-      const horas = fechaMexico.getHours().toString().padStart(2, '0');
-      const minutos = fechaMexico.getMinutes().toString().padStart(2, '0');
-      
-      return `${horas}:${minutos}`;
-    }
-
-    function obtenerFechaHoraLocal() {
-      return {
-        fecha: obtenerFechaLocal(),
-        hora: obtenerHoraLocal()
-      };
-    }
+    // obtenerFechaLocal() y obtenerHoraLocal() ahora viven en data.js
 
     document.addEventListener("click", function(e) {
       if (e.target.classList.contains("modal")) {
@@ -1059,5 +1002,14 @@
     window.addEventListener("DOMContentLoaded", cargarSabores);
   </script>
   <script src="script.js"></script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("service-worker.js").catch(function (error) {
+          console.error("No se pudo registrar el service worker:", error);
+        });
+      });
+    }
+  </script>
 </body>
 </html>

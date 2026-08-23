@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#4ecdc4" />
+  <title>Control Hielitos - Acceso</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+  <script src="firebase-config.js"></script>
+  <style>
+    .login-contenedor {
+      max-width: 340px;
+      margin: 4rem auto;
+      padding: 2rem 1.5rem;
+      text-align: center;
+    }
+    .login-titulo {
+      font-size: 1.4rem;
+      margin-bottom: 0.3rem;
+      color: #333;
+    }
+    .login-subtitulo {
+      color: #777;
+      margin-bottom: 1.5rem;
+      font-size: 0.95rem;
+    }
+    .login-campo {
+      text-align: left;
+      margin-bottom: 1rem;
+    }
+    .login-campo label {
+      display: block;
+      margin-bottom: 0.3rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .login-campo input {
+      width: 100%;
+      padding: 0.7rem;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+    .login-error {
+      color: #d85a30;
+      font-size: 0.9rem;
+      margin-top: 0.8rem;
+      min-height: 1.2rem;
+    }
+    .login-boton {
+      width: 100%;
+      margin-top: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-contenedor">
+    <div class="login-titulo">Control Hielitos</div>
+    <div class="login-subtitulo">Inicia sesión para continuar</div>
+
+    <form id="formLogin">
+      <div class="login-campo">
+        <label for="correo">Usuario</label>
+        <input type="email" id="correo" required autocomplete="username" />
+      </div>
+      <div class="login-campo">
+        <label for="clave">Contraseña</label>
+        <input type="password" id="clave" required autocomplete="current-password" />
+      </div>
+      <button type="submit" class="boton-principal login-boton" id="btnEntrar">Entrar</button>
+      <div class="login-error" id="mensajeError"></div>
+    </form>
+  </div>
+
+  <script>
+    const auth = firebase.auth();
+    const form = document.getElementById("formLogin");
+    const mensajeError = document.getElementById("mensajeError");
+    const btnEntrar = document.getElementById("btnEntrar");
+
+    // Si ya hay sesión activa, no tiene sentido quedarse en login
+    auth.onAuthStateChanged((usuario) => {
+      if (usuario) {
+        const destino = sessionStorage.getItem("destinoTrasLogin") || "index.html";
+        window.location.href = destino;
+      }
+    });
+
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      mensajeError.textContent = "";
+      btnEntrar.disabled = true;
+      btnEntrar.textContent = "Entrando...";
+
+      const correo = document.getElementById("correo").value.trim();
+      const clave = document.getElementById("clave").value;
+
+      try {
+        await auth.signInWithEmailAndPassword(correo, clave);
+        // La redirección la maneja onAuthStateChanged arriba
+      } catch (error) {
+        btnEntrar.disabled = false;
+        btnEntrar.textContent = "Entrar";
+        if (error.code === "auth/invalid-credential" || error.code === "auth/wrong-password" || error.code === "auth/user-not-found") {
+          mensajeError.textContent = "Usuario o contraseña incorrectos.";
+        } else if (error.code === "auth/invalid-email") {
+          mensajeError.textContent = "El usuario no tiene un formato válido.";
+        } else {
+          mensajeError.textContent = "No se pudo iniciar sesión. Revisa tu conexión.";
+        }
+        console.error("Error de login:", error);
+      }
+    });
+  </script>
+  <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("service-worker.js").catch(function (error) {
+          console.error("No se pudo registrar el service worker:", error);
+        });
+      });
+    }
+  </script>
+</body>
+</html>
